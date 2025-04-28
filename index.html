@@ -1,10 +1,222 @@
-
+<!DOCTYPE html>
 <html>
+
+<head>
+    <title>Sample Sched</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        h2 {
+            text-align: center;
+            color: #343a40;
+        }
+
+        table {
+            border-collapse: collapse;
+            margin: 20px auto;
+            background-color: #fff;
+            border: 2px solid #dee2e6;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        th,
+        td {
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            color: #343a40;
+        }
+
+        .highlight {
+            background-color: #f8f9fa;
+        }
+
+        .special {
+            background-color: #f0f0f0;
+        }
+        
+        .covering {
+            background-color: salmon;
+        }
+
+        .alternate {
+            background-color: cyan;
+        }
+        
+        .onbeam {
+            background-color: orange;
+        }
+        
+        .vacation {
+            background-color: pink;
+        }
+    </style>
+</head>
+
 <body>
-<h1>Test Document</h1>
-<br>
-This is testing the index page, and its update speed. Additional base64 testing added.
-<br>
-Testing with c#.
+<h2>TB</h2>
+    <table>
+        <tr>
+            <th>TB</th>
+            <th>4/28</th>
+            <th>4/29</th>
+            <th>4/30</th>
+            <th>5/1</th>
+            <th>5/2</th>
+        </tr>
+        <tr>
+            <td class="highlight"><b>Start</b></td>
+            <td>6:00am</td>
+            <td>6:00am</td>
+            <td>6:00am</td>
+            <td>6:00am</td>
+            <td>6:00am</td>
+        </tr>
+        <tr>
+            <td class="highlight"><b>End</b></td>
+            <td>5:00pm</td>
+            <td>5:00pm</td>
+            <td>5:00pm</td>
+            <td>4:30pm</td>
+            <td>4:30pm</td>
+        </tr>
+        <tr>
+            <td class="highlight"><b>Cover<br>Early</b></td>
+            <td>DB</td>
+            <td>DB</td>
+            <td>SS</td>
+            <td>MC</td>
+            <td>DB</td>
+        </tr>
+        <tr>
+            <td class="highlight"><b>Cover<br>Late</b></td>
+            <td>MC</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>MC</td>
+        </tr>
+        
+    </table>
+    
+    
+    <h2>DB</h2>
+    <table>
+        <tr>
+            <th>Time</th>
+            <th>4/28</th>
+            <th>4/29</th>
+            <th>4/30</th>
+            <th>5/1</th>
+            <th>5/2</th>
+        </tr>
+        <tr>
+            <td class="highlight"><b>7:00</b></td>
+            <td class="covering">Cover</td>
+            <td class="covering">Cover</td>
+            <td>TumBrd</td>
+            <td class="alternate">Alt</td>
+            <td class="vacation"><b>Vac</b></td>
+        </tr>
+        <tr>
+            <td class="highlight"><b>8:00</b></td>
+            <td></td>
+            <td class="onbeam">OnBeam<br>N.A</td>
+            <td></td>
+            <td class="onbeam">OnBeam<br>N.A</td>
+            <td></td>
+        </tr>
+                <tr>
+            <td class="highlight"><b>9:00</b></td>
+            <td></td>
+            <td>Con</td>
+            <td>12.F</td>
+            <td>Con</td>
+            <td></td>
+        </tr>
+                <tr>
+            <td class="highlight"><b>10:00</b></td>
+            <td>F.U<br>N.A<br>F.U</td>
+            <td>F.U</td>
+            <td>F.U</td>
+            <td>F.U<br>Con</td>
+            <td></td>
+        </tr>
+                <tr>
+            <td class="highlight"><b>11:00</b></td>
+            <td>Con</td>
+            <td>F.U</td>
+            <td>F.U<br>F.U</td>
+            <td></td>
+            <td></td>
+        </tr>
+                <tr>
+            <td class="highlight"><b>12:00</b></td>
+            <td></td>
+            <td></td>
+            <td>F.U</td>
+            <td></td>
+            <td></td>
+        </tr>
+                <tr>
+            <td class="highlight"><b>1:00</b></td>
+            <td>F.U<br>N.A</td>
+            <td>F.U<br>N.A</td>
+            <td>N.A<br>F.U<br>Con</td>
+            <td>Con</td>
+            <td></td>
+        </tr>
+                <tr>
+            <td class="highlight"><b>2:00</b></td>
+            <td>Con</td>
+            <td>Con</td>
+            <td>F.U</td>
+            <td>N.A<br>F.U</td>
+            <td></td>
+        </tr>
+                <tr>
+            <td class="highlight"><b>3:00</b></td>
+            <td>N.A<br>Con</td>
+            <td>F.U</td>
+            <td></td>
+            <td>Con</td>
+            <td></td>
+        </tr>
+                <tr>
+            <td class="highlight"><b>4:00</b></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+                <tr>
+            <td class="highlight"><b>5:00</b></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+                <tr>
+            <td class="highlight"><b>6:00</b></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        
+    </table>
 </body>
+
 </html>
