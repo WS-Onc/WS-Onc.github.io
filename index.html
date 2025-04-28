@@ -1,281 +1,1341 @@
-<!DOCTYPE html>
-<html>
 
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>Sample Sched</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WSS</title>
+    <!-- Favicon: Modern WSS SVG -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle fill='%234A84BD' cx='32' cy='32' r='32'/%3E%3C/svg%3E">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
+        :root {
+            --primary-color: #4A84BD;
+            --secondary-color: #F7A531;
+            --light-color: #f3f4f6;
+            --dark-color: #1f2937;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --calendar-bg: #ffffff;
+            --calendar-border: #e5e7eb;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+
+            /* Dr colors */
+            --DB: #F7A531;  /* Orange */
+            --MC: #EF4444; /* Red */
+            --SS: #4A84BD;   /* Blue */
+            --doctor-other: #8B5CF6;
+
+            /* Activity colors */
+            --activity-follow-up: #10B981;
+            --activity-consult: #3B82F6;
+            --activity-nursing: #D1BB2E;
+            --activity-on-beam: #F59E0B;
+            --activity-tumor-board: #8B5CF6;
+            --activity-vacation: #EC4899;
+            --activity-hold-time: #6B7280;
+            --activity-out-office: #9CA3AF;
+            --activity-covering: #B91C1C; /* Dark red for covering */
+            --activity-alternate-covering: #93C5FD; /* Pastel blue for alternate covering */
+        }
+
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
 
-        h2 {
-            text-align: center;
-            color: #343a40;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: #f5f5f7;
         }
 
-        table {
-            border-collapse: collapse;
-            margin: 20px auto;
-            background-color: #fff;
-            border: 2px solid #dee2e6;
+        .container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 1rem;
+            overflow-x: auto;
+            background: var(--calendar-bg);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .calendar-scroll {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem 0;
+            margin-bottom: 1rem;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
-        th,
-        td {
-            border: 1px solid #dee2e6;
-            padding: 10px;
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .view-controls {
+            display: flex;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.25rem;
+            border-radius: 8px;
+        }
+
+        .view-btn {
+            background-color: transparent;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .view-btn.active {
+            background-color: white;
+            color: var(--primary-color);
+        }
+
+        .view-btn:hover:not(.active) {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background-color: var(--calendar-bg);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .navigation {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .nav-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .nav-btn:hover {
+            background-color: #3a6a9d;
+            transform: translateY(-1px);
+        }
+
+        .current-date {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .filters {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        #doctorFilter {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            border: 1px solid var(--calendar-border);
+            background-color: white;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        #doctorFilter:hover {
+            border-color: var(--primary-color);
+        }
+
+        /* Calendar Grid */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(120px, 1fr));
+            gap: 1px;
+            background-color: var(--calendar-border);
+            border: 1px solid var(--calendar-border);
+            border-radius: 8px;
+            overflow: hidden;
+            width: 100%;
+            table-layout: fixed;
+            min-width: 900px;
+        }
+
+        .calendar-header-cell {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.75rem;
             text-align: center;
+            font-weight: 600;
+            width: 100%;
         }
 
-        th {
-            background-color: #f2f2f2;
-            color: #343a40;
+        .calendar-cell {
+            background-color: var(--calendar-bg);
+            min-height: 100px;
+            padding: 0.5rem;
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            border-right: 1px solid #e5e7eb;
         }
 
-        .highlight {
-            background-color: #f8f9fa;
+        /* Remove right border from last column in month view */
+        .calendar-grid > .calendar-cell:nth-child(7n) {
+            border-right: none;
         }
 
-        .special {
-            background-color: #f0f0f0;
+        .calendar-cell.today {
+            background-color: rgba(74, 132, 189, 0.1);
+        }
+
+        .calendar-cell.other-month {
+            background-color: #f9fafb;
+            color: var(--text-secondary);
+        }
+
+        .day-number {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .appointment {
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            margin-bottom: 0.25rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+            display: flex;
+            flex-direction: column;
+            gap: 0.125rem;
+            overflow: hidden;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .appointment:hover {
+            transform: translateY(-2px);
+        }
+
+        .appointment .doctor-name,
+        .appointment .activity,
+        .appointment .time {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+
+        .appointment.cancelled {
+            background-color: var(--danger-color);
+        }
+
+        .appointment.consult {
+            background-color: var(--secondary-color);
+        }
+
+        .appointment.nursing {
+            background-color: #10b981;
+        }
+
+         .appointment.on-beam {
+            background-color: #10b981;
+        }
+
+        .appointment.tumor-board {
+            background-color: #8b5cf6;
+        }
+
+        .appointment.vacation {
+            background-color: #ec4899;
+        }
+
+        .appointment.hold-time {
+            background-color: #6b7280;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 2rem auto;
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 600px;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .calendar-grid {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .appointment {
+            animation: fadeIn 0.2s ease-in-out;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .calendar-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .navigation {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .calendar-cell {
+                min-height: 50px;
+                padding: 0.25rem;
+            }
+
+            .appointment {
+                padding: 0.125rem 0.25rem;
+                margin-bottom: 0.125rem;
+            }
+
+            .appointment .doctor-name {
+                font-size: 0.65rem;
+            }
+
+            .appointment .activity {
+                font-size: 0.65rem;
+            }
+
+            .appointment .time {
+                font-size: 0.6rem;
+            }
+        }
+
+        /* Week View Styles */
+        .week-view {
+            display: grid;
+            grid-template-columns: 100px repeat(7, minmax(120px, 1fr));
+            gap: 1px;
+            background-color: var(--calendar-border);
+            border: 1px solid var(--calendar-border);
+            border-radius: 8px;
+            overflow: hidden;
+            width: 100%;
+            table-layout: fixed;
+            min-width: 900px;
+        }
+
+        .time-column {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.5rem;
+            text-align: center;
+            font-weight: 600;
+            width: 100px;
+            position: sticky;
+            left: 0;
+        }
+
+        .week-day-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.75rem;
+            text-align: center;
+            font-weight: 600;
+            width: 100%;
+        }
+
+        .week-cell {
+            background-color: var(--calendar-bg);
+            min-height: 60px;
+            padding: 0.25rem;
+            position: relative;
+            border-bottom: 1px solid var(--calendar-border);
+            overflow: hidden;
+            border-right: 1px solid #e5e7eb;
+        }
+
+        /* Remove right border from last column in week view */
+        .week-view > .week-cell:nth-child(8n) {
+            border-right: none;
+        }
+
+        .week-cell.today {
+            background-color: rgba(74, 132, 189, 0.1);
+        }
+
+        /* Day View Styles */
+        .day-view {
+            display: grid;
+            grid-template-columns: 100px minmax(240px, 1fr);
+            gap: 1px;
+            background-color: var(--calendar-border);
+            border: 1px solid var(--calendar-border);
+            border-radius: 8px;
+            overflow: hidden;
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        .day-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.75rem;
+            text-align: center;
+            font-weight: 600;
+            grid-column: 1 / -1;
+            width: 100%;
+        }
+
+        .day-cell {
+            background-color: var(--calendar-bg);
+            min-height: 60px;
+            padding: 0.25rem;
+            position: relative;
+            border-bottom: 1px solid var(--calendar-border);
+            width: 100%;
+            border-left: 1px solid #e5e7eb;
+            overflow: hidden;
+        }
+
+        /* Remove left border from first column in day view */
+        .day-view > .day-cell:nth-child(2n+1) {
+            border-left: none;
+        }
+
+        .day-cell.today {
+            background-color: rgba(74, 132, 189, 0.1);
+        }
+
+        .time-slot {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .appointment-slot {
+            position: absolute;
+            left: 0;
+            right: 0;
+            padding: 0.25rem;
+            border-radius: 4px;
+            color: white;
+            font-size: 0.75rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Doctor-specific styles */
+        .DB {
+            border-left: 4px solid var(--DB);
+        }
+
+        .MC {
+            border-left: 4px solid var(--MC);
+        }
+
+        .SS {
+            border-left: 4px solid var(--SS);
+        }
+
+        .doctor-other {
+            border-left: 4px solid var(--doctor-other);
+        }
+
+        /* Activity-specific styles */
+        .activity-follow-up {
+            background-color: var(--activity-follow-up);
         }
         
-        .covering {
-            background-color: salmon;
+        .activity-consult {
+            background-color: var(--activity-consult);
+        }
+        
+        .activity-nursing {
+            background-color: var(--activity-nursing);
+        
+     }
+   .activity-on-beam {
+                   background-color: var(--activity-on-beam);
+         }
+        
+        .activity-tumor-board {
+            background-color: var(--activity-tumor-board);
+        }
+        
+        .activity-vacation {
+            background-color: var(--activity-vacation);
+        }
+        
+        .activity-hold-time {
+            background-color: var(--activity-hold-time);
         }
 
-        .alternate {
-            background-color: cyan;
+        .activity-out-office {
+            background-color: var(--activity-out-office);
         }
-        
-        .onbeam {
-            background-color: orange;
+
+        .activity-covering {
+            background-color: var(--activity-covering);
         }
-        
-        .vacation {
-            background-color: pink;
+
+        .activity-alternate-covering {
+            background-color: var(--activity-alternate-covering);
+        }
+
+        /* Add tooltip for truncated text */
+        .appointment {
+            position: relative;
+        }
+
+        .appointment:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.5rem;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            white-space: normal;
+            width: max-content;
+            max-width: 200px;
+            z-index: 1000;
+            display: block;
+        }
+
+        /* Add styles for greyed-out appointments */
+        .appointment.greyed-out {
+            opacity: 0.6;
+            filter: grayscale(50%);
+        }
+
+        .appointment.greyed-out:hover {
+            opacity: 0.8;
         }
     </style>
 </head>
-
 <body>
-<h2>TB</h2>
-    <table>
-        <tr>
-            <th>TB</th>
-            <th>4/28</th>
-            <th>4/29</th>
-            <th>4/30</th>
-            <th>5/1</th>
-            <th>5/2</th>
-        </tr>
-        <tr>
-            <td class="highlight"><b>Start</b></td>
-            <td>6:00am</td>
-            <td>6:00am</td>
-            <td>6:00am</td>
-            <td>6:00am</td>
-            <td>6:00am</td>
-        </tr>
-        <tr>
-            <td class="highlight"><b>End</b></td>
-            <td>5:00pm</td>
-            <td>5:00pm</td>
-            <td>5:00pm</td>
-            <td>4:30pm</td>
-            <td>4:30pm</td>
-        </tr>
-        <tr>
-            <td class="highlight"><b>Cover<br>Early</b></td>
-            <td>DB</td>
-            <td>DB</td>
-            <td>SS</td>
-            <td>MC</td>
-            <td>DB</td>
-        </tr>
-        <tr>
-            <td class="highlight"><b>Cover<br>Late</b></td>
-            <td>MC</td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td>MC</td>
-        </tr>
-        
-    </table>
-    
-        <h2>CT</h2>
-    <table>
-        <tr>
-            <th>Time</th>
-            <th>4/28</th>
-            <th>4/29</th>
-            <th>4/30</th>
-            <th>5/1</th>
-            <th>5/2</th>
-        </tr>
-        <tr>
-            <td class="highlight"><b>9:00</b></td>
-            <td>CT - DB</td>
-            <td>CT - DB</td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
-                <tr>
-            <td class="highlight"><b>10:00</b></td>
-            <td>CT - SS</td>
-            <td>CT - MC</td>
-            <td></td>
-            <td>Clin - DB</td>
-            <td></td>
-        </tr>
-                <tr>
-            <td class="highlight"><b>11:00</b></td>
-            <td></td>
-            <td>CT - MC</td>
-            <td></td>
-            <td>CT - DB</td>
-            <td></td>
-        </tr>
-                <tr>
-            <td class="highlight"><b>12:00</b></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
-                <tr>
-            <td class="highlight"><b>1:00</b></td>
-            <td></td>
-            <td>CT - SS</td>
-            <td></td>
-            <td>HDR - DB</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td class="highlight"><b>2:00</b></td>
-            <td></td>
-            <td>CT - DB</td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>        
-    </table>
-    
-    <h2>DB</h2>
-    <table>
-        <tr>
-            <th>Time</th>
-            <th>4/28</th>
-            <th>4/29</th>
-            <th>4/30</th>
-            <th>5/1</th>
-            <th>5/2</th>
-        </tr>
-        <tr>
-            <td class="highlight"><b>7:00</b></td>
-            <td class="covering">Cover</td>
-            <td class="covering">Cover</td>
-            <td>TumBrd</td>
-            <td class="alternate">Alt</td>
-            <td class="vacation"><b>Vac</b></td>
-        </tr>
-        <tr>
-            <td class="highlight"><b>8:00</b></td>
-            <td></td>
-            <td class="onbeam">OnBeam<br>N.A</td>
-            <td></td>
-            <td class="onbeam">OnBeam<br>N.A</td>
-            <td></td>
-        </tr>
-                <tr>
-            <td class="highlight"><b>9:00</b></td>
-            <td></td>
-            <td>Con</td>
-            <td>12.F</td>
-            <td>Con</td>
-            <td></td>
-        </tr>
-                <tr>
-            <td class="highlight"><b>10:00</b></td>
-            <td>F.U<br>N.A<br>F.U</td>
-            <td>F.U</td>
-            <td>F.U</td>
-            <td>F.U<br>Con</td>
-            <td></td>
-        </tr>
-                <tr>
-            <td class="highlight"><b>11:00</b></td>
-            <td>Con</td>
-            <td>F.U</td>
-            <td>F.U<br>F.U</td>
-            <td></td>
-            <td></td>
-        </tr>
-                <tr>
-            <td class="highlight"><b>12:00</b></td>
-            <td></td>
-            <td></td>
-            <td>F.U</td>
-            <td></td>
-            <td></td>
-        </tr>
-                <tr>
-            <td class="highlight"><b>1:00</b></td>
-            <td>F.U<br>N.A</td>
-            <td>F.U<br>N.A</td>
-            <td>N.A<br>F.U<br>Con</td>
-            <td>Con</td>
-            <td></td>
-        </tr>
-                <tr>
-            <td class="highlight"><b>2:00</b></td>
-            <td>Con</td>
-            <td>Con</td>
-            <td>F.U</td>
-            <td>N.A<br>F.U</td>
-            <td></td>
-        </tr>
-                <tr>
-            <td class="highlight"><b>3:00</b></td>
-            <td>N.A<br>Con</td>
-            <td>F.U</td>
-            <td></td>
-            <td>Con</td>
-            <td></td>
-        </tr>
-                <tr>
-            <td class="highlight"><b>4:00</b></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
-                <tr>
-            <td class="highlight"><b>5:00</b></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
-                <tr>
-            <td class="highlight"><b>6:00</b></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
-        
-    </table>
-</body>
+    <header>
+        <div class="header-content">
+            <div class="header-title">WS Calendar</div>
+            <div class="view-controls">
+                <button class="view-btn active" data-view="month">Month</button>
+                <button class="view-btn" data-view="week">Week</button>
+                <button class="view-btn" data-view="day">Day</button>
+            </div>
+        </div>
+    </header>
+<p>Last Updated: 4/28/25 3:19 PM</p>
+    <div class="container">
+        <div class="calendar-header">
+            <div class="navigation">
+                <button class="nav-btn" id="prevMonth">&lt;</button>
+                <span class="current-date" id="currentDate">April 2025</span>
+                <button class="nav-btn" id="nextMonth">&gt;</button>
+            </div>
+            <div class="filters">
+            <select id="doctorFilter">
+                <option value="all">All Drs</option>
+                <option value="DB">DB</option>
+                <option value="MC">MC</option>
+                <option value="SS">SS</option>
+            </select>
+            </div>
+        </div>
 
+        <div class="calendar-scroll">
+            <div class="calendar-grid" id="calendarGrid">
+                <!-- Calendar content will be generated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="appointmentModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 id="modalTitle">Appointment Details</h2>
+            <div id="modalContent">
+                <!-- Appointment details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to fetch and parse CSV data
+        async function fetchScheduleData() {
+            try {
+                //const response = await fetch('data.csv');
+                //const csvText = await response.text();
+                const csvText = "ï»¿Doctor,AppointmentDate,StartTime,EndTime,Activity,Status,Diagnosis|DB,4/28/2025,07:00 AM,07:45 AM,Covering Physician,Open,|DB,4/28/2025,10:00 AM,10:20 AM,Follow-Up,Manually Completed,C77.3_C34.2_C34.32|DB,4/28/2025,10:30 AM,10:50 AM,Follow-Up,Manually Completed,|DB,4/28/2025,10:30 AM,11:00 AM,Nursing Assessment,Manually Completed,C50.411|DB,4/28/2025,11:00 AM,12:00 PM,Consult,Manually Completed,C50.411|DB,4/28/2025,01:00 PM,01:20 PM,Follow-Up,Manually Completed,|DB,4/28/2025,01:30 PM,01:50 PM,Follow-Up,Cancelled,C79.51_C78.01|DB,4/28/2025,01:30 PM,02:00 PM,Nursing Assessment,Manually Completed,C44.722|DB,4/28/2025,02:00 PM,03:00 PM,Consult,Manually Completed,C44.722|DB,4/28/2025,03:00 PM,03:30 PM,Nursing Assessment,Open,|DB,4/28/2025,03:30 PM,04:30 PM,Consult,Open,|DB,4/29/2025,07:00 AM,07:45 AM,Covering Physician,Open,|DB,4/29/2025,08:00 AM,04:10 PM,On Beam,Open,|DB,4/29/2025,08:30 AM,09:00 AM,Nursing Assessment,Open,|DB,4/29/2025,09:00 AM,10:00 AM,Consult,Open,|DB,4/29/2025,10:00 AM,10:20 AM,Follow-Up,Open,C21.1_C34.12|DB,4/29/2025,11:00 AM,11:20 AM,Follow-Up,Open,C50.412|DB,4/29/2025,01:00 PM,01:20 PM,Follow-Up,Open,C34.12_C88.4|DB,4/29/2025,01:30 PM,02:00 PM,Nursing Assessment,Open,|DB,4/29/2025,02:00 PM,03:00 PM,Consult,Open,|DB,4/29/2025,03:00 PM,03:20 PM,Follow-Up,Open,C82.01|DB,4/30/2025,07:30 AM,10:30 AM,St A's Tumor Board,Open,|DB,4/30/2025,10:30 AM,10:50 AM,Follow-Up,Open,C79.31|DB,4/30/2025,11:00 AM,11:20 AM,Follow-Up,Open,|DB,4/30/2025,11:30 AM,11:50 AM,Follow-Up,Open,C34.12_C34.2|DB,4/30/2025,12:00 PM,12:20 PM,Follow-Up,Open,C61|DB,4/30/2025,01:00 PM,01:20 PM,Follow-Up,Open,C50.812|DB,4/30/2025,01:00 PM,01:30 PM,Nursing Assessment,Open,|DB,4/30/2025,01:30 PM,02:30 PM,Consult,Open,|DB,4/30/2025,02:30 PM,02:50 PM,Follow-Up,Open,C50.511|DB,5/1/2025,07:00 AM,07:45 AM,Alternate Covering Dr- only needed if covering dr steps out,Open,|DB,5/1/2025,08:30 AM,09:00 AM,Nursing Assessment,Open,|DB,5/1/2025,08:30 AM,04:40 PM,On Beam,Open,|DB,5/1/2025,09:00 AM,10:00 AM,Consult,Open,|DB,5/1/2025,10:00 AM,10:20 AM,Follow-Up,Open,C01|DB,5/1/2025,10:30 AM,11:30 AM,New Consult- Established Patient,Open,C61|DB,5/1/2025,01:00 PM,02:00 PM,New Consult- Established Patient,Open,C78.02_C50.112|DB,5/1/2025,02:30 PM,02:50 PM,Follow-Up,Open,|DB,5/1/2025,02:30 PM,03:00 PM,Nursing Assessment,Open,|DB,5/1/2025,03:00 PM,04:00 PM,Consult,Open,|DB,5/2/2025,08:30 AM,10:00 AM,Hold Time Consult,Open,|DB,5/2/2025,10:00 AM,10:30 AM,12mo Follow-Up,Open,C61|DB,5/2/2025,10:30 AM,10:50 AM,Follow-Up,Open,C79.31_C34.11_C34.32|DB,5/2/2025,11:00 AM,12:00 PM,New Consult- Established Patient,Open,Z41.8|DB,5/2/2025,12:00 PM,12:20 PM,Follow-Up,Open,C61_C79.51|DB,5/2/2025,01:00 PM,02:30 PM,Hold Time Consult,Open,|DB,5/2/2025,02:30 PM,02:50 PM,Follow-Up,Open,C61|DB,5/2/2025,02:30 PM,04:00 PM,Hold Time Consult,Open,|DB,5/5/2025,07:00 AM,07:45 AM,Covering Physician,Open,|DB,5/5/2025,09:00 AM,09:20 AM,Follow-Up,Open,C05.1|DB,5/5/2025,09:30 AM,09:50 AM,Follow-Up,Open,|DB,5/5/2025,10:00 AM,10:30 AM,Nursing Assessment,Open,|DB,5/5/2025,10:30 AM,11:30 AM,Consult,Open,|DB,5/5/2025,12:00 PM,12:20 PM,Follow-Up,Open,C54.0|DB,5/5/2025,01:00 PM,01:20 PM,Follow-Up,Open,C34.2_C50.111_C34.11|DB,5/5/2025,01:30 PM,03:00 PM,Hold Time Consult,Open,|DB,5/5/2025,03:00 PM,03:20 PM,Follow-Up,Open,C50.311|DB,5/5/2025,03:00 PM,04:30 PM,Hold Time Consult,Open,|DB,5/6/2025,07:00 AM,07:45 AM,Covering Physician,Open,|DB,5/6/2025,08:00 AM,04:10 PM,On Beam,Open,|DB,5/6/2025,08:30 AM,10:00 AM,Hold Time Consult,Open,|DB,5/6/2025,11:00 AM,11:20 AM,Follow-Up,Open,C34.31|DB,5/6/2025,12:00 PM,12:20 PM,Follow-Up,Open,C50.211|DB,5/6/2025,12:30 PM,12:50 PM,Follow-Up,Open,C34.11_G95.29_C79.31_C79.51|DB,5/6/2025,01:30 PM,03:00 PM,Hold Time Consult,Open,|DB,5/7/2025,07:30 AM,10:30 AM,St A's Tumor Board,Open,|DB,5/7/2025,10:30 AM,10:50 AM,Follow-Up,Open,C61|DB,5/7/2025,11:00 AM,11:20 AM,Follow-Up,Open,|DB,5/7/2025,11:30 AM,12:00 PM,Hold Time Follow Up,Open,|DB,5/7/2025,12:00 PM,12:20 PM,Follow-Up,Open,C50.112|DB,5/7/2025,12:30 PM,12:50 PM,Follow-Up,Open,C79.31_C79.51_C34.11|DB,5/7/2025,01:30 PM,03:00 PM,Hold Time Consult,Open,|DB,5/7/2025,03:00 PM,03:20 PM,Follow-Up,Open,C61_C79.51|DB,5/7/2025,03:00 PM,04:30 PM,Hold Time Consult,Open,|DB,5/8/2025,07:00 AM,07:45 AM,Alternate Covering Dr- only needed if covering dr steps out,Open,|DB,5/8/2025,09:30 AM,09:50 AM,Follow-Up,Open,D05.12|DB,5/8/2025,10:00 AM,10:20 AM,Follow-Up,Open,C09.0|DB,5/8/2025,10:30 AM,12:00 PM,Hold Time Consult,Open,|DB,5/8/2025,12:00 PM,12:20 PM,Follow-Up,Open,C54.1|DB,5/8/2025,12:30 PM,12:50 PM,Follow-Up,Open,C7B.09_C54.3|DB,5/8/2025,01:00 PM,01:30 PM,Nursing Assessment,Open,C61|DB,5/8/2025,01:30 PM,02:30 PM,Extended follow up (hospital consult),Open,C61|DB,5/8/2025,03:00 PM,03:20 PM,Follow-Up,Open,C53.8_C77.2|DB,5/8/2025,03:00 PM,04:30 PM,Hold Time Consult,Open,|DB,5/9/2025,10:00 AM,10:20 AM,Follow-Up,Open,C79.31|DB,5/9/2025,10:30 AM,10:50 AM,Follow-Up,Open,C79.31_C34.11_C79.31|DB,5/9/2025,12:00 PM,01:00 PM,Conference Room Booked,Open,|DB,5/9/2025,03:00 PM,03:20 PM,Follow-Up,Open,C61|DB,5/12/2025,07:00 AM,07:45 AM,Covering Physician,Open,|DB,5/12/2025,08:00 AM,08:20 AM,Follow-Up,Open,C61|DB,5/12/2025,08:30 AM,10:00 AM,Hold Time Consult,Open,|DB,5/12/2025,10:00 AM,10:20 AM,Follow-Up,Open,C32.1|DB,5/12/2025,11:30 AM,11:50 AM,Follow-Up,Open,|DB,5/12/2025,12:00 PM,12:20 PM,Follow-Up,Open,C67.2|DB,5/12/2025,01:00 PM,01:30 PM,Hold Time Follow Up,Open,|DB,5/12/2025,01:30 PM,03:00 PM,Hold Time Consult,Open,|DB,5/12/2025,03:00 PM,04:30 PM,Hold Time Consult,Open,|DB,5/13/2025,07:00 AM,07:45 AM,Covering Physician,Open,|DB,5/13/2025,08:00 AM,04:10 PM,On Beam,Open,|DB,5/13/2025,08:30 AM,10:00 AM,Hold Time Consult,Open,|DB,5/13/2025,12:00 PM,12:20 PM,Follow-Up,Open,C50.412|DB,5/13/2025,01:30 PM,03:00 PM,Hold Time Consult,Open,|DB,5/13/2025,02:30 PM,02:50 PM,Follow-Up,Open,|DB,5/14/2025,07:30 AM,10:30 AM,St A's Tumor Board,Open,|DB,5/14/2025,10:30 AM,11:00 AM,Hold Time Follow Up,Open,|DB,5/14/2025,10:30 AM,12:00 PM,Hold Time Consult,Open,|DB,5/14/2025,12:00 PM,12:20 PM,Follow-Up,Open,C54.1|DB,5/14/2025,01:00 PM,01:20 PM,Follow-Up,Open,C61|DB,5/14/2025,01:00 PM,02:30 PM,Hold Time Consult,Open,|DB,5/14/2025,02:30 PM,02:50 PM,Follow-Up,Open,C61|DB,5/14/2025,03:00 PM,04:30 PM,Hold Time Consult,Open,|DB,5/15/2025,07:00 AM,07:45 AM,Alternate Covering Dr- only needed if covering dr steps out,Open,|DB,5/15/2025,08:30 AM,08:50 AM,Follow-Up,Open,C83.31|DB,5/15/2025,10:00 AM,10:20 AM,Follow-Up,Open,C61|DB,5/15/2025,10:30 AM,10:50 AM,Follow-Up,Open,C61|DB,5/15/2025,10:30 AM,11:00 AM,Nursing Assessment,Open,|DB,5/15/2025,11:00 AM,12:00 PM,Consult,Open,|DB,5/15/2025,01:00 PM,01:20 PM,Follow-Up,Open,C79.31|DB,5/15/2025,01:00 PM,02:30 PM,Hold Time Consult,Open,|DB,5/15/2025,02:30 PM,02:50 PM,Follow-Up,Open,C09.0|DB,5/15/2025,03:00 PM,04:30 PM,Hold Time Consult,Open,|DB,5/16/2025,08:30 AM,04:30 PM,Out of Office,Open,|DB,5/19/2025,07:00 AM,07:45 AM,Covering Physician,Open,|DB,5/19/2025,08:00 AM,09:30 AM,Hold Time Consult,Open,|DB,5/19/2025,09:30 AM,09:50 AM,Follow-Up,Open,C79.31_C34.91_C34.12|DB,5/19/2025,09:30 AM,11:00 AM,Hold Time Consult,Open,|DB,5/19/2025,11:00 AM,11:30 AM,Hold Time Follow Up,Open,|DB,5/19/2025,11:30 AM,11:50 AM,Follow-Up,Open,C20|DB,5/19/2025,12:00 PM,12:20 PM,Follow-Up,Open,C50.811|DB,5/19/2025,01:00 PM,01:30 PM,Hold Time Follow Up,Open,|DB,5/19/2025,01:30 PM,03:00 PM,Hold Time Consult,Open,|DB,5/19/2025,03:00 PM,04:30 PM,Hold Time Consult,Open,|DB,5/20/2025,07:00 AM,07:45 AM,Covering Physician,Open,|DB,5/20/2025,08:00 AM,08:20 AM,Follow-Up,Open,C50.911|DB,5/20/2025,08:00 AM,04:10 PM,On Beam,Open,|DB,5/20/2025,08:30 AM,10:00 AM,Hold Time Consult,Open,|DB,5/20/2025,01:30 PM,03:00 PM,Hold Time Consult,Open,|DB,5/20/2025,03:00 PM,03:20 PM,Follow-Up,Open,M72.0_C54.1|DB,5/21/2025,07:30 AM,10:30 AM,St A's Tumor Board,Open,|DB,5/21/2025,09:00 AM,09:20 AM,Follow-Up,Open,C50.811|DB,5/21/2025,10:30 AM,10:50 AM,Follow-Up,Open,D04.61_C21.1|DB,5/21/2025,10:30 AM,12:00 PM,Hold Time Consult,Open,|DB,5/21/2025,12:00 PM,12:20 PM,Follow-Up,Open,C34.11_C34.12|DB,5/21/2025,12:30 PM,12:50 PM,Follow-Up,Open,C61|DB,5/21/2025,01:00 PM,01:20 PM,Follow-Up,Open,C61|DB,5/21/2025,01:00 PM,02:30 PM,Hold Time Consult,Open,|DB,5/21/2025,02:30 PM,02:50 PM,Follow-Up,Open,C50.412|DB,5/21/2025,03:00 PM,04:30 PM,Hold Time Consult,Open,|DB,5/22/2025,07:00 AM,07:45 AM,Alternate Covering Dr- only needed if covering dr steps out,Open,|DB,5/22/2025,10:00 AM,10:20 AM,Follow-Up,Open,C20|DB,5/22/2025,10:30 AM,11:30 AM,New Consult- Established Patient,Open,C79.51_C61_C80.0|DB,5/22/2025,12:00 PM,12:20 PM,Follow-Up,Open,C61|DB,5/22/2025,12:30 PM,12:50 PM,Follow-Up,Open,C61_C32.0|DB,5/22/2025,01:00 PM,02:30 PM,Hold Time Consult,Open,|DB,5/22/2025,02:30 PM,02:50 PM,Follow-Up,Open,C34.2|DB,5/22/2025,03:00 PM,03:20 PM,Follow-Up,Open,C34.2_C79.31|DB,5/22/2025,03:00 PM,04:30 PM,Hold Time Consult,Open,|DB,5/23/2025,08:00 AM,08:20 AM,Follow-Up,Open,C61|DB,5/23/2025,08:30 AM,04:30 PM,Out of Office,Open,|DB,5/23/2025,10:00 AM,10:20 AM,Follow-Up,Open,C61|DB,5/23/2025,10:30 AM,10:50 AM,Follow-Up,Open,C61|DB,5/23/2025,01:00 PM,01:20 PM,Follow-Up,Open,C34.32|DB,5/23/2025,01:30 PM,01:50 PM,Follow-Up,Open,C77.2_C79.51_C79.2_C79.2_C50.912|DB,5/27/2025,07:00 AM,07:45 AM,Covering Physician,Open,|DB,5/27/2025,08:00 AM,04:10 PM,On Beam,Open,|DB,5/27/2025,08:30 AM,10:00 AM,Hold Time Consult,Open,|DB,5/27/2025,10:00 AM,10:20 AM,Follow-Up,Open,G93.89|DB,5/27/2025,10:30 AM,11:00 AM,12mo Follow-Up,Open,C34.12|DB,5/27/2025,11:00 AM,11:20 AM,Follow-Up,Open,C53.8|DB,5/27/2025,12:00 PM,12:20 PM,Follow-Up,Open,C34.11_C34.31|DB,5/27/2025,01:00 PM,01:20 PM,Follow-Up,Open,C61|DB,5/27/2025,01:30 PM,03:00 PM,Hold Time Consult,Open,|DB,5/28/2025,07:30 AM,10:30 AM,St A's Tumor Board,Open,|DB,5/28/2025,09:00 AM,09:20 AM,Follow-Up,Open,|DB,5/28/2025,10:30 AM,10:50 AM,Follow-Up,Open,|DB,5/28/2025,11:30 AM,11:50 AM,Follow-Up,Open,C34.32|DB,5/28/2025,12:00 PM,12:20 PM,Follow-Up,Open,C34.31|DB,5/28/2025,02:30 PM,02:50 PM,Follow-Up,Open,C34.11|SS,4/28/2025,07:00 AM,07:45 AM,Alternate Covering Dr- only needed if covering dr steps out,Manually Completed,|SS,4/28/2025,08:30 AM,09:00 AM,Nursing Assessment,Manually Completed,C09.0|SS,4/28/2025,09:00 AM,10:00 AM,Consult,Manually Completed,C09.0|SS,4/28/2025,10:00 AM,10:20 AM,Follow-Up,Manually Completed,C44.329|SS,4/28/2025,10:30 AM,11:00 AM,Nursing Assessment,Manually Completed,C34.32_C34.12|SS,4/28/2025,11:00 AM,12:00 PM,Consult,Manually Completed,C34.32_C34.12|SS,4/28/2025,01:00 PM,01:30 PM,Nursing Assessment,Manually Completed,C01|SS,4/28/2025,01:30 PM,02:30 PM,Consult,Manually Completed,C01|SS,4/29/2025,07:00 AM,07:45 AM,Alternate Covering Dr- only needed if covering dr steps out,Open,|SS,4/29/2025,08:00 AM,09:30 AM,Hold Time Consult,Open,|SS,4/29/2025,09:30 AM,09:50 AM,Follow-Up,Open,C09.0|SS,4/29/2025,10:00 AM,10:20 AM,Follow-Up,Open,C53.1|SS,4/29/2025,10:30 AM,11:30 AM,New Consult- Established Patient,Open,C79.31_C79.51_C34.11|SS,4/29/2025,01:00 PM,01:20 PM,Follow-Up,Open,C02.8|SS,4/29/2025,01:00 PM,02:30 PM,Hold Time Consult,Open,|SS,4/30/2025,06:30 AM,07:15 AM,Covering Physician,Open,|SS,4/30/2025,08:00 AM,04:10 PM,On Beam,Open,|SS,4/30/2025,09:00 AM,09:30 AM,Nursing Assessment,Open,|SS,4/30/2025,09:30 AM,10:30 AM,Consult,Open,|SS,4/30/2025,10:30 AM,11:00 AM,12mo Follow-Up,Open,C32.1|SS,4/30/2025,11:00 AM,11:20 AM,Follow-Up,Open,C15.5|SS,4/30/2025,01:00 PM,01:30 PM,Nursing Assessment,Open,|SS,4/30/2025,01:30 PM,02:30 PM,Consult,Open,|SS,5/1/2025,08:00 AM,09:30 AM,Off Site Meeting,Open,|SS,5/1/2025,09:30 AM,10:00 AM,Nursing Assessment,Open,|SS,5/1/2025,10:00 AM,11:00 AM,Consult,Open,|SS,5/1/2025,01:00 PM,01:30 PM,Nursing Assessment,Open,|SS,5/1/2025,01:30 PM,02:30 PM,Consult,Open,|SS,5/1/2025,02:30 PM,04:00 PM,Hold Time Consult,Open,|SS,5/2/2025,07:00 AM,07:45 AM,Alternate Covering Dr- only needed if covering dr steps out,Open,|SS,5/2/2025,08:00 AM,09:30 AM,Hold Time Consult,Open,|SS,5/2/2025,09:30 AM,10:00 AM,12mo Follow-Up,Open,|SS,5/2/2025,10:00 AM,10:20 AM,Follow-Up,Open,C83.31|SS,5/2/2025,10:00 AM,11:30 AM,Hold Time Consult,Open,|SS,5/2/2025,11:30 AM,11:50 AM,Follow-Up,Open,C34.11_C34.31_C34.11|SS,5/2/2025,01:00 PM,01:20 PM,Follow-Up,Open,C34.12|SS,5/2/2025,01:00 PM,02:30 PM,Hold Time Consult,Open,|SS,5/2/2025,02:30 PM,03:00 PM,12mo Follow-Up,Open,|SS,5/2/2025,02:30 PM,03:00 PM,Nursing Assessment,Open,|SS,5/2/2025,03:00 PM,04:00 PM,Consult,Open,|SS,5/5/2025,07:00 AM,07:45 AM,Alternate Covering Dr- only needed if covering dr steps out,Open,|SS,5/5/2025,08:00 AM,08:20 AM,Follow-Up,Open,C34.01|SS,5/5/2025,08:30 AM,10:00 AM,Hold Time Consult,Open,|SS,5/5/2025,10:30 AM,11:00 AM,Nursing Assessment,Open,|SS,5/5/2025,11:00 AM,12:00 PM,Consult,Open,|SS,5/5/2025,01:30 PM,03:00 PM,Hold Time Consult,Open,|SS,5/5/2025,03:00 PM,04:30 PM,Hold Time Consult,Open,|SS,5/6/2025,07:00 AM,07:45 AM,Alternate Covering Dr- only needed if covering dr steps out,Open,|SS,5/6/2025,08:00 AM,09:30 AM,Hold Time Consult,Open,|SS,5/6/2025,09:30 AM,09:50 AM,Follow-Up,Open,C79.31|SS,5/6/2025,10:00 AM,10:20 AM,Follow-Up,Open,C79.51|SS,5/6/2025,10:00 AM,11:30 AM,Hold Time Consult,Open,|SS,5/6/2025,01:00 PM,01:30 PM,Follow-Up,Open,|SS,5/6/2025,01:00 PM,02:30 PM,Hold Time Consult,Open,|SS,5/6/2025,02:30 PM,02:50 PM,Follow-Up,Open,C44.311|SS,5/6/2025,03:00 PM,03:20 PM,Follow-Up,Open,C50.512|SS,5/6/2025,03:00 PM,04:30 PM,Hold Time Consult,Open,|SS,5/7/2025,07:00 AM,07:45 AM,Covering Physician,Open,|SS,5/7/2025,08:00 AM,04:10 PM,On Beam,Open,|SS,5/7/2025,09:00 AM,09:20 AM,Follow-Up,Open,C53.1|SS,5/7/2025,09:00 AM,10:30 AM,Hold Time Consult,Open,|SS,5/7/2025,01:00 PM,02:30 PM,Hold Time Consult,Open,|SS,5/7/2025,02:30 PM,02:50 PM,Follow-Up,Open,C34.02|SS,5/8/2025,08:00 AM,09:30 AM,Off Site Meeting,Open,|SS,5/8/2025,09:30 AM,09:50 AM,Follow-Up,Open,C44.319|SS,5/8/2025,09:30 AM,11:00 AM,Hold Time Consult,Open,|SS,5/8/2025,11:00 AM,11:30 AM,Hold Time Follow Up,Open,|SS,5/8/2025,01:00 PM,01:20 PM,Follow-Up,Open,C50.312|SS,5/8/2025,01:00 PM,01:30 PM,Nursing Assessment,Open,|SS,5/8/2025,01:30 PM,02:30 PM,Consult,Open,|SS,5/8/2025,02:30 PM,04:00 PM,Hold Time Consult,Open,|SS,5/8/2025,04:00 PM,04:30 PM,Hold Time Follow Up,Open,|SS,5/9/2025,07:00 AM,07:45 AM,Alternate Covering Dr- only needed if covering dr steps out,Open,|SS,5/9/2025,08:00 AM,09:30 AM,Hold Time Consult,Open,|SS,5/9/2025,09:30 AM,09:50 AM,Follow-Up,Open,C34.12|SS,5/9/2025,10:00 AM,10:20 AM,Follow-Up,Open,C81.12|SS,5/9/2025,10:00 AM,11:30 AM,Hold Time Consult,Open,|SS,5/9/2025,12:00 PM,01:00 PM,Conference Room Booked,Open,|SS,5/9/2025,01:00 PM,01:20 PM,Follow-Up,Open,C09.0|SS,5/9/2025,01:30 PM,01:50 PM,Follow-Up,Open,J34.89|SS,5/9/2025,01:30 PM,03:00 PM,Hold Time Consult,Open,|SS,5/9/2025,03:00 PM,03:20 PM,Follow-Up,Open,C34.31|SS,5/9/2025,03:00 PM,04:30 PM,Hold Time Consult,Open,|SS,5/12/2025,07:00 AM,07:45 AM,Alternate Covering Dr- only needed if covering dr steps out,Open,|SS,5/12/2025,08:00 AM,04:00 PM,Out of Office,Open,|SS,5/13/2025,07:00 AM,07:45 AM,Alternate Covering Dr- only needed if covering dr steps out,Open,|SS,5/13/2025,08:00 AM,09:30 AM,Hold Time Consult,Open,|SS,5/13/2025,09:30 AM,09:50 AM,Follow-Up,Open,C50.212|SS,5/13/2025,10:00 AM,11:30 AM,Hold Time Consult,Open,|SS,5/13/2025,01:00 PM,02:30 PM,Hold Time Consult,Open,|SS,5/13/2025,02:30 PM,02:50 PM,Follow-Up,Open,C79.51_C79.32|SS,5/13/2025,03:00 PM,03:20 PM,Follow-Up,Open,C44.329|SS,5/13/2025,03:00 PM,04:30 PM,Hold Time Consult,Open,|SS,5/14/2025,06:30 AM,07:15 AM,Covering Physician,Open,|SS,5/14/2025,08:00 AM,04:10 PM,On Beam,Open,|SS,5/14/2025,09:00 AM,10:30 AM,Hold Time Consult,Open,|SS,5/14/2025,10:30 AM,11:00 AM,12mo Follow-Up,Open,C61|SS,5/14/2025,11:00 AM,11:20 AM,Follow-Up,Open,C34.32|SS,5/14/2025,01:00 PM,01:30 PM,Nursing Assessment,Open,|SS,5/14/2025,01:30 PM,02:30 PM,Consult,Open,|SS,5/15/2025,08:00 AM,09:30 AM,Off Site Meeting,Open,|SS,5/15/2025,09:30 AM,11:00 AM,Hold Time Consult,Open,|SS,5/15/2025,11:00 AM,11:30 AM,Hold Time Follow Up,Open,|SS,5/15/2025,01:00 PM,01:20 PM,Follow-Up,Open,C71.2_C71.4|SS,5/15/2025,01:00 PM,01:30 PM,Nursing Assessment,Open,|SS,5/15/2025,01:30 PM,02:30 PM,Consult,Open,|SS,5/15/2025,02:30 PM,04:00 PM,Hold Time Consult,Open,|SS,5/15/2025,04:00 PM,04:30 PM,Hold Time Follow Up,Open,|SS,5/16/2025,07:00 AM,07:45 AM,Alternate Covering Dr- only needed if covering dr steps out,Open,|SS,5/16/2025,08:00 AM,04:50 PM,Vacation,Open,|SS,5/19/2025,07:00 AM,07:45 AM,Alternate Covering Dr- only needed if covering dr steps out,Open,|SS,5/19/2025,08:00 AM,04:00 PM,Out of Office,Open,|SS,5/20/2025,07:00 AM,07:45 AM,Alternate Covering Dr- only needed if covering dr steps out,Open,|SS,5/20/2025,08:00 AM,08:20 AM,Follow-Up,Open,C54.1|SS,5/20/2025,08:00 AM,09:30 AM,Hold Time Consult,Open,|SS,5/20/2025,09:30 AM,09:50 AM,Follow-Up,Open,C50.811|SS,5/20/2025,10:00 AM,10:20 AM,Follow-Up,Open,C71.1|SS,5/20/2025,10:00 AM,11:30 AM,Hold Time Consult,Open,|SS,5/20/2025,01:00 PM,01:20 PM,Follow-Up,Open,C21.1|SS,5/20/2025,01:00 PM,02:30 PM,Hold Time Consult,Open,|SS,5/20/2025,02:30 PM,03:00 PM,Hold Time Follow Up,Open,|SS,5/20/2025,03:00 PM,03:20 PM,Follow-Up,Open,C50.211|SS,5/20/2025,03:00 PM,04:30 PM,Hold Time Consult,Open,|SS,5/21/2025,06:30 AM,07:15 AM,Covering Physician,Open,|SS,5/21/2025,08:30 AM,04:40 PM,On Beam,Open,|SS,5/21/2025,09:00 AM,09:30 AM,12mo Follow-Up,Cancelled,C61|SS,5/21/2025,10:30 AM,10:50 AM,Follow-Up,Open,C09.0|SS,5/21/2025,01:00 PM,01:20 PM,Follow-Up,Open,C79.31_C79.31_C34.32|SS,5/21/2025,01:30 PM,03:00 PM,Hold Time Consult,Open,|SS,5/22/2025,08:00 AM,09:30 AM,Off Site Meeting,Open,|SS,5/22/2025,09:30 AM,11:00 AM,Hold Time Consult,Open,|SS,5/22/2025,11:00 AM,11:30 AM,Hold Time Follow Up,Open,|SS,5/22/2025,01:00 PM,01:20 PM,Follow-Up,Open,C01|SS,5/22/2025,01:00 PM,02:30 PM,Hold Time Consult,Open,|SS,5/22/2025,02:30 PM,02:50 PM,Follow-Up,Open,C50.211|SS,5/22/2025,02:30 PM,04:00 PM,Hold Time Consult,Open,|SS,5/22/2025,04:00 PM,04:30 PM,Hold Time Follow Up,Open,|SS,5/23/2025,07:00 AM,07:45 AM,Alternate Covering Dr- only needed if covering dr steps out,Open,|SS,5/23/2025,08:00 AM,08:20 AM,Follow-Up,Open,C50.312_C79.51|SS,5/23/2025,08:00 AM,09:30 AM,Hold Time Consult,Open,|SS,5/23/2025,09:30 AM,09:50 AM,Follow-Up,Open,C15.5|SS,5/23/2025,10:00 AM,11:30 AM,Hold Time Consult,Open,|SS,5/23/2025,01:00 PM,01:20 PM,Follow-Up,Open,C79.31|SS,5/23/2025,01:00 PM,02:30 PM,Hold Time Consult,Open,|SS,5/23/2025,02:30 PM,03:00 PM,Hold Time Follow Up,Open,|SS,5/23/2025,03:00 PM,04:30 PM,Hold Time Consult,Open,|SS,5/27/2025,07:00 AM,07:45 AM,Alternate Covering Dr- only needed if covering dr steps out,Open,|SS,5/27/2025,08:00 AM,09:30 AM,Hold Time Consult,Open,|SS,5/27/2025,09:30 AM,10:00 AM,Hold Time Follow Up,Open,|SS,5/27/2025,10:00 AM,11:30 AM,Hold Time Consult,Open,|SS,5/27/2025,01:00 PM,01:20 PM,Follow-Up,Open,C53.1_C15.4|SS,5/27/2025,01:00 PM,02:30 PM,Hold Time Consult,Open,|SS,5/27/2025,02:30 PM,02:50 PM,Follow-Up,Open,C79.31|SS,5/27/2025,03:00 PM,04:30 PM,Hold Time Consult,Open,|SS,5/28/2025,06:30 AM,07:15 AM,Covering Physician,Open,|SS,5/28/2025,08:30 AM,04:40 PM,On Beam,Open,|SS,5/28/2025,09:30 AM,11:00 AM,Hold Time Consult,Open,|SS,5/28/2025,01:00 PM,02:30 PM,Hold Time Consult,Open,|MC,4/28/2025,09:30 AM,09:50 AM,Follow-Up,Manually Completed,233.0_C50.111_C79.51|MC,4/28/2025,10:00 AM,10:20 AM,Follow-Up,Manually Completed,C32.1|MC,4/28/2025,10:00 AM,10:30 AM,Nursing Assessment,Manually Completed,C44.311|MC,4/28/2025,10:30 AM,11:30 AM,Consult,Manually Completed,C44.311|MC,4/28/2025,12:00 PM,12:45 PM,Covering Physician,Open,|MC,4/28/2025,01:00 PM,01:30 PM,Nursing Assessment,Manually Completed,D05.11|MC,4/28/2025,01:30 PM,02:30 PM,Consult,Manually Completed,D05.11|MC,4/28/2025,02:30 PM,02:50 PM,Follow-Up,Cancelled,|MC,4/28/2025,03:00 PM,03:20 PM,Follow-Up,Open,|MC,4/29/2025,08:00 AM,08:30 AM,Follow-Up,Open,C61|MC,4/29/2025,08:00 AM,09:30 AM,Hold Time Consult,Open,|MC,4/29/2025,10:00 AM,10:30 AM,Nursing Assessment,Open,|MC,4/29/2025,10:30 AM,11:30 AM,Consult,Open,|MC,4/29/2025,01:00 PM,01:20 PM,Follow-Up,Open,C15.4|MC,4/29/2025,01:30 PM,02:30 PM,New Consult- Established Patient,Open,C46.0|MC,4/29/2025,02:30 PM,02:50 PM,Follow-Up,Open,185_D04.5|MC,4/30/2025,06:30 AM,07:15 AM,Alternate Covering Dr- only needed if covering dr steps out,Open,|MC,4/30/2025,07:30 AM,09:00 AM,St A's Tumor Board,Open,|MC,4/30/2025,07:30 AM,04:20 PM,Vacation,Open,|MC,4/30/2025,09:00 AM,10:00 AM,Extended Follow Up,Open,C25.1|MC,5/1/2025,07:00 AM,07:45 AM,Covering Physician,Open,|MC,5/1/2025,08:00 AM,04:50 PM,Vacation,Open,|MC,5/2/2025,08:00 AM,04:50 PM,Vacation,Open,|MC,5/5/2025,08:00 AM,04:50 PM,Vacation,Open,|MC,5/6/2025,08:00 AM,04:50 PM,Vacation,Open,|MC,5/7/2025,06:30 AM,07:15 AM,Alternate Covering Dr- only needed if covering dr steps out,Open,|MC,5/7/2025,07:30 AM,09:00 AM,St A's Tumor Board,Open,|MC,5/7/2025,09:00 AM,09:30 AM,Nursing Assessment,Open,K22.89|MC,5/7/2025,09:30 AM,10:30 AM,Extended follow up (hospital consult),Open,K22.89|MC,5/7/2025,10:30 AM,10:50 AM,Follow-Up,Cancelled,C10.8|MC,5/7/2025,10:30 AM,12:00 PM,Hold Time Consult,Open,|MC,5/7/2025,01:00 PM,01:20 PM,Follow-Up,Open,C49.0|MC,5/7/2025,01:00 PM,01:30 PM,Nursing Assessment,Open,C50.812|MC,5/7/2025,01:30 PM,02:30 PM,Consult,Open,C50.812|MC,5/7/2025,02:30 PM,02:50 PM,Follow-Up,Open,|MC,5/7/2025,03:00 PM,03:20 PM,Follow-Up,Open,C34.12|MC,5/7/2025,03:00 PM,04:30 PM,Hold Time Consult,Open,|MC,5/8/2025,07:00 AM,07:45 AM,Covering Physician,Open,|MC,5/8/2025,08:00 AM,08:20 AM,Follow-Up,Open,C50.512|MC,5/8/2025,08:00 AM,09:30 AM,Hold Time Consult,Open,|MC,5/8/2025,08:00 AM,04:10 PM,On Beam,Open,|MC,5/8/2025,09:30 AM,09:50 AM,Follow-Up,Open,|MC,5/8/2025,10:00 AM,10:30 AM,12mo Follow-Up,Open,C61|MC,5/8/2025,11:00 AM,11:20 AM,Follow-Up,Open,C71.1|MC,5/8/2025,01:30 PM,01:50 PM,Follow-Up,Open,C32.0|MC,5/8/2025,01:30 PM,03:00 PM,Hold Time Consult,Open,|MC,5/9/2025,08:00 AM,09:30 AM,Hold Time Consult,Open,|MC,5/9/2025,09:30 AM,10:00 AM,Hold Time Follow Up,Open,|MC,5/9/2025,10:00 AM,11:30 AM,Hold Time Consult,Open,|MC,5/9/2025,11:30 AM,11:50 AM,Follow-Up,Open,C50.512_C78.7|MC,5/9/2025,12:00 PM,12:45 PM,Covering Physician,Open,|MC,5/9/2025,01:00 PM,01:20 PM,Follow-Up,Open,C50.311|MC,5/9/2025,01:00 PM,02:30 PM,Hold Time Consult,Open,|MC,5/9/2025,02:30 PM,04:00 PM,Hold Time Consult,Open,|MC,5/12/2025,08:00 AM,09:30 AM,Hold Time Consult,Open,|MC,5/12/2025,09:30 AM,09:50 AM,Follow-Up,Open,C21.1|MC,5/12/2025,10:00 AM,10:20 AM,Follow-Up,Open,C34.11|MC,5/12/2025,10:00 AM,11:30 AM,Hold Time Consult,Open,|MC,5/12/2025,12:00 PM,12:45 PM,Covering Physician,Open,|MC,5/12/2025,01:00 PM,02:30 PM,Hold Time Consult,Open,|MC,5/12/2025,03:00 PM,04:30 PM,Hold Time Consult,Open,|MC,5/13/2025,08:00 AM,09:30 AM,Hold Time Consult,Open,|MC,5/13/2025,09:30 AM,09:50 AM,Follow-Up,Open,D32.0|MC,5/13/2025,10:00 AM,10:20 AM,Follow-Up,Open,C44.319|MC,5/13/2025,10:00 AM,11:30 AM,Hold Time Consult,Open,|MC,5/13/2025,01:30 PM,01:50 PM,Follow-Up,Open,C44.42|MC,5/13/2025,01:30 PM,03:00 PM,Hold Time Consult,Open,|MC,5/13/2025,03:00 PM,03:20 PM,Follow-Up,Open,C44.319|MC,5/13/2025,03:00 PM,04:30 PM,Hold Time Consult,Open,|MC,5/14/2025,06:30 AM,07:15 AM,Alternate Covering Dr- only needed if covering dr steps out,Open,|MC,5/14/2025,07:30 AM,09:00 AM,St A's Tumor Board,Open,|MC,5/14/2025,09:00 AM,10:30 AM,Hold Time Consult,Cancelled,|MC,5/14/2025,10:30 AM,12:00 PM,Hold Time Consult,Open,|MC,5/14/2025,01:00 PM,02:30 PM,Hold Time Consult,Open,|MC,5/14/2025,02:30 PM,02:50 PM,Follow-Up,Open,C44.311|MC,5/14/2025,03:00 PM,04:30 PM,Hold Time Consult,Open,|MC,5/15/2025,07:00 AM,07:45 AM,Covering Physician,Open,|MC,5/15/2025,08:00 AM,09:30 AM,Hold Time Consult,Open,|MC,5/15/2025,08:00 AM,04:10 PM,On Beam,Open,|MC,5/15/2025,09:30 AM,10:00 AM,Hold Time Follow Up,Open,|MC,5/15/2025,01:00 PM,01:20 PM,Follow-Up,Open,C34.12_C61|MC,5/15/2025,01:30 PM,03:00 PM,Hold Time Consult,Open,|MC,5/16/2025,08:00 AM,09:30 AM,Hold Time Consult,Open,|MC,5/16/2025,09:30 AM,09:50 AM,Follow-Up,Open,C50.512|MC,5/16/2025,10:00 AM,10:20 AM,Follow-Up,Open,|MC,5/16/2025,10:00 AM,11:30 AM,Hold Time Consult,Cancelled,|MC,5/16/2025,12:00 PM,12:45 PM,Covering Physician,Open,|MC,5/16/2025,01:00 PM,02:30 PM,Hold Time Consult,Open,|MC,5/16/2025,02:30 PM,02:50 PM,Follow-Up,Open,C44.722|MC,5/19/2025,08:00 AM,09:30 AM,Hold Time Consult,Open,|MC,5/19/2025,10:00 AM,11:30 AM,Hold Time Consult,Open,|MC,5/19/2025,12:00 PM,12:45 PM,Covering Physician,Open,|MC,5/19/2025,01:00 PM,02:30 PM,Hold Time Consult,Open,|MC,5/19/2025,03:00 PM,04:30 PM,Hold Time Consult,Open,|MC,5/20/2025,08:30 AM,10:00 AM,Hold Time Consult,Open,|MC,5/20/2025,10:00 AM,11:30 AM,Hold Time Consult,Open,|MC,5/20/2025,01:00 PM,02:30 PM,Hold Time Consult,Open,|MC,5/21/2025,06:30 AM,07:15 AM,Alternate Covering Dr- only needed if covering dr steps out,Open,|MC,5/21/2025,07:30 AM,09:00 AM,St A's Tumor Board,Open,|MC,5/21/2025,09:00 AM,09:20 AM,Follow-Up,Open,C10.8|MC,5/21/2025,09:00 AM,10:30 AM,Hold Time Consult,Open,|MC,5/21/2025,10:30 AM,10:50 AM,Follow-Up,Open,C15.5|MC,5/21/2025,10:30 AM,12:00 PM,Hold Time Consult,Open,|MC,5/21/2025,01:00 PM,01:20 PM,Follow-Up,Open,C50.112_C79.51_C77.0|MC,5/21/2025,01:00 PM,02:30 PM,Hold Time Consult,Open,|MC,5/21/2025,02:30 PM,02:50 PM,Follow-Up,Open,C21.8|MC,5/21/2025,03:00 PM,04:30 PM,Hold Time Consult,Open,|MC,5/22/2025,07:00 AM,07:45 AM,Covering Physician,Open,|MC,5/22/2025,08:00 AM,09:30 AM,Hold Time Consult,Open,|MC,5/22/2025,08:00 AM,04:10 PM,On Beam,Open,|MC,5/22/2025,09:30 AM,09:50 AM,Follow-Up,Open,|MC,5/22/2025,10:00 AM,10:20 AM,Follow-Up,Open,C77.2|MC,5/22/2025,01:00 PM,01:20 PM,Follow-Up,Open,C09.0_C34.11_C79.31|MC,5/22/2025,01:30 PM,03:00 PM,Hold Time Consult,Open,|MC,5/23/2025,08:00 AM,09:30 AM,Hold Time Consult,Open,|MC,5/23/2025,09:30 AM,10:00 AM,Hold Time Follow Up,Open,|MC,5/23/2025,10:00 AM,11:30 AM,Hold Time Consult,Open,|MC,5/23/2025,12:00 PM,12:45 PM,Covering Physician,Open,|MC,5/23/2025,01:00 PM,02:30 PM,Hold Time Consult,Open,|MC,5/23/2025,02:30 PM,03:00 PM,Hold Time Follow Up,Open,|MC,5/23/2025,03:00 PM,04:30 PM,Hold Time Consult,Open,|MC,5/27/2025,08:30 AM,10:00 AM,Hold Time Consult,Open,|MC,5/27/2025,10:00 AM,10:20 AM,Follow-Up,Open,C50.212|MC,5/27/2025,10:00 AM,11:30 AM,Hold Time Consult,Open,|MC,5/27/2025,01:00 PM,02:30 PM,Hold Time Consult,Open,|MC,5/28/2025,06:30 AM,07:15 AM,Alternate Covering Dr- only needed if covering dr steps out,Open,|MC,5/28/2025,07:30 AM,09:00 AM,St A's Tumor Board,Open,|MC,5/28/2025,09:00 AM,10:00 AM,Extended Follow Up,Open,C50.411|MC,5/28/2025,10:00 AM,10:20 AM,Follow-Up,Open,C54.8_C53.9|MC,5/28/2025,10:30 AM,10:50 AM,Follow-Up,Open,C50.411|MC,5/28/2025,10:30 AM,12:00 PM,Hold Time Consult,Open,|MC,5/28/2025,01:00 PM,01:20 PM,Follow-Up,Open,C78.01_C79.51_C34.11|MC,5/28/2025,01:00 PM,02:30 PM,Hold Time Consult,Open,|MC,5/28/2025,02:30 PM,03:00 PM,Hold Time Follow Up,Open,|MC,5/28/2025,03:00 PM,03:20 PM,Follow-Up,Open,C54.1|MC,5/28/2025,03:00 PM,04:30 PM,Hold Time Consult,Open,||";
+                const lines = csvText.split('|');
+                const headers = lines[0].split(',');
+                
+                return lines.slice(1).map(line => {
+                    const values = line.split(',');
+                    if (values.length !== headers.length) return null;
+                    
+                    return {
+                        doctor: values[0],
+                        date: values[1],
+                        start: values[2],
+                        end: values[3],
+                        activity: values[4],
+                        status: values[5],
+                        diagnosis: values[6]
+                    };
+                }).filter(entry => entry !== null);
+            } catch (error) {
+                console.error('Error loading schedule data:', error);
+                return [];
+            }
+        }
+
+        // Parse text data into schedule entries
+        async function parseScheduleData() {
+            return await fetchScheduleData();
+        }
+
+        // ICD-10 diagnosis code mapping
+        const diagnosisCodes = {
+            "C15.5": "Malignant neoplasm of lower third of esophagus",
+            "C61": "Malignant neoplasm of prostate",
+            "C50.412": "Malignant neoplasm of upper-outer quadrant of right female breast",
+            "C34.12": "Malignant neoplasm of upper lobe, left bronchus or lung",
+            "C88.4": "Extranodal marginal zone B-cell lymphoma of mucosa-associated lymphoid tissue",
+            "C44.221": "Basal cell carcinoma of skin of right ear and external auricular canal",
+            "C44.329": "Squamous cell carcinoma of skin of other parts of face",
+            "C01": "Malignant neoplasm of base of tongue",
+            "C34.2": "Malignant neoplasm of middle lobe, bronchus or lung",
+            "C34.31": "Malignant neoplasm of lower lobe, right bronchus or lung",
+            "G93.89": "Other specified disorders of brain",
+            "C54.3": "Malignant neoplasm of fundus uteri",
+            "C79.31": "Secondary malignant neoplasm of brain",
+            "C34.11": "Malignant neoplasm of upper lobe, right bronchus or lung",
+            "C50.311": "Malignant neoplasm of lower-inner quadrant of right female breast",
+            "C79.51": "Secondary malignant neoplasm of bone",
+            "C78.01": "Secondary malignant neoplasm of right lung",
+            "C34.32": "Malignant neoplasm of lower lobe, left bronchus or lung",
+            "C77.3": "Secondary and unspecified malignant neoplasm of axilla and upper limb lymph nodes",
+            "C21.1": "Malignant neoplasm of anal canal",
+            "C82.01": "Follicular lymphoma grade I, lymph nodes of head, face, and neck",
+            "C50.812": "Malignant neoplasm of overlapping sites of right female breast",
+            "C50.511": "Malignant neoplasm of lower-outer quadrant of right female breast",
+            "C83.31": "Diffuse large B-cell lymphoma, lymph nodes of head, face, and neck",
+            "C05.1": "Malignant neoplasm of soft palate",
+            "C54.0": "Malignant neoplasm of isthmus uteri",
+            "D05.12": "Intraductal carcinoma in situ of left breast",
+            "C50.112": "Malignant neoplasm of central portion of right female breast",
+            "C32.0": "Malignant neoplasm of glottis",
+            "C4A.30": "Merkel cell carcinoma of unspecified part of face",
+            "233.0": "Carcinoma in situ of breast",
+            "C50.111": "Malignant neoplasm of central portion of right female breast",
+            "C32.1": "Malignant neoplasm of supraglottis",
+            "C15.4": "Malignant neoplasm of middle third of esophagus",
+            "C50.212": "Malignant neoplasm of upper-inner quadrant of left female breast",
+            "C25.1": "Malignant neoplasm of body of pancreas",
+            "185": "Malignant neoplasm of prostate",
+            "D04.5": "Carcinoma in situ of skin of trunk",
+            "D32.0": "Benign neoplasm of cerebral meninges",
+            "C10.8": "Malignant neoplasm of overlapping sites of oropharynx",
+            "C49.0": "Malignant neoplasm of connective and soft tissue of head, face and neck",
+            "C50.512": "Malignant neoplasm of lower-outer quadrant of left female breast",
+            "C53.8": "Malignant neoplasm of overlapping sites of cervix uteri",
+            "C77.2": "Secondary and unspecified malignant neoplasm of intra-abdominal lymph nodes"
+        };
+
+        // Add this function to get doctor class
+        function getDoctorClass(doctorName) {
+            if (doctorName.includes('DB')) return 'DB';
+            if (doctorName.includes('MC')) return 'MC';
+            if (doctorName.includes('SS')) return 'SS';
+            return 'doctor-other';
+        }
+
+        // Add this function to get activity class
+        function getActivityClass(activity) {
+            activity = activity.toLowerCase();
+            
+            if (activity.includes('vacation')) return 'activity-vacation';
+            if (activity.includes('covering physician')) return 'activity-covering';
+            if (activity.includes('alternate covering')) return 'activity-alternate-covering';
+            if (activity.includes('hold time')) return 'activity-hold-time';
+            if (activity.includes('follow-up')) return 'activity-follow-up';
+            if (activity.includes('consult')) return 'activity-consult';
+            if (activity.includes('nursing')) return 'activity-nursing';
+            if (activity.includes('on beam')) return 'activity-on-beam';
+            if (activity.includes('tumor board')) return 'activity-tumor-board';
+            if (activity.includes('out of office')) return 'activity-out-office';
+            
+            return 'activity-other';
+        }
+
+        // Format date string to yyyy-mm-dd
+        function formatDateForInput(dateStr) {
+            const parts = dateStr.split('/');
+            return `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
+        }
+
+        // Format date from yyyy-mm-dd to mm/dd/yyyy
+        function formatDateFromInput(dateStr) {
+            const date = new Date(dateStr);
+            return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+        }
+
+        // Get diagnosis descriptions for tooltip
+        function getDiagnosisInfo(diagnosisCode) {
+            if (!diagnosisCode) return '';
+            
+            const codes = diagnosisCode.split('_');
+            let result = '';
+            
+            codes.forEach(code => {
+                if (diagnosisCodes[code]) {
+                    result += `${code}: ${diagnosisCodes[code]}<br>`;
+                } else {
+                    result += `${code}<br>`;
+                }
+            });
+            
+            return result || diagnosisCode;
+        }
+
+        // Display the schedule entries
+        function displaySchedule(entries) {
+            const tableBody = document.getElementById('scheduleBody');
+            tableBody.innerHTML = '';
+            
+            entries.forEach(entry => {
+                const row = document.createElement('tr');
+                row.className = `appointment-row ${getDoctorClass(entry.doctor)} ${getActivityClass(entry.activity)}`;
+                
+                // Format the time
+                const timeDisplay = `${entry.start} - ${entry.end}`;
+                
+                // Create diagnosis tooltip if available
+                let diagnosisDisplay = '';
+                if (entry.diagnosis) {
+                    const diagnosisInfo = getDiagnosisInfo(entry.diagnosis);
+                    diagnosisDisplay = `
+                        <span class="diagnosis-tooltip">${entry.diagnosis}
+                            <span class="tooltip-text">${diagnosisInfo}</span>
+                        </span>
+                    `;
+                }
+                
+                // Create status badge
+                const statusClass = entry.status.toLowerCase() === 'open' ? 'badge-open' : 'badge-cancelled';
+                const statusDisplay = `<span class="badge ${statusClass}">${entry.status}</span>`;
+                
+                row.innerHTML = `
+                    <td>${entry.doctor}</td>
+                    <td>${entry.date}</td>
+                    <td>${timeDisplay}</td>
+                    <td>${entry.activity}</td>
+                    <td>${statusDisplay}</td>
+                    <td class="hidden-mobile">${diagnosisDisplay}</td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Filter the schedule based on selected options
+        function filterSchedule() {
+            const doctor = document.getElementById('doctorFilter').value;
+            const dateInput = document.getElementById('dateFilter').value;
+            const date = dateInput ? formatDateFromInput(dateInput) : '';
+            const activity = document.getElementById('activityFilter').value;
+            
+            let filtered = parseScheduleData();
+            
+            if (doctor !== 'all') {
+                filtered = filtered.filter(entry => entry.doctor === doctor);
+            }
+            
+            if (date) {
+                filtered = filtered.filter(entry => entry.date === date);
+            }
+            
+            if (activity !== 'all') {
+                filtered = filtered.filter(entry => entry.activity.includes(activity));
+            }
+            
+            displaySchedule(filtered);
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Initialize calendar with fetched data
+            await updateCalendar();
+
+            // Navigation buttons
+            document.getElementById('prevMonth').addEventListener('click', async () => {
+                if (currentView === 'month') {
+                    currentDate.setMonth(currentDate.getMonth() - 1);
+                } else if (currentView === 'week') {
+                    currentDate.setDate(currentDate.getDate() - 7);
+                } else if (currentView === 'day') {
+                    currentDate.setDate(currentDate.getDate() - 1);
+                }
+                await updateCalendar();
+            });
+
+            document.getElementById('nextMonth').addEventListener('click', async () => {
+                if (currentView === 'month') {
+                    currentDate.setMonth(currentDate.getMonth() + 1);
+                } else if (currentView === 'week') {
+                    currentDate.setDate(currentDate.getDate() + 7);
+                } else if (currentView === 'day') {
+                    currentDate.setDate(currentDate.getDate() + 1);
+                }
+                await updateCalendar();
+            });
+
+            // View controls
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentView = btn.dataset.view;
+                    await updateCalendar();
+                });
+            });
+
+            // Modal close button
+            document.querySelector('.close-modal').addEventListener('click', () => {
+                document.getElementById('appointmentModal').style.display = 'none';
+            });
+
+            // Close modal when clicking outside
+            window.addEventListener('click', (event) => {
+                const modal = document.getElementById('appointmentModal');
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+
+            // Doctor filter
+            document.getElementById('doctorFilter').addEventListener('change', async () => {
+                await updateCalendar();
+            });
+        });
+
+        // Calendar view functionality
+        let currentView = 'month';
+        let currentDate = new Date(2025, 3, 1); // April 2025
+
+        function getWeekDates(date) {
+            const start = new Date(date);
+            start.setDate(date.getDate() - date.getDay());
+            const end = new Date(start);
+            end.setDate(start.getDate() + 6);
+            return { start, end };
+        }
+
+        function formatTime(timeStr) {
+            const [time, period] = timeStr.split(' ');
+            const [hours, minutes] = time.split(':');
+            return {
+                hours: period === 'PM' ? parseInt(hours) + 12 : parseInt(hours),
+                minutes: parseInt(minutes)
+            };
+        }
+
+        function getTimeSlotPosition(startTime) {
+            const { hours, minutes } = formatTime(startTime);
+            return (hours * 60 + minutes) / 60;
+        }
+
+        async function updateCalendar() {
+            const calendarContainer = document.getElementById('calendarGrid');
+            calendarContainer.innerHTML = '';
+
+            if (currentView === 'month') {
+                await updateMonthView(calendarContainer);
+            } else if (currentView === 'week') {
+                await updateWeekView(calendarContainer);
+            } else if (currentView === 'day') {
+                await updateDayView(calendarContainer);
+            }
+
+            // Update current date display
+            document.getElementById('currentDate').textContent = 
+                currentDate.toLocaleString('default', { 
+                    month: 'long', 
+                    year: 'numeric',
+                    ...(currentView === 'week' ? { day: 'numeric' } : {})
+                });
+        }
+
+        async function updateMonthView(container) {
+            container.className = 'calendar-grid';
+            
+            // Add day headers
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            days.forEach(day => {
+                const headerCell = document.createElement('div');
+                headerCell.className = 'calendar-header-cell';
+                headerCell.textContent = day;
+                container.appendChild(headerCell);
+            });
+
+            // Get first day of month
+            const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+            const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+            
+            // Get starting day (0-6)
+            let startingDay = firstDay.getDay();
+            
+            // Add empty cells for days before the first day of the month
+            for (let i = 0; i < startingDay; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'calendar-cell other-month';
+                const prevMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
+                const dayNumber = prevMonth.getDate() - (startingDay - i - 1);
+                cell.innerHTML = `<div class="day-number">${dayNumber}</div>`;
+                container.appendChild(cell);
+            }
+
+            // Get the schedule data
+            const scheduleData = await parseScheduleData();
+            const selectedDoctor = document.getElementById('doctorFilter').value;
+            
+            // Add days of the current month
+            for (let i = 1; i <= lastDay.getDate(); i++) {
+                const cell = document.createElement('div');
+                const isToday = new Date().getDate() === i && 
+                               new Date().getMonth() === currentDate.getMonth() && 
+                               new Date().getFullYear() === currentDate.getFullYear();
+                
+                cell.className = `calendar-cell ${isToday ? 'today' : ''}`;
+                cell.innerHTML = `<div class="day-number">${i}</div>`;
+                
+                // Add appointments for this day
+                const dateStr = `${currentDate.getMonth() + 1}/${i}/${currentDate.getFullYear()}`;
+                let dayAppointments = scheduleData.filter(entry => {
+                    if (entry.date !== dateStr) return false;
+                    
+                    if (selectedDoctor === 'all') {
+                        // For "all doctors" view, show specific activities
+                        return [
+                            'Vacation',
+                            'Covering Physician',
+                            'Alternate Covering Dr- only needed if covering dr steps out',
+                            'Out of Office'
+                        ].includes(entry.activity);
+                    } else {
+                        // For specific doctor view, show all their activities
+                        return entry.doctor === selectedDoctor;
+                    }
+                });
+
+                // Sort appointments by activity priority
+                dayAppointments.sort((a, b) => {
+                    const priorityOrder = {
+                        'Vacation': 1,
+                        'Covering Physician': 2,
+                        'Alternate Covering Dr- only needed if covering dr steps out': 3,
+                        'Out of Office': 4
+                    };
+                    
+                    const aPriority = priorityOrder[a.activity] || 999;
+                    const bPriority = priorityOrder[b.activity] || 999;
+                    
+                    return aPriority - bPriority;
+                });
+                
+                dayAppointments.forEach(appointment => {
+                    const appointmentElement = document.createElement('div');
+                    appointmentElement.className = `appointment ${getDoctorClass(appointment.doctor)} ${getActivityClass(appointment.activity)}`;
+                    appointmentElement.setAttribute('data-tooltip', `${appointment.doctor}\n${appointment.activity}\n${appointment.start} - ${appointment.end}`);
+                    appointmentElement.innerHTML = `
+                        <div class="doctor-name">${appointment.doctor}</div>
+                        <div class="activity">${appointment.activity}</div>
+                        <div class="time">${appointment.start} - ${appointment.end}</div>
+                    `;
+                    appointmentElement.onclick = () => showAppointmentDetails(appointment);
+                    cell.appendChild(appointmentElement);
+                });
+                
+                container.appendChild(cell);
+            }
+        }
+
+        async function updateWeekView(container) {
+            container.className = 'week-view';
+            
+            // Add time column header
+            const timeHeader = document.createElement('div');
+            timeHeader.className = 'time-column';
+            timeHeader.textContent = 'Time';
+            container.appendChild(timeHeader);
+
+            // Add day headers
+            const { start } = getWeekDates(currentDate);
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(start);
+                date.setDate(start.getDate() + i);
+                const headerCell = document.createElement('div');
+                headerCell.className = 'week-day-header';
+                headerCell.textContent = date.toLocaleString('default', { weekday: 'short', month: 'short', day: 'numeric' });
+                container.appendChild(headerCell);
+            }
+
+            // Get the schedule data
+            const scheduleData = await parseScheduleData();
+            const selectedDoctor = document.getElementById('doctorFilter').value;
+
+            // Add time slots
+            for (let hour = 7; hour < 19; hour++) {
+                // Time column
+                const timeCell = document.createElement('div');
+                timeCell.className = 'time-column';
+                timeCell.textContent = `${hour}:00`;
+                container.appendChild(timeCell);
+
+                // Day cells
+                for (let day = 0; day < 7; day++) {
+                    const date = new Date(start);
+                    date.setDate(start.getDate() + day);
+                    const cell = document.createElement('div');
+                    cell.className = `week-cell ${date.toDateString() === new Date().toDateString() ? 'today' : ''}`;
+                    
+                    // Add appointments for this time slot
+                    const dateStr = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+                    let dayAppointments = scheduleData.filter(entry => {
+                        if (entry.date !== dateStr) return false;
+                        
+                        const startHour = parseInt(entry.start.split(':')[0]);
+                        const startPeriod = entry.start.includes('PM') ? 'PM' : 'AM';
+                        const adjustedHour = startPeriod === 'PM' && startHour !== 12 ? startHour + 12 : startHour;
+                        
+                        if (adjustedHour !== hour) return false;
+                        
+                        if (selectedDoctor === 'all') {
+                            // For "all doctors" view, only show specific activities
+                            return [
+                                'Vacation',
+                                'Covering Physician',
+                                'Alternate Covering Dr- only needed if covering dr steps out',
+                                'Out of Office'
+                            ].includes(entry.activity);
+                        } else {
+                            // For specific doctor view, show all their activities
+                            return entry.doctor === selectedDoctor;
+                        }
+                    });
+
+                    // Sort appointments by activity priority
+                    dayAppointments.sort((a, b) => {
+                        const priorityOrder = {
+                            'Vacation': 1,
+                            'Covering Physician': 2,
+                            'Alternate Covering Dr- only needed if covering dr steps out': 3,
+                            'Out of Office': 4
+                        };
+                        
+                        const aPriority = priorityOrder[a.activity] || 999;
+                        const bPriority = priorityOrder[b.activity] || 999;
+                        
+                        return aPriority - bPriority;
+                    });
+
+                    dayAppointments.forEach(appointment => {
+                        const appointmentElement = document.createElement('div');
+                        appointmentElement.className = `appointment ${getDoctorClass(appointment.doctor)} ${getActivityClass(appointment.activity)}`;
+                        appointmentElement.setAttribute('data-tooltip', `${appointment.doctor}\n${appointment.activity}\n${appointment.start} - ${appointment.end}`);
+                        appointmentElement.innerHTML = `
+                            <div class="doctor-name">${appointment.doctor}</div>
+                            <div class="activity">${appointment.activity}</div>
+                            <div class="time">${appointment.start} - ${appointment.end}</div>
+                        `;
+                        appointmentElement.onclick = () => showAppointmentDetails(appointment);
+                        cell.appendChild(appointmentElement);
+                    });
+
+                    container.appendChild(cell);
+                }
+            }
+        }
+
+        async function updateDayView(container) {
+            container.className = 'day-view';
+            
+            // Add day header
+            const headerCell = document.createElement('div');
+            headerCell.className = 'day-header';
+            headerCell.textContent = currentDate.toLocaleString('default', { 
+                weekday: 'long', 
+                month: 'long', 
+                day: 'numeric', 
+                year: 'numeric' 
+            });
+            container.appendChild(headerCell);
+
+            // Get the schedule data
+            const scheduleData = await parseScheduleData();
+            const selectedDoctor = document.getElementById('doctorFilter').value;
+
+            // Add time slots
+            for (let hour = 7; hour < 19; hour++) {
+                // Time column
+                const timeCell = document.createElement('div');
+                timeCell.className = 'time-slot';
+                timeCell.textContent = `${hour}:00`;
+                container.appendChild(timeCell);
+
+                // Day cell
+                const cell = document.createElement('div');
+                cell.className = `day-cell ${currentDate.toDateString() === new Date().toDateString() ? 'today' : ''}`;
+                
+                // Add appointments for this time slot
+                const dateStr = `${currentDate.getMonth() + 1}/${currentDate.getDate()}/${currentDate.getFullYear()}`;
+                let dayAppointments = scheduleData.filter(entry => {
+                    if (entry.date !== dateStr) return false;
+                    
+                    const startHour = parseInt(entry.start.split(':')[0]);
+                    const startPeriod = entry.start.includes('PM') ? 'PM' : 'AM';
+                    const adjustedHour = startPeriod === 'PM' && startHour !== 12 ? startHour + 12 : startHour;
+                    
+                    if (adjustedHour !== hour) return false;
+                    
+                    if (selectedDoctor === 'all') {
+                        // For "all doctors" view, only show specific activities
+                        return [
+                            'Vacation',
+                            'Covering Physician',
+                            'Alternate Covering Dr- only needed if covering dr steps out',
+                            'Out of Office'
+                        ].includes(entry.activity);
+                    } else {
+                        // For specific doctor view, show all their activities
+                        return entry.doctor === selectedDoctor;
+                    }
+                });
+
+                // Sort appointments by activity priority
+                dayAppointments.sort((a, b) => {
+                    const priorityOrder = {
+                        'Vacation': 1,
+                        'Covering Physician': 2,
+                        'Alternate Covering Dr- only needed if covering dr steps out': 3,
+                        'Out of Office': 4
+                    };
+                    
+                    const aPriority = priorityOrder[a.activity] || 999;
+                    const bPriority = priorityOrder[b.activity] || 999;
+                    
+                    return aPriority - bPriority;
+                });
+
+                dayAppointments.forEach(appointment => {
+                    const appointmentElement = document.createElement('div');
+                    appointmentElement.className = `appointment ${getDoctorClass(appointment.doctor)} ${getActivityClass(appointment.activity)}`;
+                    appointmentElement.setAttribute('data-tooltip', `${appointment.doctor}\n${appointment.activity}\n${appointment.start} - ${appointment.end}`);
+                    appointmentElement.innerHTML = `
+                        <div class="doctor-name">${appointment.doctor}</div>
+                        <div class="activity">${appointment.activity}</div>
+                        <div class="time">${appointment.start} - ${appointment.end}</div>
+                    `;
+                    appointmentElement.onclick = () => showAppointmentDetails(appointment);
+                    cell.appendChild(appointmentElement);
+                });
+
+                container.appendChild(cell);
+            }
+        }
+
+        function showAppointmentDetails(appointment) {
+            const modal = document.getElementById('appointmentModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalContent = document.getElementById('modalContent');
+            
+            modalTitle.textContent = `${appointment.activity} - ${appointment.doctor}`;
+            modalContent.innerHTML = `
+                <p><strong>Date:</strong> ${appointment.date}</p>
+                <p><strong>Time:</strong> ${appointment.start} - ${appointment.end}</p>
+                <p><strong>Status:</strong> ${appointment.status}</p>
+                ${appointment.diagnosis ? `<p><strong>Diagnosis:</strong> ${getDiagnosisInfo(appointment.diagnosis)}</p>` : ''}
+            `;
+            
+            modal.style.display = 'block';
+        }
+
+        // Update the filterAppointments function
+        function filterAppointments(appointments, selectedDoctor, selectedView) {
+            return appointments.filter(appointment => {
+                const isSelectedDoctor = selectedDoctor === 'all' || appointment.doctor === selectedDoctor;
+                const isCovering = appointment.activity.includes('Covering Physician');
+                const isAlternateCovering = appointment.activity.includes('Alternate Covering');
+                const isVacation = appointment.activity.includes('Vacation');
+                
+                if (selectedView === 'month') {
+                    return isSelectedDoctor && (isCovering || isAlternateCovering || isVacation);
+                } else {
+                    // For week and day views, show all appointments
+                    return true;
+                }
+            });
+        }
+
+        // Update the renderWeekView and renderDayView functions
+        function renderWeekView(appointments) {
+            const weekContainer = document.getElementById('week-view');
+            weekContainer.innerHTML = '';
+            
+            const selectedDoctor = document.getElementById('doctor-filter').value;
+            
+            // Create time slots
+            for (let hour = 7; hour <= 17; hour++) {
+                const timeSlot = document.createElement('div');
+                timeSlot.className = 'time-slot';
+                timeSlot.innerHTML = `<div class="time-label">${formatHour(hour)}</div>`;
+                
+                // Create day columns
+                for (let i = 0; i < 7; i++) {
+                    const day = new Date(currentDate);
+                    day.setDate(currentDate.getDate() - currentDate.getDay() + i);
+                    
+                    const dayColumn = document.createElement('div');
+                    dayColumn.className = 'day-column';
+                    
+                    const dayAppointments = appointments.filter(apt => {
+                        const aptDate = new Date(apt.date);
+                        return aptDate.toDateString() === day.toDateString() &&
+                               apt.startTime.getHours() === hour;
+                    });
+                    
+                    dayAppointments.forEach(apt => {
+                        const isSelectedDoctor = selectedDoctor === 'all' || apt.doctor === selectedDoctor;
+                        const isCovering = apt.activity.includes('Covering Physician');
+                        const isAlternateCovering = apt.activity.includes('Alternate Covering');
+                        const isVacation = apt.activity.includes('Vacation');
+                        
+                        const appointment = document.createElement('div');
+                        appointment.className = `appointment ${getDoctorClass(apt.doctor)} ${getActivityClass(apt.activity)}`;
+                        if (!isSelectedDoctor && (isCovering || isAlternateCovering || isVacation)) {
+                            appointment.classList.add('greyed-out');
+                        }
+                        appointment.innerHTML = `
+                            <div class="doctor-name">${apt.doctor}</div>
+                            <div class="activity">${apt.activity}</div>
+                            <div class="time">${formatTime(apt.startTime)} - ${formatTime(apt.endTime)}</div>
+                        `;
+                        dayColumn.appendChild(appointment);
+                    });
+                    
+                    timeSlot.appendChild(dayColumn);
+                }
+                
+                weekContainer.appendChild(timeSlot);
+            }
+        }
+
+        function renderDayView(appointments) {
+            const dayContainer = document.getElementById('day-view');
+            dayContainer.innerHTML = '';
+            
+            const selectedDoctor = document.getElementById('doctor-filter').value;
+            
+            // Create time slots
+            for (let hour = 7; hour <= 17; hour++) {
+                const timeSlot = document.createElement('div');
+                timeSlot.className = 'time-slot';
+                timeSlot.innerHTML = `<div class="time-label">${formatHour(hour)}</div>`;
+                
+                const dayAppointments = appointments.filter(apt => {
+                    const aptDate = new Date(apt.date);
+                    return aptDate.toDateString() === currentDate.toDateString() &&
+                           apt.startTime.getHours() === hour;
+                });
+                
+                dayAppointments.forEach(apt => {
+                    const isSelectedDoctor = selectedDoctor === 'all' || apt.doctor === selectedDoctor;
+                    const isCovering = apt.activity.includes('Covering Physician');
+                    const isAlternateCovering = apt.activity.includes('Alternate Covering');
+                    const isVacation = apt.activity.includes('Vacation');
+                    
+                    const appointment = document.createElement('div');
+                    appointment.className = `appointment ${getDoctorClass(apt.doctor)} ${getActivityClass(apt.activity)}`;
+                    if (!isSelectedDoctor && (isCovering || isAlternateCovering || isVacation)) {
+                        appointment.classList.add('greyed-out');
+                    }
+                    appointment.innerHTML = `
+                        <div class="doctor-name">${apt.doctor}</div>
+                        <div class="activity">${apt.activity}</div>
+                        <div class="time">${formatTime(apt.startTime)} - ${formatTime(apt.endTime)}</div>
+                    `;
+                    timeSlot.appendChild(appointment);
+                });
+                
+                dayContainer.appendChild(timeSlot);
+            }
+        }
+    </script>
+</body>
 </html>
