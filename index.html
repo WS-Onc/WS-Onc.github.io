@@ -946,8 +946,8 @@
             activity = activity.toLowerCase();
             
             if (activity.includes('vacation')) return 'activity-vacation';
-            if (activity.includes('covering physician')) return 'activity-covering';
             if (activity.includes('alternate covering')) return 'activity-alternate-covering';
+            if (activity.includes('covering physician')) return 'activity-covering';
             if (activity.includes('hold time')) return 'activity-hold-time';
             if (activity.includes('follow-up') || activity.includes('follow up')) return 'activity-follow-up';
             if (activity.includes('consult')) return 'activity-consult';
