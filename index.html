@@ -1310,6 +1310,7 @@
                             'Vacation',
                             'Covering Physician',
                             'Alternate Covering Physician',
+                            'Physician On Call',
                             'Out of Office'
                         ].includes(entry.activity);
                     } else {
@@ -1324,7 +1325,8 @@
                         'Vacation': 1,
                         'Covering Physician': 2,
                         'Alternate Covering Physician': 3,
-                        'Out of Office': 4
+                        'Physician On Call': 4,
+                        'Out of Office': 5
                     };
                     
                     const aPriority = priorityOrder[a.activity] || 999;
@@ -1394,6 +1396,7 @@
                             'Vacation',
                             'Covering Physician',
                             'Alternate Covering Physician',
+                            'Physician On Call',
                             'Out of Office'
                         ].includes(entry.activity);
                     });
