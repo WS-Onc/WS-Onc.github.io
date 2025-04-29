@@ -592,7 +592,7 @@
             </div>
         </div>
     </header>
-<p>Last Updated: 4/29/25 7:42 AM</p>
+<p>Last Updated: <span id="LE_Span">Never</span></p>
     <div class="container">
         <div class="calendar-header">
             <div class="navigation">
@@ -636,8 +636,11 @@
                 //const csvText = "Doctor,AppointmentDate,StartTime,EndTime,Activity,Status,Diagnosis";
                 const lines = csvText.split('\n');
                 const headers = lines[0].split(',');
+
+                let LEspan = document.getElementById("LE_Span");
+                LEspan.textContent = lines[1];
                 
-                return lines.slice(1).map(line => {
+                return lines.slice(2).map(line => {
                     const values = line.split(',');
                     if (values.length !== headers.length) return null;
                     
