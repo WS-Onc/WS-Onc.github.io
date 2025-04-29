@@ -34,6 +34,7 @@
             --activity-consult: #3B82F6;
             --activity-nursing: #D1BB2E;
             --activity-on-beam: #F59E0B;
+            --activity-on-call: #F59E0B;
             --activity-tumor-board: #8B5CF6;
             --activity-vacation: #EC4899;
             --activity-hold-time: #6B7280;
@@ -377,33 +378,61 @@
         /* Responsive Design */
         @media (max-width: 768px) {
             .calendar-header {
-                flex-direction: column;
-                gap: 1rem;
+                flex-direction: row;
+                flex-wrap: nowrap;
+                gap: 0.25rem;
+                padding: 0.5rem;
+                font-size: 0.85rem;
+                overflow-x: auto;
+                white-space: nowrap;
             }
-
             .navigation {
-                width: 100%;
-                justify-content: space-between;
+                gap: 0.25rem;
             }
-
+            .current-date {
+                font-size: 1rem;
+                font-weight: 500;
+                min-width: 0;
+                white-space: nowrap;
+            }
+            #datePicker {
+                font-size: 0.85rem;
+                padding: 0.1rem 0.3rem;
+                min-width: 0;
+                width: 110px;
+            }
+            .nav-btn {
+                padding: 0.3rem 0.6rem;
+                font-size: 0.85rem;
+            }
+            #todayBtn {
+                padding: 0.3rem 0.6rem;
+                font-size: 0.85rem;
+                min-width: 0;
+            }
+            .filters {
+                gap: 0.25rem;
+            }
+            #doctorFilter {
+                font-size: 0.85rem;
+                padding: 0.3rem 0.6rem;
+                min-width: 0;
+                width: 90px;
+            }
             .calendar-cell {
                 min-height: 50px;
                 padding: 0.25rem;
             }
-
             .appointment {
                 padding: 0.125rem 0.25rem;
                 margin-bottom: 0.125rem;
             }
-
             .appointment .doctor-name {
                 font-size: 0.65rem;
             }
-
             .appointment .activity {
                 font-size: 0.65rem;
             }
-
             .appointment .time {
                 font-size: 0.6rem;
             }
@@ -561,6 +590,10 @@
    .activity-on-beam {
                    background-color: var(--activity-on-beam);
          }
+
+        .activity-on-call {
+                   background-color: var(--activity-on-call);
+         }
         
         .activity-tumor-board {
             background-color: var(--activity-tumor-board);
@@ -642,11 +675,144 @@
             background-color: #3a6a9d;
             transform: translateY(-1px);
         }
+
+        /* Add styles for mobile menu */
+        .hamburger-menu {
+            display: none;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .hamburger-icon {
+            width: 24px;
+            height: 2px;
+            background-color: white;
+            position: relative;
+            margin: 6px 0;
+        }
+
+        .hamburger-icon::before,
+        .hamburger-icon::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 2px;
+            background-color: white;
+            transition: all 0.3s;
+        }
+
+        .hamburger-icon::before {
+            top: -6px;
+        }
+
+        .hamburger-icon::after {
+            bottom: -6px;
+        }
+
+        .mobile-menu {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--primary-color);
+            z-index: 1000;
+            padding: 1rem;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .mobile-menu.active {
+            transform: translateX(0);
+        }
+
+        .mobile-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .mobile-menu-title {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .mobile-menu-close {
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .mobile-menu-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .mobile-menu-btn {
+            background-color: transparent;
+            color: white;
+            border: 1px solid white;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .mobile-menu-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .hamburger-menu {
+                display: block;
+            }
+
+            .header-title {
+                display: none;
+            }
+
+            #showVacationsBtn {
+                display: none;
+            }
+
+            .mobile-menu {
+                display: block;
+            }
+        }
+
+        /* Remove the extra small view calendar icon override */
+        @media (max-width: 480px) {
+            .date-picker-wrapper {
+                position: static;
+                width: auto;
+                min-width: 0;
+            }
+            .date-picker-wrapper input[type="date"] {
+                width: auto;
+                min-width: 0;
+                opacity: 1;
+                position: static;
+                height: auto;
+                cursor: pointer;
+                z-index: auto;
+            }
+            .calendar-icon-only {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 <body>
     <header>
         <div class="header-content">
+            <div class="hamburger-menu" id="hamburgerMenu">
+                <div class="hamburger-icon"></div>
+            </div>
             <div class="header-title">WS Calendar</div>
             <div style="display: flex; align-items: center; margin-left: auto; gap: 0.5rem;">
                 <button class="nav-btn" id="showVacationsBtn">Vacations</button>
@@ -665,8 +831,16 @@
                 <button class="nav-btn" id="prevBtn" title="Previous"><span>&lt;</span></button>
                 <span class="current-date" id="currentDate">April 2025</span>
                 <button class="nav-btn" id="nextBtn" title="Next"><span>&gt;</span></button>
-                <input type="date" id="datePicker" style="margin-left:1rem; font-size:1rem; padding:0.2rem 0.5rem; border-radius:4px; border:1px solid #ccc;" />
                 <button class="nav-btn" id="todayBtn" style="margin-left:0.5rem;" title="Today">Today</button>
+                <button class="nav-btn" id="calendarIconBtn" title="Select Date" style="margin-left:0.5rem; position:relative; overflow:hidden;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="display:block;pointer-events:none;" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="3" y="4" width="18" height="18" rx="2" stroke="white" stroke-width="2"/>
+                        <path d="M3 10H21" stroke="white" stroke-width="2"/>
+                        <path d="M7 3V7" stroke="white" stroke-width="2"/>
+                        <path d="M17 3V7" stroke="white" stroke-width="2"/>
+                    </svg>
+                    <input type="date" id="datePicker" style="opacity:0;position:absolute;left:0;top:0;width:100%;height:100%;z-index:2;cursor:pointer;" tabindex="-1" />
+                </button>
             </div>
             <div class="filters">
             <select id="doctorFilter">
@@ -700,6 +874,16 @@
             <span class="close-modal" id="closeVacationModal">&times;</span>
             <h2>Vacations</h2>
             <div id="vacationListContent"></div>
+        </div>
+    </div>
+
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <div class="mobile-menu-title">WS Calendar</div>
+            <div class="mobile-menu-close" id="closeMobileMenu">&times;</div>
+        </div>
+        <div class="mobile-menu-content">
+            <button class="mobile-menu-btn" id="mobileVacationsBtn">Vacations</button>
         </div>
     </div>
 
@@ -769,6 +953,7 @@
             if (activity.includes('consult')) return 'activity-consult';
             if (activity.includes('nursing')) return 'activity-nursing';
             if (activity.includes('on beam')) return 'activity-on-beam';
+            if (activity.includes('on call')) return 'activity-on-call';
             if (activity.includes('tumor board')) return 'activity-tumor-board';
             if (activity.includes('out of office')) return 'activity-out-office';
             
@@ -803,6 +988,21 @@
             });
             
             return result || diagnosisCode;
+        }
+
+        // Show appointment details modal (ensure global scope)
+        function showAppointmentDetails(appointment) {
+            const modal = document.getElementById('appointmentModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalContent = document.getElementById('modalContent');
+            modalTitle.textContent = `${appointment.activity} - ${appointment.doctor}`;
+            modalContent.innerHTML = `
+                <p><strong>Date:</strong> ${appointment.date}</p>
+                <p><strong>Time:</strong> ${appointment.start} - ${appointment.end}</p>
+                <p><strong>Status:</strong> ${appointment.status}</p>
+                ${appointment.diagnosis ? `<p><strong>Diagnosis:</strong> ${getDiagnosisInfo(appointment.diagnosis)}</p>` : ''}
+            `;
+            modal.style.display = 'block';
         }
 
         // Display the schedule entries
@@ -882,10 +1082,6 @@
             datePicker.addEventListener('change', async (e) => {
                 const [year, month, day] = e.target.value.split('-');
                 currentDate = new Date(Number(year), Number(month)-1, Number(day));
-                await updateCalendar();
-            });
-            document.getElementById('todayBtn').addEventListener('click', async () => {
-                currentDate = new Date();
                 setDatePickerToCurrent();
                 await updateCalendar();
             });
@@ -912,34 +1108,60 @@
                 setDatePickerToCurrent();
                 await updateCalendar();
             });
+            document.getElementById('todayBtn').addEventListener('click', async () => {
+                currentDate = new Date();
+                setDatePickerToCurrent();
+                await updateCalendar();
+            });
             // View controls
             document.querySelectorAll('.view-btn').forEach(btn => {
                 btn.addEventListener('click', async () => {
                     document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
                     currentView = btn.dataset.view;
-                    // Show/hide week navigation (now handled by main nav)
                     await updateCalendar();
                     setDatePickerToCurrent();
                 });
             });
-            // Modal close button
-            document.querySelector('.close-modal').addEventListener('click', () => {
+            // Modal close button for appointment
+            document.querySelector('#appointmentModal .close-modal').addEventListener('click', () => {
                 document.getElementById('appointmentModal').style.display = 'none';
             });
-            // Close modal when clicking outside
+            // Modal close button for vacation
+            document.getElementById('closeVacationModal').addEventListener('click', () => {
+                document.getElementById('vacationModal').style.display = 'none';
+            });
+            // Close modals when clicking outside modal content
             window.addEventListener('click', (event) => {
-                const modal = document.getElementById('appointmentModal');
-                if (event.target === modal) {
-                    modal.style.display = 'none';
+                const appointmentModal = document.getElementById('appointmentModal');
+                const vacationModal = document.getElementById('vacationModal');
+                if (event.target === appointmentModal) {
+                    appointmentModal.style.display = 'none';
+                }
+                if (event.target === vacationModal) {
+                    vacationModal.style.display = 'none';
                 }
             });
             // Doctor filter
             document.getElementById('doctorFilter').addEventListener('change', async () => {
                 await updateCalendar();
             });
-            // Show Vacations button
-            document.getElementById('showVacationsBtn').addEventListener('click', async () => {
+            // Mobile menu functionality
+            const hamburgerMenu = document.getElementById('hamburgerMenu');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const closeMobileMenu = document.getElementById('closeMobileMenu');
+            const mobileVacationsBtn = document.getElementById('mobileVacationsBtn');
+
+            hamburgerMenu.addEventListener('click', () => {
+                mobileMenu.classList.add('active');
+            });
+
+            closeMobileMenu.addEventListener('click', () => {
+                mobileMenu.classList.remove('active');
+            });
+
+            mobileVacationsBtn.addEventListener('click', async () => {
+                mobileMenu.classList.remove('active');
                 const data = await parseScheduleData();
                 // Group vacations by doctor
                 const vacationsByDoctor = {};
@@ -962,9 +1184,29 @@
                 document.getElementById('vacationListContent').innerHTML = html;
                 document.getElementById('vacationModal').style.display = 'block';
             });
-            // Close vacation modal
-            document.getElementById('closeVacationModal').addEventListener('click', () => {
-                document.getElementById('vacationModal').style.display = 'none';
+            // Show Vacations button (main toolbar)
+            document.getElementById('showVacationsBtn').addEventListener('click', async () => {
+                const data = await parseScheduleData();
+                // Group vacations by doctor
+                const vacationsByDoctor = {};
+                data.forEach(entry => {
+                    if (entry.activity && entry.activity.toLowerCase().includes('vacation')) {
+                        if (!vacationsByDoctor[entry.doctor]) vacationsByDoctor[entry.doctor] = [];
+                        vacationsByDoctor[entry.doctor].push(entry);
+                    }
+                });
+                // Build HTML
+                let html = '';
+                Object.keys(vacationsByDoctor).sort().forEach(doctor => {
+                    html += `<h3>${doctor}</h3><ul>`;
+                    vacationsByDoctor[doctor].sort((a, b) => new Date(a.date) - new Date(b.date)).forEach(vac => {
+                        html += `<li>${vac.date}: ${vac.activity} (${vac.start} - ${vac.end})</li>`;
+                    });
+                    html += '</ul>';
+                });
+                if (!html) html = '<p>No vacations found.</p>';
+                document.getElementById('vacationListContent').innerHTML = html;
+                document.getElementById('vacationModal').style.display = 'block';
             });
         });
 
@@ -1109,8 +1351,7 @@
                             <div class=\"time\">${appointment.start} - ${appointment.end}</div>
                         `;
                     }
-                    appointmentElement.setAttribute('data-tooltip', `${appointment.doctor}\n${appointment.activity}\n${appointment.start} - ${appointment.end}`);
-                    appointmentElement.onclick = () => showAppointmentDetails(appointment);
+                    appointmentElement.setAttribute('data-appointment', JSON.stringify(appointment));
                     cell.appendChild(appointmentElement);
                 });
                 
@@ -1163,14 +1404,12 @@
                         if (appointment.status === 'Cancelled') {
                             appointmentElement.classList.add('cancelled');
                         }
-                        appointmentElement.setAttribute('data-tooltip', `${appointment.doctor}\n${appointment.activity}\n${appointment.start} - ${appointment.end}`);
+                        appointmentElement.setAttribute('data-appointment', JSON.stringify(appointment));
                         appointmentElement.innerHTML = `
-                            <div class="doctor-name">${appointment.doctor}</div>
-                            <div class="activity">${appointment.activity}</div>
-                            <div class="time">${appointment.start} - ${appointment.end}</div>
-                            ${appointment.status === 'Cancelled' ? '<div class="status-cancelled"></div>' : ''}
+                            <div class=\"doctor-name\">${appointment.doctor}</div>
+                            <div class=\"activity\">${appointment.activity}</div>
+                            <div class=\"time\">${appointment.start} - ${appointment.end}</div>
                         `;
-                        appointmentElement.onclick = () => showAppointmentDetails(appointment);
                         cell.appendChild(appointmentElement);
                     });
 
@@ -1226,14 +1465,12 @@
                             if (appointment.status === 'Cancelled') {
                                 appointmentElement.classList.add('cancelled');
                             }
-                            appointmentElement.setAttribute('data-tooltip', `${appointment.doctor}\n${appointment.activity}\n${appointment.start} - ${appointment.end}`);
+                            appointmentElement.setAttribute('data-appointment', JSON.stringify(appointment));
                             appointmentElement.innerHTML = `
-                                <div class="doctor-name">${appointment.doctor}</div>
-                                <div class="activity">${appointment.activity}</div>
-                                <div class="time">${appointment.start} - ${appointment.end}</div>
-                                ${appointment.status === 'Cancelled' ? '<div class="status-cancelled"></div>' : ''}
+                                <div class=\"doctor-name\">${appointment.doctor}</div>
+                                <div class=\"activity\">${appointment.activity}</div>
+                                <div class=\"time\">${appointment.start} - ${appointment.end}</div>
                             `;
-                            appointmentElement.onclick = () => showAppointmentDetails(appointment);
                             cell.appendChild(appointmentElement);
                         });
 
@@ -1268,7 +1505,7 @@
             timeHeader.textContent = 'Time';
             container.appendChild(timeHeader);
 
-            // Date header with date picker
+            // Date header (just the label, no date picker)
             const dateHeader = document.createElement('div');
             dateHeader.className = 'day-header';
             dateHeader.style.display = 'flex';
@@ -1277,27 +1514,10 @@
             dateHeader.style.justifyContent = 'space-between';
             dateHeader.style.paddingRight = '1rem';
             dateHeader.style.gridColumn = `span ${doctors.length}`;
-            
             // Date label
             const dateLabel = document.createElement('span');
             dateLabel.textContent = currentDate.toLocaleString('default', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
             dateHeader.appendChild(dateLabel);
-            
-            // Date picker
-            const dateInput = document.createElement('input');
-            dateInput.type = 'date';
-            dateInput.value = `${currentDate.getFullYear()}-${String(currentDate.getMonth()+1).padStart(2,'0')}-${String(currentDate.getDate()).padStart(2,'0')}`;
-            dateInput.style.fontSize = '1rem';
-            dateInput.style.padding = '0.2rem 0.5rem';
-            dateInput.style.borderRadius = '4px';
-            dateInput.style.border = '1px solid #ccc';
-            dateInput.addEventListener('change', async (e) => {
-                const [year, month, day] = e.target.value.split('-');
-                currentDate = new Date(Number(year), Number(month)-1, Number(day));
-                await updateCalendar();
-            });
-            dateHeader.appendChild(dateInput);
-            
             container.appendChild(dateHeader);
 
             // Add time slots
@@ -1329,146 +1549,17 @@
                         if (appointment.status === 'Cancelled') {
                             appointmentElement.classList.add('cancelled');
                         }
-                        appointmentElement.setAttribute('data-tooltip', `${appointment.doctor}\n${appointment.activity}\n${appointment.start} - ${appointment.end}`);
+                        appointmentElement.setAttribute('data-appointment', JSON.stringify(appointment));
                         appointmentElement.innerHTML = `
                             <div class=\"doctor-name\">${appointment.doctor}</div>
                             <div class=\"activity\">${appointment.activity}</div>
                             <div class=\"time\">${appointment.start} - ${appointment.end}</div>
-                            ${appointment.status === 'Cancelled' ? '<div class=\"status-cancelled\"></div>' : ''}
                         `;
-                        appointmentElement.onclick = () => showAppointmentDetails(appointment);
                         cell.appendChild(appointmentElement);
                     });
 
                     container.appendChild(cell);
                 });
-            }
-        }
-
-        function showAppointmentDetails(appointment) {
-            const modal = document.getElementById('appointmentModal');
-            const modalTitle = document.getElementById('modalTitle');
-            const modalContent = document.getElementById('modalContent');
-            
-            modalTitle.textContent = `${appointment.activity} - ${appointment.doctor}`;
-            modalContent.innerHTML = `
-                <p><strong>Date:</strong> ${appointment.date}</p>
-                <p><strong>Time:</strong> ${appointment.start} - ${appointment.end}</p>
-                <p><strong>Status:</strong> ${appointment.status}</p>
-                ${appointment.diagnosis ? `<p><strong>Diagnosis:</strong> ${getDiagnosisInfo(appointment.diagnosis)}</p>` : ''}
-            `;
-            
-            modal.style.display = 'block';
-        }
-
-        // Update the filterAppointments function
-        function filterAppointments(appointments, selectedDoctor, selectedView) {
-            return appointments.filter(appointment => {
-                const isSelectedDoctor = selectedDoctor === 'all' || appointment.doctor === selectedDoctor;
-                const isCovering = appointment.activity.includes('Covering Physician');
-                const isAlternateCovering = appointment.activity.includes('Alternate Covering');
-                const isVacation = appointment.activity.includes('Vacation');
-                
-                if (selectedView === 'month') {
-                    return isSelectedDoctor && (isCovering || isAlternateCovering || isVacation);
-                } else {
-                    // For week and day views, show all appointments
-                    return true;
-                }
-            });
-        }
-
-        // Update the renderWeekView and renderDayView functions
-        function renderWeekView(appointments) {
-            const weekContainer = document.getElementById('week-view');
-            weekContainer.innerHTML = '';
-            
-            const selectedDoctor = document.getElementById('doctor-filter').value;
-            
-            // Create time slots
-            for (let hour = 7; hour <= 17; hour++) {
-                const timeSlot = document.createElement('div');
-                timeSlot.className = 'time-slot';
-                timeSlot.innerHTML = `<div class="time-label">${formatHour(hour)}</div>`;
-                
-                // Create day columns
-                for (let i = 0; i < 7; i++) {
-                    const day = new Date(currentDate);
-                    day.setDate(currentDate.getDate() - currentDate.getDay() + i);
-                    
-                    const dayColumn = document.createElement('div');
-                    dayColumn.className = 'day-column';
-                    
-                    const dayAppointments = appointments.filter(apt => {
-                        const aptDate = new Date(apt.date);
-                        return aptDate.toDateString() === day.toDateString() &&
-                               apt.startTime.getHours() === hour;
-                    });
-                    
-                    dayAppointments.forEach(apt => {
-                        const isSelectedDoctor = selectedDoctor === 'all' || apt.doctor === selectedDoctor;
-                        const isCovering = apt.activity.includes('Covering Physician');
-                        const isAlternateCovering = apt.activity.includes('Alternate Covering');
-                        const isVacation = apt.activity.includes('Vacation');
-                        
-                        const appointment = document.createElement('div');
-                        appointment.className = `appointment ${getDoctorClass(apt.doctor)} ${getActivityClass(apt.activity)}`;
-                        if (!isSelectedDoctor && (isCovering || isAlternateCovering || isVacation)) {
-                            appointment.classList.add('greyed-out');
-                        }
-                        appointment.innerHTML = `
-                            <div class="doctor-name">${apt.doctor}</div>
-                            <div class="activity">${apt.activity}</div>
-                            <div class="time">${formatTime(apt.startTime)} - ${formatTime(apt.endTime)}</div>
-                        `;
-                        dayColumn.appendChild(appointment);
-                    });
-                    
-                    timeSlot.appendChild(dayColumn);
-                }
-                
-                weekContainer.appendChild(timeSlot);
-            }
-        }
-
-        function renderDayView(appointments) {
-            const dayContainer = document.getElementById('day-view');
-            dayContainer.innerHTML = '';
-            
-            const selectedDoctor = document.getElementById('doctor-filter').value;
-            
-            // Create time slots
-            for (let hour = 7; hour <= 17; hour++) {
-                const timeSlot = document.createElement('div');
-                timeSlot.className = 'time-slot';
-                timeSlot.innerHTML = `<div class="time-label">${formatHour(hour)}</div>`;
-                
-                const dayAppointments = appointments.filter(apt => {
-                    const aptDate = new Date(apt.date);
-                    return aptDate.toDateString() === currentDate.toDateString() &&
-                           apt.startTime.getHours() === hour;
-                });
-                
-                dayAppointments.forEach(apt => {
-                    const isSelectedDoctor = selectedDoctor === 'all' || apt.doctor === selectedDoctor;
-                    const isCovering = apt.activity.includes('Covering Physician');
-                    const isAlternateCovering = apt.activity.includes('Alternate Covering');
-                    const isVacation = apt.activity.includes('Vacation');
-                    
-                    const appointment = document.createElement('div');
-                    appointment.className = `appointment ${getDoctorClass(apt.doctor)} ${getActivityClass(apt.activity)}`;
-                    if (!isSelectedDoctor && (isCovering || isAlternateCovering || isVacation)) {
-                        appointment.classList.add('greyed-out');
-                    }
-                    appointment.innerHTML = `
-                        <div class="doctor-name">${apt.doctor}</div>
-                        <div class="activity">${apt.activity}</div>
-                        <div class="time">${formatTime(apt.startTime)} - ${formatTime(apt.endTime)}</div>
-                    `;
-                    timeSlot.appendChild(appointment);
-                });
-                
-                dayContainer.appendChild(timeSlot);
             }
         }
     </script>
