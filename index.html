@@ -637,10 +637,15 @@
                 const lines = csvText.split('\n');
                 const headers = lines[0].split(',');
 
-                let LEspan = document.getElementById("LE_Span");
-                LEspan.textContent = lines[1];
+                var startint = 1;
+                if (lines[1].includes("Edited:"))
+                {
+                    let LEspan = document.getElementById("LE_Span");
+                    LEspan.textContent = lines[1].split(':')[1];
+                    startint = 2;
+                }
                 
-                return lines.slice(1).map(line => {
+                return lines.slice(startint).map(line => {
                     const values = line.split(',');
                     if (values.length !== headers.length) return null;
                     
