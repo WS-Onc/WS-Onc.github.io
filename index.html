@@ -39,6 +39,7 @@
             --activity-vacation: #EC4899;
             --activity-hold-time: #6B7280;
             --activity-out-office: #9CA3AF;
+            --activity-other: #9CA3AF;
             --activity-covering: #B91C1C; /* Dark red for covering */
             --activity-alternate-covering: #93C5FD; /* Pastel blue for alternate covering */
         }
@@ -611,6 +612,10 @@
             background-color: var(--activity-out-office);
         }
 
+        .activity-other {
+            background-color: var(--activity-other);
+        }
+
         .activity-covering {
             background-color: var(--activity-covering);
         }
@@ -829,7 +834,7 @@
             </div>
         </div>
     </header>
-<p>Last Updated: <span id="LE_Span">Never</span></p>
+<p>  Last Updated: <span id="LE_Span">Never</span></p>
     <div class="container">
         <div class="calendar-header">
             <div class="navigation" id="calendarNavigation">
@@ -969,17 +974,18 @@
             activity = activity.toLowerCase();
             
             if (activity.includes('vacation')) return 'activity-vacation';
-            if (activity.includes('alternate covering')) return 'activity-alternate-covering';
-            if (activity.includes('covering physician')) return 'activity-covering';
-            if (activity.includes('hold time')) return 'activity-hold-time';
-            if (activity.includes('follow-up') || activity.includes('follow up')) return 'activity-follow-up';
-            if (activity.includes('consult')) return 'activity-consult';
-            if (activity.includes('nursing')) return 'activity-nursing';
-            if (activity.includes('on beam')) return 'activity-on-beam';
-            if (activity.includes('on call')) return 'activity-on-call';
-            if (activity.includes('tumor board')) return 'activity-tumor-board';
-            if (activity.includes('out of office')) return 'activity-out-office';
-            
+            else if (activity.includes('alternate covering')) return 'activity-alternate-covering';
+            else if (activity.includes('covering physician')) return 'activity-covering';
+            else if (activity.includes('hold time')) return 'activity-hold-time';
+            else if (activity.includes('follow-up') || activity.includes('follow up')) return 'activity-follow-up';
+            else if (activity.includes('consult')) return 'activity-consult';
+            else if (activity.includes('nursing')) return 'activity-nursing';
+            else if (activity.includes('on beam')) return 'activity-on-beam';
+            else if (activity.includes('on call')) return 'activity-on-call';
+            else if (activity.includes('tumor board')) return 'activity-tumor-board';
+            else if (activity.includes('out of office')) return 'activity-out-office';
+            else return 'activity-other';
+                
             return 'activity-other';
         }
 
