@@ -780,6 +780,10 @@
                 display: none;
             }
 
+            #showOnCallBtn {
+                display: none;
+            }
+
             .mobile-menu {
                 display: block;
             }
@@ -816,6 +820,7 @@
             <div class="header-title">WS Calendar</div>
             <div style="display: flex; align-items: center; margin-left: auto; gap: 0.5rem;">
                 <button class="nav-btn" id="showVacationsBtn">Vacations</button>
+                <button class="nav-btn" id="showOnCallBtn" style="margin-left:0.5rem;">On Call</button>
                 <div class="view-controls">
                     <button class="view-btn active" data-view="month">Month</button>
                     <button class="view-btn" data-view="week">Week</button>
@@ -877,6 +882,23 @@
         </div>
     </div>
 
+    <div class="modal" id="onCallModal" style="display:none;">
+        <div class="modal-content">
+            <span class="close-modal" id="closeOnCallModal">&times;</span>
+            <h2>On Call</h2>
+            <div style="margin-bottom:1rem;">
+                <label for="onCallDoctorFilter"><strong>Filter by Physician:</strong></label>
+                <select id="onCallDoctorFilter">
+                    <option value="all">All</option>
+                    <option value="DB">DB</option>
+                    <option value="MC">MC</option>
+                    <option value="SS">SS</option>
+                </select>
+            </div>
+            <div id="onCallListContent"></div>
+        </div>
+    </div>
+
     <div class="mobile-menu" id="mobileMenu">
         <div class="mobile-menu-header">
             <div class="mobile-menu-title">WS Calendar</div>
@@ -884,6 +906,7 @@
         </div>
         <div class="mobile-menu-content">
             <button class="mobile-menu-btn" id="mobileVacationsBtn">Vacations</button>
+            <button class="mobile-menu-btn" id="mobileOnCallBtn">On Call</button>
         </div>
     </div>
 
@@ -1208,6 +1231,44 @@
                 document.getElementById('vacationListContent').innerHTML = html;
                 document.getElementById('vacationModal').style.display = 'block';
             });
+            // On Call Modal logic
+            function renderOnCallList(data, filterDoctor) {
+                // Group by doctor
+                const onCallByDoctor = {};
+                data.forEach(entry => {
+                    if (entry.activity && entry.activity === 'Physician On Call') {
+                        if (!onCallByDoctor[entry.doctor]) onCallByDoctor[entry.doctor] = [];
+                        onCallByDoctor[entry.doctor].push(entry);
+                    }
+                });
+                let html = '';
+                const doctors = Object.keys(onCallByDoctor).sort();
+                doctors.forEach(doctor => {
+                    if (filterDoctor !== 'all' && doctor !== filterDoctor) return;
+                    html += `<h3>${doctor}</h3><ul>`;
+                    onCallByDoctor[doctor].sort((a, b) => new Date(a.date) - new Date(b.date)).forEach(call => {
+                        html += `<li>${call.date}: ${call.activity} (${call.start} - ${call.end})</li>`;
+                    });
+                    html += '</ul>';
+                });
+                if (!html) html = '<p>No on call entries found.</p>';
+                document.getElementById('onCallListContent').innerHTML = html;
+            }
+            async function showOnCallModal() {
+                const data = await parseScheduleData();
+                const filterDoctor = document.getElementById('onCallDoctorFilter').value;
+                renderOnCallList(data, filterDoctor);
+                document.getElementById('onCallModal').style.display = 'block';
+            }
+            document.getElementById('showOnCallBtn').addEventListener('click', showOnCallModal);
+            document.getElementById('mobileOnCallBtn').addEventListener('click', async () => {
+                document.getElementById('mobileMenu').classList.remove('active');
+                await showOnCallModal();
+            });
+            document.getElementById('closeOnCallModal').addEventListener('click', () => {
+                document.getElementById('onCallModal').style.display = 'none';
+            });
+            document.getElementById('onCallDoctorFilter').addEventListener('change', showOnCallModal);
         });
 
         // Calendar view functionality
