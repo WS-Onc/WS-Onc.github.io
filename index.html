@@ -640,7 +640,7 @@
                 let LEspan = document.getElementById("LE_Span");
                 LEspan.textContent = lines[1];
                 
-                return lines.slice(2).map(line => {
+                return lines.slice(1).map(line => {
                     const values = line.split(',');
                     if (values.length !== headers.length) return null;
                     
