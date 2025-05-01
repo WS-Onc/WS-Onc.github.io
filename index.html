@@ -1432,6 +1432,7 @@
                         `;
                     }
                     appointmentElement.setAttribute('data-appointment', JSON.stringify(appointment));
+                    appointmentElement.onclick = () => showAppointmentDetails(appointment);
                     cell.appendChild(appointmentElement);
                 });
                 
@@ -1491,6 +1492,7 @@
                             <div class=\"activity\">${appointment.activity}</div>
                             <div class=\"time\">${appointment.start} - ${appointment.end}</div>
                         `;
+                        appointmentElement.onclick = () => showAppointmentDetails(appointment);
                         cell.appendChild(appointmentElement);
                     });
 
@@ -1552,6 +1554,7 @@
                                 <div class=\"activity\">${appointment.activity}</div>
                                 <div class=\"time\">${appointment.start} - ${appointment.end}</div>
                             `;
+                            appointmentElement.onclick = () => showAppointmentDetails(appointment);
                             cell.appendChild(appointmentElement);
                         });
 
@@ -1636,6 +1639,7 @@
                             <div class=\"activity\">${appointment.activity}</div>
                             <div class=\"time\">${appointment.start} - ${appointment.end}</div>
                         `;
+                        appointmentElement.onclick = () => showAppointmentDetails(appointment);
                         cell.appendChild(appointmentElement);
                     });
 
