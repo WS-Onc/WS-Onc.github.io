@@ -878,7 +878,7 @@
 
     <div class="modal" id="appointmentModal">
         <div class="modal-content">
-            <span class="close-modal" id="closeModal">&times;</span>
+            <span class="close-modal">&times;</span>
             <h2 id="modalTitle">Appointment Details</h2>
             <div id="modalContent">
                 <!-- Appointment details will be loaded here -->
@@ -1160,7 +1160,7 @@
                 });
             });
             // Modal close button for appointment
-            document.querySelector('closeModal').addEventListener('click', () => {
+            document.querySelector('#appointmentModal .close-modal').addEventListener('click', () => {
                 document.getElementById('appointmentModal').style.display = 'none';
             });
             // Modal close button for vacation
