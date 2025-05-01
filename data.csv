@@ -1,15 +1,5 @@
 Doctor,AppointmentDate,StartTime,EndTime,Activity,Status,Diagnosis
-Edited|4/30/25 8:49 AM
-DB,4/30/2025,07:30 AM,10:30 AM,St A's Tumor Board,Open,
-DB,4/30/2025,10:00 AM,10:20 AM,Follow-Up,Open,C79.31
-DB,4/30/2025,10:30 AM,11:00 AM,Extended follow up (hospital consult),Open,C79.31
-DB,4/30/2025,11:00 AM,11:20 AM,Follow-Up,Open,
-DB,4/30/2025,11:30 AM,11:50 AM,Follow-Up,Open,C34.12_C34.2
-DB,4/30/2025,12:00 PM,12:20 PM,Follow-Up,Open,C61
-DB,4/30/2025,01:00 PM,01:20 PM,Follow-Up,Open,C50.812
-DB,4/30/2025,01:00 PM,01:30 PM,Nursing Assessment,Open,
-DB,4/30/2025,01:30 PM,02:30 PM,Consult,Open,
-DB,4/30/2025,02:30 PM,02:50 PM,Follow-Up,Open,C50.511
+Edited|5/1/25 8:21 AM
 DB,5/1/2025,07:00 AM,07:45 AM,Alternate Covering Physician,Open,
 DB,5/1/2025,08:30 AM,09:00 AM,Nursing Assessment,Open,
 DB,5/1/2025,08:30 AM,04:40 PM,On Beam,Open,
@@ -18,8 +8,8 @@ DB,5/1/2025,10:00 AM,10:20 AM,Follow-Up,Open,C01
 DB,5/1/2025,10:30 AM,11:30 AM,New Consult- Established Patient,Open,C61
 DB,5/1/2025,01:00 PM,02:00 PM,New Consult- Established Patient,Open,C78.02_C50.112
 DB,5/1/2025,02:30 PM,02:50 PM,Follow-Up,Open,
-DB,5/1/2025,02:30 PM,03:00 PM,Nursing Assessment,Open,
-DB,5/1/2025,03:00 PM,04:00 PM,Consult,Open,
+DB,5/1/2025,02:30 PM,03:00 PM,Nursing Assessment,Cancelled,
+DB,5/1/2025,03:00 PM,04:00 PM,Consult,Cancelled,
 DB,5/2/2025,08:30 AM,09:00 AM,Nursing Assessment,Open,
 DB,5/2/2025,09:00 AM,10:00 AM,Consult,Open,
 DB,5/2/2025,10:00 AM,10:30 AM,12mo Follow-Up,Open,C61
@@ -38,9 +28,9 @@ DB,5/5/2025,10:00 AM,10:30 AM,Nursing Assessment,Open,
 DB,5/5/2025,10:30 AM,11:30 AM,Consult,Open,
 DB,5/5/2025,12:00 PM,12:20 PM,Follow-Up,Open,C54.0
 DB,5/5/2025,01:00 PM,01:20 PM,Follow-Up,Open,C34.2_C50.111_C34.11
-DB,5/5/2025,01:30 PM,03:00 PM,Hold Time Consult,Open,
+DB,5/5/2025,01:30 PM,02:30 PM,Extended Follow Up,Open,
+DB,5/5/2025,02:30 PM,02:50 PM,Follow-Up,Open,C34.31
 DB,5/5/2025,03:00 PM,03:20 PM,Follow-Up,Open,C50.311
-DB,5/5/2025,03:00 PM,04:30 PM,Hold Time Consult,Open,
 DB,5/6/2025,07:00 AM,07:45 AM,Covering Physician,Open,
 DB,5/6/2025,08:00 AM,04:10 PM,On Beam,Open,
 DB,5/6/2025,08:30 AM,09:00 AM,Nursing Assessment,Open,
@@ -48,12 +38,12 @@ DB,5/6/2025,09:00 AM,10:00 AM,Consult,Open,
 DB,5/6/2025,11:00 AM,11:20 AM,Follow-Up,Open,C34.31
 DB,5/6/2025,12:00 PM,12:20 PM,Follow-Up,Open,C50.211
 DB,5/6/2025,12:30 PM,12:50 PM,Follow-Up,Open,C34.11_G95.29_C79.31_C79.51
-DB,5/6/2025,01:30 PM,03:00 PM,Hold Time Consult,Open,
+DB,5/6/2025,01:30 PM,02:00 PM,Nursing Assessment,Open,
+DB,5/6/2025,02:00 PM,03:00 PM,Consult,Open,
 DB,5/6/2025,03:00 PM,03:20 PM,Follow-Up,Open,C82.01
 DB,5/7/2025,07:30 AM,10:30 AM,St A's Tumor Board,Open,
 DB,5/7/2025,10:30 AM,10:50 AM,Follow-Up,Open,C61
 DB,5/7/2025,11:00 AM,11:20 AM,Follow-Up,Open,
-DB,5/7/2025,11:30 AM,12:00 PM,Hold Time Follow Up,Open,
 DB,5/7/2025,12:00 PM,12:20 PM,Follow-Up,Open,C50.112
 DB,5/7/2025,12:30 PM,12:50 PM,Follow-Up,Open,C79.31_C79.51_C34.11
 DB,5/7/2025,01:30 PM,03:00 PM,Hold Time Consult,Open,
@@ -170,6 +160,7 @@ DB,5/28/2025,09:00 AM,09:20 AM,Follow-Up,Open,
 DB,5/28/2025,10:30 AM,10:50 AM,Follow-Up,Open,
 DB,5/28/2025,11:30 AM,11:50 AM,Follow-Up,Open,C34.32
 DB,5/28/2025,12:00 PM,12:20 PM,Follow-Up,Open,C34.31
+DB,5/28/2025,12:30 PM,12:50 PM,Follow-Up,Open,C30.0
 DB,5/28/2025,01:00 PM,02:30 PM,Hold Time Consult,Open,
 DB,5/28/2025,02:30 PM,02:50 PM,Follow-Up,Open,C34.11
 DB,5/29/2025,07:00 AM,07:45 AM,Alternate Covering Physician,Open,
@@ -178,6 +169,7 @@ DB,5/29/2025,08:30 AM,08:50 AM,Follow-Up,Open,C61
 DB,5/29/2025,08:30 AM,10:00 AM,Hold Time Consult,Open,
 DB,5/29/2025,10:00 AM,10:20 AM,Follow-Up,Open,M25.552
 DB,5/29/2025,10:30 AM,12:00 PM,Hold Time Consult,Open,
+DB,5/29/2025,12:00 PM,12:20 PM,Follow-Up,Open,C61
 DB,5/29/2025,01:00 PM,01:20 PM,Follow-Up,Open,C21.1
 DB,5/29/2025,01:00 PM,02:30 PM,Hold Time Consult,Open,
 DB,5/29/2025,02:30 PM,03:00 PM,Hold Time Follow Up,Open,
@@ -185,15 +177,6 @@ DB,5/29/2025,03:00 PM,04:30 PM,Hold Time Consult,Open,
 DB,5/30/2025,08:00 AM,08:20 AM,Follow-Up,Open,C79.31
 DB,5/30/2025,08:30 AM,04:30 PM,Out of Office,Open,
 DB,5/30/2025,01:30 PM,01:50 PM,Follow-Up,Open,C34.11_C34.12
-SS,4/30/2025,06:30 AM,07:15 AM,Covering Physician,Manually Completed,
-SS,4/30/2025,08:00 AM,08:20 AM,Follow-Up,Manually Completed,C79.31
-SS,4/30/2025,08:00 AM,04:10 PM,On Beam,Open,
-SS,4/30/2025,09:00 AM,09:30 AM,Nursing Assessment,Open,
-SS,4/30/2025,09:30 AM,10:30 AM,Consult,Open,
-SS,4/30/2025,10:30 AM,11:00 AM,12mo Follow-Up,Open,C32.1
-SS,4/30/2025,11:00 AM,11:20 AM,Follow-Up,Open,C15.5
-SS,4/30/2025,01:00 PM,01:30 PM,Nursing Assessment,Open,
-SS,4/30/2025,01:30 PM,02:30 PM,Consult,Open,
 SS,5/1/2025,08:00 AM,09:30 AM,Off Site Meeting,Open,
 SS,5/1/2025,09:30 AM,10:00 AM,Nursing Assessment,Open,
 SS,5/1/2025,10:00 AM,11:00 AM,Consult,Open,
@@ -209,7 +192,7 @@ SS,5/2/2025,09:30 AM,10:00 AM,12mo Follow-Up,Open,
 SS,5/2/2025,10:00 AM,10:20 AM,Follow-Up,Open,C83.31
 SS,5/2/2025,10:30 AM,11:30 AM,Extended Follow Up,Open,
 SS,5/2/2025,11:30 AM,11:50 AM,Follow-Up,Open,C34.11_C34.31_C34.11
-SS,5/2/2025,01:00 PM,01:20 PM,Follow-Up,Open,C34.12
+SS,5/2/2025,01:00 PM,01:20 PM,Follow-Up,Cancelled,C34.12
 SS,5/2/2025,01:00 PM,02:30 PM,Hold Time Consult,Open,
 SS,5/2/2025,02:30 PM,03:00 PM,12mo Follow-Up,Open,
 SS,5/2/2025,02:30 PM,03:00 PM,Nursing Assessment,Open,
@@ -222,17 +205,18 @@ SS,5/5/2025,08:30 AM,10:00 AM,Hold Time Consult,Open,
 SS,5/5/2025,10:30 AM,11:00 AM,Nursing Assessment,Open,
 SS,5/5/2025,11:00 AM,12:00 PM,Consult,Open,
 SS,5/5/2025,01:30 PM,03:00 PM,Hold Time Consult,Open,
-SS,5/5/2025,03:00 PM,04:30 PM,Hold Time Consult,Open,
 SS,5/6/2025,07:00 AM,07:45 AM,Alternate Covering Physician,Open,
 SS,5/6/2025,08:00 AM,09:30 AM,Hold Time Consult,Open,
 SS,5/6/2025,09:30 AM,09:50 AM,Follow-Up,Open,C79.31
 SS,5/6/2025,10:00 AM,10:20 AM,Follow-Up,Open,C79.51
 SS,5/6/2025,10:00 AM,11:30 AM,Hold Time Consult,Open,
 SS,5/6/2025,01:00 PM,01:30 PM,Follow-Up,Open,
-SS,5/6/2025,01:00 PM,02:30 PM,Hold Time Consult,Open,
+SS,5/6/2025,01:00 PM,01:30 PM,Nursing Assessment,Open,
+SS,5/6/2025,01:30 PM,02:30 PM,Consult,Open,
 SS,5/6/2025,02:30 PM,02:50 PM,Follow-Up,Open,C44.311
 SS,5/6/2025,03:00 PM,03:20 PM,Follow-Up,Open,C50.512
-SS,5/6/2025,03:00 PM,04:30 PM,Hold Time Consult,Open,
+SS,5/6/2025,03:00 PM,03:30 PM,Nursing Assessment,Open,
+SS,5/6/2025,03:30 PM,04:30 PM,Consult,Open,
 SS,5/7/2025,07:00 AM,07:45 AM,Covering Physician,Open,
 SS,5/7/2025,08:00 AM,04:10 PM,On Beam,Open,
 SS,5/7/2025,09:00 AM,09:20 AM,Follow-Up,Open,C53.1
@@ -339,8 +323,8 @@ SS,5/29/2025,08:00 AM,09:30 AM,Off Site Meeting,Open,
 SS,5/29/2025,09:30 AM,11:00 AM,Hold Time Consult,Open,
 SS,5/29/2025,11:00 AM,11:30 AM,Hold Time Follow Up,Open,
 SS,5/29/2025,01:00 PM,02:30 PM,Hold Time Consult,Open,
+SS,5/29/2025,02:30 PM,02:50 PM,Follow-Up,Open,C51.0
 SS,5/29/2025,02:30 PM,04:00 PM,Hold Time Consult,Open,
-SS,5/29/2025,04:00 PM,04:30 PM,Hold Time Follow Up,Open,
 SS,5/30/2025,07:00 AM,07:45 AM,Alternate Covering Physician,Open,
 SS,5/30/2025,08:00 AM,09:30 AM,Hold Time Consult,Open,
 SS,5/30/2025,09:30 AM,10:00 AM,Hold Time Follow Up,Open,
@@ -348,10 +332,8 @@ SS,5/30/2025,10:00 AM,11:30 AM,Hold Time Consult,Open,
 SS,5/30/2025,01:00 PM,02:30 PM,Hold Time Consult,Open,
 SS,5/30/2025,02:30 PM,03:00 PM,Hold Time Follow Up,Open,
 SS,5/30/2025,03:00 PM,04:30 PM,Hold Time Consult,Open,
-MC,4/30/2025,06:30 AM,07:15 AM,Alternate Covering Physician,Open,
-MC,4/30/2025,07:30 AM,09:00 AM,St A's Tumor Board,Open,
-MC,4/30/2025,07:30 AM,04:20 PM,Vacation,Open,
-MC,4/30/2025,09:00 AM,10:00 AM,Extended Follow Up,Cancelled,C25.1
+SS,5/31/2025,07:00 AM,07:45 AM,Physician On Call,Open,
+SS,6/1/2025,07:00 AM,07:45 AM,Physician On Call,Open,
 MC,5/1/2025,07:00 AM,07:45 AM,Covering Physician,Open,
 MC,5/1/2025,08:00 AM,04:50 PM,Vacation,Open,
 MC,5/2/2025,08:00 AM,04:50 PM,Vacation,Open,
@@ -363,25 +345,24 @@ MC,5/7/2025,09:00 AM,09:20 AM,Follow-Up,Open,185_D04.5
 MC,5/7/2025,09:00 AM,09:30 AM,Nursing Assessment,Open,K22.89
 MC,5/7/2025,09:30 AM,10:30 AM,Extended follow up (hospital consult),Open,K22.89
 MC,5/7/2025,10:30 AM,10:50 AM,Follow-Up,Cancelled,C10.8
-MC,5/7/2025,10:30 AM,12:00 PM,Hold Time Consult,Open,
+MC,5/7/2025,10:30 AM,11:30 AM,Extended Follow Up,Open,C79.51
 MC,5/7/2025,01:00 PM,01:20 PM,Follow-Up,Open,C49.0
 MC,5/7/2025,01:00 PM,01:30 PM,Nursing Assessment,Open,C50.812
 MC,5/7/2025,01:30 PM,02:30 PM,Consult,Open,C50.812
 MC,5/7/2025,02:30 PM,02:50 PM,Follow-Up,Open,
-MC,5/7/2025,03:00 PM,03:20 PM,Follow-Up,Open,C34.12
+MC,5/7/2025,03:00 PM,03:20 PM,Follow-Up,Cancelled,C34.12
 MC,5/7/2025,03:00 PM,04:30 PM,Hold Time Consult,Open,
 MC,5/8/2025,07:00 AM,07:45 AM,Covering Physician,Open,
 MC,5/8/2025,08:00 AM,08:20 AM,Follow-Up,Open,C50.512
 MC,5/8/2025,08:00 AM,09:30 AM,Hold Time Consult,Open,
 MC,5/8/2025,08:00 AM,04:10 PM,On Beam,Open,
 MC,5/8/2025,09:30 AM,09:50 AM,Follow-Up,Open,
-MC,5/8/2025,10:00 AM,10:30 AM,12mo Follow-Up,Open,C61
 MC,5/8/2025,11:00 AM,11:20 AM,Follow-Up,Open,C71.1
 MC,5/8/2025,01:30 PM,01:50 PM,Follow-Up,Open,C32.0
 MC,5/8/2025,01:30 PM,03:00 PM,Hold Time Consult,Open,
 MC,5/9/2025,08:00 AM,09:30 AM,Hold Time Consult,Open,
-MC,5/9/2025,09:30 AM,10:00 AM,Hold Time Follow Up,Open,
-MC,5/9/2025,10:00 AM,11:30 AM,Hold Time Consult,Open,
+MC,5/9/2025,09:00 AM,09:30 AM,Nursing Assessment,Open,
+MC,5/9/2025,09:30 AM,10:30 AM,Extended Follow Up,Open,
 MC,5/9/2025,11:30 AM,11:50 AM,Follow-Up,Open,C50.512_C78.7
 MC,5/9/2025,12:00 PM,12:45 PM,Covering Physician,Open,
 MC,5/9/2025,01:00 PM,01:20 PM,Follow-Up,Open,C50.311
@@ -406,6 +387,7 @@ MC,5/14/2025,06:30 AM,07:15 AM,Alternate Covering Physician,Open,
 MC,5/14/2025,07:30 AM,09:00 AM,St A's Tumor Board,Open,
 MC,5/14/2025,09:00 AM,10:30 AM,Hold Time Consult,Cancelled,
 MC,5/14/2025,10:30 AM,12:00 PM,Hold Time Consult,Open,
+MC,5/14/2025,01:00 PM,01:20 PM,Follow-Up,Open,C50.211
 MC,5/14/2025,01:00 PM,02:30 PM,Hold Time Consult,Open,
 MC,5/14/2025,02:30 PM,02:50 PM,Follow-Up,Open,C44.311
 MC,5/14/2025,03:00 PM,04:30 PM,Hold Time Consult,Open,
@@ -419,6 +401,7 @@ MC,5/16/2025,08:00 AM,09:30 AM,Hold Time Consult,Open,
 MC,5/16/2025,09:30 AM,09:50 AM,Follow-Up,Open,C50.512
 MC,5/16/2025,10:00 AM,10:20 AM,Follow-Up,Open,
 MC,5/16/2025,10:00 AM,11:30 AM,Hold Time Consult,Cancelled,
+MC,5/16/2025,11:30 AM,12:00 PM,12mo Follow-Up,Open,C61
 MC,5/16/2025,12:00 PM,12:45 PM,Covering Physician,Open,
 MC,5/16/2025,01:00 PM,02:30 PM,Hold Time Consult,Open,
 MC,5/16/2025,02:30 PM,02:50 PM,Follow-Up,Open,C44.722
