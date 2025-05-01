@@ -880,7 +880,7 @@
         <div class="modal-content">
             <span class="close-modal">&times;</span>
             <h2 id="modalTitle">Appointment Details</h2>
-            <div id="modalContent">Test
+            <div id="modalContent">
                 <!-- Appointment details will be loaded here -->
             </div>
         </div>
@@ -1032,7 +1032,7 @@
             const modalTitle = document.getElementById('modalTitle');
             const modalContent = document.getElementById('modalContent');
             modalTitle.textContent = `${appointment.activity} - ${appointment.doctor}`;
-            modalContent.innerHTML = `${appointment.diagnosis ? `<p><strong>Diagnosis:</strong> ${getDiagnosisInfo(appointment.diagnosis)}</p>` : ''}`;
+            modalContent.innerHTML = `${appointment.activity} - ${appointment.doctor}`;
            // modalContent.innerHTML = `
            //     <p><strong>Date:</strong> ${appointment.date}</p>
            //     <p><strong>Time:</strong> ${appointment.start} - ${appointment.end}</p>
