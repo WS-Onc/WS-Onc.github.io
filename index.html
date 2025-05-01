@@ -1032,13 +1032,13 @@
             const modalTitle = document.getElementById('modalTitle');
             const modalContent = document.getElementById('modalContent');
             modalTitle.textContent = `${appointment.activity} - ${appointment.doctor}`;
-            modalContent.innerHTML = `${appointment.activity} - ${appointment.doctor}`;
-           // modalContent.innerHTML = `
-           //     <p><strong>Date:</strong> ${appointment.date}</p>
-           //     <p><strong>Time:</strong> ${appointment.start} - ${appointment.end}</p>
-           //     <p><strong>Status:</strong> ${appointment.status}</p>
-          //      ${appointment.diagnosis ? `<p><strong>Diagnosis:</strong> ${getDiagnosisInfo(appointment.diagnosis)}</p>` : ''}
-          //  `;
+          //  modalContent.innerHTML = `${appointment.activity} - ${appointment.doctor}`;
+            modalContent.innerHTML = `
+                <p><strong>Date:</strong> ${appointment.date}</p>
+                <p><strong>Time:</strong> ${appointment.start} - ${appointment.end}</p>
+                <p><strong>Status:</strong> ${appointment.status}</p>
+                ${appointment.diagnosis ? `<p><strong>Diagnosis:</strong> ${getDiagnosisInfo(appointment.diagnosis)}</p>` : ''}
+            `;
             modal.style.display = 'block';
         }
 
