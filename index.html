@@ -1171,11 +1171,15 @@
             window.addEventListener('click', (event) => {
                 const appointmentModal = document.getElementById('appointmentModal');
                 const vacationModal = document.getElementById('vacationModal');
+                const onCallModal = document.getElementById('onCallModal');
                 if (event.target === appointmentModal) {
                     appointmentModal.style.display = 'none';
                 }
                 if (event.target === vacationModal) {
                     vacationModal.style.display = 'none';
+                }
+                if (event.target === onCallModal) {
+                    onCallModal.style.display = 'none';
                 }
             });
             // Doctor filter
