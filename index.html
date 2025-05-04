@@ -1098,14 +1098,14 @@
         const modalTitle = document.getElementById('modalTitle');
         const modalContent = document.getElementById('modalContent');
         modalTitle.textContent = `${appointment.activity} - ${appointment.doctor}`;
-        modalContent.innerHTML = `Found issue with modalContent - ${appointment.activity}`;
-        /*   modalContent.innerHTML = `
+        try {
+           modalContent.innerHTML = `
                 <p><strong>Date:</strong> ${appointment.date}</p>
                 <p><strong>Time:</strong> ${appointment.start} - ${appointment.end}</p>
                 <p><strong>Status:</strong> ${appointment.status}</p>
                 ${appointment.diagnosis ? `<p><strong>Diagnosis:</strong> ${getDiagnosisInfo(appointment.diagnosis)}</p>` : ''}
             `;
-        */
+        } catch {modalContent.innerHTML = `Issue with modalContent`;}
         modal.style.display = 'block';
       }
       // Display the schedule entries
