@@ -1,1039 +1,1103 @@
-
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WSS</title>
-
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-title" content="WSO" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <link rel="icon" sizes="192x192" href="/apple-touch-icon.png" />
     <meta name="mobile-web-app-capable" content="yes" />
-    
+    <script src='crypto-js.min.js'></script>
     <style>
-        :root {
-            --primary-color: #4A84BD;
-            --secondary-color: #F7A531;
-            --light-color: #f3f4f6;
-            --dark-color: #1f2937;
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
-            --danger-color: #ef4444;
-            --calendar-bg: #ffffff;
-            --calendar-border: #e5e7eb;
-            --text-primary: #1f2937;
-            --text-secondary: #6b7280;
+      :root {
+        --primary-color: #4A84BD;
+        --secondary-color: #F7A531;
+        --light-color: #f3f4f6;
+        --dark-color: #1f2937;
+        --success-color: #10b981;
+        --warning-color: #f59e0b;
+        --danger-color: #ef4444;
+        --calendar-bg: #ffffff;
+        --calendar-border: #e5e7eb;
+        --text-primary: #1f2937;
+        --text-secondary: #6b7280;
+        /* Dr colors */
+        --DB: #F7A531;
+        /* Orange */
+        --MC: #EF4444;
+        /* Red */
+        --SS: #4A84BD;
+        /* Blue */
+        --doctor-other: #8B5CF6;
+        /* Activity colors */
+        --activity-follow-up: #10B981;
+        --activity-consult: #3B82F6;
+        --activity-nursing: #D1BB2E;
+        --activity-on-beam: #F59E0B;
+        --activity-on-call: #F59E0B;
+        --activity-tumor-board: #8B5CF6;
+        --activity-vacation: #EC4899;
+        --activity-hold-time: #6B7280;
+        --activity-out-office: #9CA3AF;
+        --activity-other: #9CA3AF;
+        --activity-covering: #B91C1C;
+        /* Dark red for covering */
+        --activity-alternate-covering: #93C5FD;
+        /* Pastel blue for alternate covering */
+      }
 
-            /* Dr colors */
-            --DB: #F7A531;  /* Orange */
-            --MC: #EF4444; /* Red */
-            --SS: #4A84BD;   /* Blue */
-            --doctor-other: #8B5CF6;
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
 
-            /* Activity colors */
-            --activity-follow-up: #10B981;
-            --activity-consult: #3B82F6;
-            --activity-nursing: #D1BB2E;
-            --activity-on-beam: #F59E0B;
-            --activity-on-call: #F59E0B;
-            --activity-tumor-board: #8B5CF6;
-            --activity-vacation: #EC4899;
-            --activity-hold-time: #6B7280;
-            --activity-out-office: #9CA3AF;
-            --activity-other: #9CA3AF;
-            --activity-covering: #B91C1C; /* Dark red for covering */
-            --activity-alternate-covering: #93C5FD; /* Pastel blue for alternate covering */
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        line-height: 1.6;
+        color: var(--text-primary);
+        background-color: #f5f5f7;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 1rem;
+        overflow-x: auto;
+        background: var(--calendar-bg);
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      }
+
+      .calendar-scroll {
+        width: 100%;
+        overflow-x: auto;
+      }
+
+      header {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 1rem 0;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+
+      .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 1rem;
+      }
+
+      .header-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+      }
+
+      .view-controls {
+        display: flex;
+        gap: 0.5rem;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 0.25rem;
+        border-radius: 8px;
+      }
+
+      .view-btn {
+        background-color: transparent;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-weight: 500;
+      }
+
+      .view-btn.active {
+        background-color: white;
+        color: var(--primary-color);
+      }
+
+      .view-btn:hover:not(.active) {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+
+      .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        background-color: var(--calendar-bg);
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .navigation {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+      }
+
+      .nav-btn {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-weight: 500;
+      }
+
+      .nav-btn:hover {
+        background-color: #3a6a9d;
+        transform: translateY(-1px);
+      }
+
+      .current-date {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .filters {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+      }
+
+      #doctorFilter {
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        border: 1px solid var(--calendar-border);
+        background-color: white;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      #doctorFilter:hover {
+        border-color: var(--primary-color);
+      }
+
+      /* Calendar Grid */
+      .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(120px, 1fr));
+        gap: 1px;
+        background-color: var(--calendar-border);
+        border: 1px solid var(--calendar-border);
+        border-radius: 8px;
+        overflow: hidden;
+        width: 100%;
+        table-layout: fixed;
+        min-width: 900px;
+      }
+
+      .calendar-header-cell {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 0.75rem;
+        text-align: center;
+        font-weight: 600;
+        width: 100%;
+      }
+
+      .calendar-cell {
+        background-color: var(--calendar-bg);
+        min-height: 100px;
+        padding: 0.5rem;
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+        border-right: 1px solid #e5e7eb;
+      }
+
+      /* Remove right border from last column in month view */
+      .calendar-grid>.calendar-cell:nth-child(7n) {
+        border-right: none;
+      }
+
+      .calendar-cell.today {
+        background-color: rgba(74, 132, 189, 0.1);
+      }
+
+      .calendar-cell.other-month {
+        background-color: #f9fafb;
+        color: var(--text-secondary);
+      }
+
+      .day-number {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+
+      .appointment {
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        margin-bottom: 0.25rem;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: transform 0.2s;
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+        overflow: hidden;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      .appointment:hover {
+        transform: translateY(-2px);
+      }
+
+      .appointment .doctor-name,
+      .appointment .activity,
+      .appointment .time {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+      }
+
+      .appointment.cancelled {
+        background-color: var(--danger-color);
+        opacity: 0.8;
+        position: relative;
+        text-decoration: line-through;
+      }
+
+      .cancelled-label {
+        position: absolute;
+        top: 4px;
+        right: 28px;
+        background: rgba(255, 255, 255, 0.85);
+        color: var(--danger-color);
+        font-size: 0.85em;
+        font-weight: bold;
+        padding: 0 6px;
+        border-radius: 4px;
+        text-decoration: line-through;
+        z-index: 2;
+      }
+
+      .status-cancelled {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        width: 16px;
+        height: 16px;
+        background-color: var(--danger-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 10px;
+        font-weight: bold;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      }
+
+      .status-cancelled::before {
+        content: "×";
+      }
+
+      .appointment.consult {
+        background-color: var(--secondary-color);
+      }
+
+      .appointment.nursing {
+        background-color: #10b981;
+      }
+
+      .appointment.on-beam {
+        background-color: #10b981;
+      }
+
+      .appointment.tumor-board {
+        background-color: #8b5cf6;
+      }
+
+      .appointment.vacation {
+        background-color: #ec4899;
+      }
+
+      .appointment.hold-time {
+        background-color: #6b7280;
+      }
+
+      /* Modal Styles */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+      }
+
+      .modal-content {
+        background-color: white;
+        margin: 2rem auto;
+        padding: 2rem;
+        border-radius: 8px;
+        max-width: 600px;
+        position: relative;
+      }
+
+      .close-modal {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        font-size: 1.5rem;
+        cursor: pointer;
+      }
+
+      /* Animations */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+        to {
+          opacity: 1;
         }
+      }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            line-height: 1.6;
-            color: var(--text-primary);
-            background-color: #f5f5f7;
-        }
+      .calendar-grid {
+        animation: fadeIn 0.3s ease-in-out;
+      }
 
-        .container {
-            width: 100%;
-            max-width: 100%;
-            margin: 0 auto;
-            padding: 1rem;
-            overflow-x: auto;
-            background: var(--calendar-bg);
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-        }
+      .appointment {
+        animation: fadeIn 0.2s ease-in-out;
+      }
 
-        .calendar-scroll {
-            width: 100%;
-            overflow-x: auto;
-        }
-
-        header {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 1rem 0;
-            margin-bottom: 1rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 1rem;
-        }
-
-        .header-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-
-        .view-controls {
-            display: flex;
-            gap: 0.5rem;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 0.25rem;
-            border-radius: 8px;
-        }
-
-        .view-btn {
-            background-color: transparent;
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-weight: 500;
-        }
-
-        .view-btn.active {
-            background-color: white;
-            color: var(--primary-color);
-        }
-
-        .view-btn:hover:not(.active) {
-            background-color: rgba(255, 255, 255, 0.2);
-        }
-
+      /* Responsive Design */
+      @media (max-width: 768px) {
         .calendar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            padding: 1rem;
-            background-color: var(--calendar-bg);
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+          flex-direction: row;
+          flex-wrap: nowrap;
+          gap: 0.25rem;
+          padding: 0.5rem;
+          font-size: 0.85rem;
+          overflow-x: auto;
+          white-space: nowrap;
         }
 
         .navigation {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
-
-        .nav-btn {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-weight: 500;
-        }
-
-        .nav-btn:hover {
-            background-color: #3a6a9d;
-            transform: translateY(-1px);
+          gap: 0.25rem;
         }
 
         .current-date {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--text-primary);
+          font-size: 1rem;
+          font-weight: 500;
+          min-width: 0;
+          white-space: nowrap;
+        }
+
+        #datePicker {
+          font-size: 0.85rem;
+          padding: 0.1rem 0.3rem;
+          min-width: 0;
+          width: 110px;
+        }
+
+        .nav-btn {
+          padding: 0.3rem 0.6rem;
+          font-size: 0.85rem;
+        }
+
+        #todayBtn {
+          padding: 0.3rem 0.6rem;
+          font-size: 0.85rem;
+          min-width: 0;
         }
 
         .filters {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
+          gap: 0.25rem;
         }
 
         #doctorFilter {
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            border: 1px solid var(--calendar-border);
-            background-color: white;
-            font-size: 0.875rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        #doctorFilter:hover {
-            border-color: var(--primary-color);
-        }
-
-        /* Calendar Grid */
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, minmax(120px, 1fr));
-            gap: 1px;
-            background-color: var(--calendar-border);
-            border: 1px solid var(--calendar-border);
-            border-radius: 8px;
-            overflow: hidden;
-            width: 100%;
-            table-layout: fixed;
-            min-width: 900px;
-        }
-
-        .calendar-header-cell {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 0.75rem;
-            text-align: center;
-            font-weight: 600;
-            width: 100%;
+          font-size: 0.85rem;
+          padding: 0.3rem 0.6rem;
+          min-width: 0;
+          width: 90px;
         }
 
         .calendar-cell {
-            background-color: var(--calendar-bg);
-            min-height: 100px;
-            padding: 0.5rem;
-            position: relative;
-            width: 100%;
-            overflow: hidden;
-            border-right: 1px solid #e5e7eb;
-        }
-
-        /* Remove right border from last column in month view */
-        .calendar-grid > .calendar-cell:nth-child(7n) {
-            border-right: none;
-        }
-
-        .calendar-cell.today {
-            background-color: rgba(74, 132, 189, 0.1);
-        }
-
-        .calendar-cell.other-month {
-            background-color: #f9fafb;
-            color: var(--text-secondary);
-        }
-
-        .day-number {
-            font-weight: 600;
-            margin-bottom: 0.5rem;
+          min-height: 50px;
+          padding: 0.25rem;
         }
 
         .appointment {
-            color: white;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            margin-bottom: 0.25rem;
-            font-size: 0.875rem;
-            cursor: pointer;
-            transition: transform 0.2s;
-            display: flex;
-            flex-direction: column;
-            gap: 0.125rem;
-            overflow: hidden;
-            width: 100%;
-            box-sizing: border-box;
+          padding: 0.125rem 0.25rem;
+          margin-bottom: 0.125rem;
         }
 
-        .appointment:hover {
-            transform: translateY(-2px);
+        .appointment .doctor-name {
+          font-size: 0.65rem;
         }
 
-        .appointment .doctor-name,
-        .appointment .activity,
+        .appointment .activity {
+          font-size: 0.65rem;
+        }
+
         .appointment .time {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            width: 100%;
+          font-size: 0.6rem;
         }
+      }
 
-        .appointment.cancelled {
-            background-color: var(--danger-color);
-            opacity: 0.8;
-            position: relative;
-            text-decoration: line-through;
-        }
+      /* Week View Styles */
+      .week-view {
+        display: grid;
+        grid-template-columns: 100px repeat(7, minmax(120px, 1fr));
+        gap: 1px;
+        background-color: var(--calendar-border);
+        border: 1px solid var(--calendar-border);
+        border-radius: 8px;
+        overflow: hidden;
+        width: 100%;
+        table-layout: fixed;
+        min-width: 900px;
+      }
 
-        .cancelled-label {
-            position: absolute;
-            top: 4px;
-            right: 28px;
-            background: rgba(255,255,255,0.85);
-            color: var(--danger-color);
-            font-size: 0.85em;
-            font-weight: bold;
-            padding: 0 6px;
-            border-radius: 4px;
-            text-decoration: line-through;
-            z-index: 2;
-        }
+      .time-column {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 0.5rem;
+        text-align: center;
+        font-weight: 600;
+        width: 100px;
+        position: sticky;
+        left: 0;
+      }
 
-        .status-cancelled {
-            position: absolute;
-            top: 4px;
-            right: 4px;
-            width: 16px;
-            height: 16px;
-            background-color: var(--danger-color);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 10px;
-            font-weight: bold;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-        }
+      .week-day-header {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 0.75rem;
+        text-align: center;
+        font-weight: 600;
+        width: 100%;
+      }
 
-        .status-cancelled::before {
-            content: "×";
-        }
+      .week-cell {
+        background-color: var(--calendar-bg);
+        min-height: 60px;
+        padding: 0.25rem;
+        position: relative;
+        border-bottom: 1px solid var(--calendar-border);
+        overflow: hidden;
+        border-right: 1px solid #e5e7eb;
+      }
 
-        .appointment.consult {
-            background-color: var(--secondary-color);
-        }
+      /* Remove right border from last column in week view */
+      .week-view>.week-cell:nth-child(8n) {
+        border-right: none;
+      }
 
-        .appointment.nursing {
-            background-color: #10b981;
-        }
+      .week-cell.today {
+        background-color: rgba(74, 132, 189, 0.1);
+      }
 
-         .appointment.on-beam {
-            background-color: #10b981;
-        }
+      /* Day View Styles */
+      .day-view {
+        display: grid;
+        grid-template-columns: 100px minmax(240px, 1fr);
+        gap: 1px;
+        background-color: var(--calendar-border);
+        border: 1px solid var(--calendar-border);
+        border-radius: 8px;
+        overflow: hidden;
+        width: 100%;
+        table-layout: fixed;
+        min-width: 900px;
+      }
 
-        .appointment.tumor-board {
-            background-color: #8b5cf6;
-        }
+      .day-header {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 0.75rem;
+        text-align: center;
+        font-weight: 600;
+        grid-column: 1 / -1;
+        width: 100%;
+      }
 
-        .appointment.vacation {
-            background-color: #ec4899;
-        }
+      .day-cell {
+        background-color: var(--calendar-bg);
+        min-height: 60px;
+        padding: 0.25rem;
+        position: relative;
+        border-bottom: 1px solid var(--calendar-border);
+        width: 100%;
+        border-left: 1px solid #e5e7eb;
+        overflow: hidden;
+      }
 
-        .appointment.hold-time {
-            background-color: #6b7280;
-        }
+      /* Remove left border from first column in day view */
+      .day-view>.day-cell:nth-child(2n+1) {
+        border-left: none;
+      }
 
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-        }
+      .day-cell.today {
+        background-color: rgba(74, 132, 189, 0.1);
+      }
 
-        .modal-content {
-            background-color: white;
-            margin: 2rem auto;
-            padding: 2rem;
-            border-radius: 8px;
-            max-width: 600px;
-            position: relative;
-        }
+      .time-slot {
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+      }
 
-        .close-modal {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
+      .appointment-slot {
+        position: absolute;
+        left: 0;
+        right: 0;
+        padding: 0.25rem;
+        border-radius: 4px;
+        color: white;
+        font-size: 0.75rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
 
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+      /* Doctor-specific styles */
+      .DB {
+        border-left: 4px solid var(--DB);
+      }
 
-        .calendar-grid {
-            animation: fadeIn 0.3s ease-in-out;
-        }
+      .MC {
+        border-left: 4px solid var(--MC);
+      }
 
-        .appointment {
-            animation: fadeIn 0.2s ease-in-out;
-        }
+      .SS {
+        border-left: 4px solid var(--SS);
+      }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .calendar-header {
-                flex-direction: row;
-                flex-wrap: nowrap;
-                gap: 0.25rem;
-                padding: 0.5rem;
-                font-size: 0.85rem;
-                overflow-x: auto;
-                white-space: nowrap;
-            }
-            .navigation {
-                gap: 0.25rem;
-            }
-            .current-date {
-                font-size: 1rem;
-                font-weight: 500;
-                min-width: 0;
-                white-space: nowrap;
-            }
-            #datePicker {
-                font-size: 0.85rem;
-                padding: 0.1rem 0.3rem;
-                min-width: 0;
-                width: 110px;
-            }
-            .nav-btn {
-                padding: 0.3rem 0.6rem;
-                font-size: 0.85rem;
-            }
-            #todayBtn {
-                padding: 0.3rem 0.6rem;
-                font-size: 0.85rem;
-                min-width: 0;
-            }
-            .filters {
-                gap: 0.25rem;
-            }
-            #doctorFilter {
-                font-size: 0.85rem;
-                padding: 0.3rem 0.6rem;
-                min-width: 0;
-                width: 90px;
-            }
-            .calendar-cell {
-                min-height: 50px;
-                padding: 0.25rem;
-            }
-            .appointment {
-                padding: 0.125rem 0.25rem;
-                margin-bottom: 0.125rem;
-            }
-            .appointment .doctor-name {
-                font-size: 0.65rem;
-            }
-            .appointment .activity {
-                font-size: 0.65rem;
-            }
-            .appointment .time {
-                font-size: 0.6rem;
-            }
-        }
+      .doctor-other {
+        border-left: 4px solid var(--doctor-other);
+      }
 
-        /* Week View Styles */
-        .week-view {
-            display: grid;
-            grid-template-columns: 100px repeat(7, minmax(120px, 1fr));
-            gap: 1px;
-            background-color: var(--calendar-border);
-            border: 1px solid var(--calendar-border);
-            border-radius: 8px;
-            overflow: hidden;
-            width: 100%;
-            table-layout: fixed;
-            min-width: 900px;
-        }
+      /* Activity-specific styles */
+      .activity-follow-up {
+        background-color: var(--activity-follow-up);
+      }
 
-        .time-column {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 0.5rem;
-            text-align: center;
-            font-weight: 600;
-            width: 100px;
-            position: sticky;
-            left: 0;
-        }
+      .activity-consult {
+        background-color: var(--activity-consult);
+      }
 
-        .week-day-header {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 0.75rem;
-            text-align: center;
-            font-weight: 600;
-            width: 100%;
-        }
+      .activity-nursing {
+        background-color: var(--activity-nursing);
+      }
 
-        .week-cell {
-            background-color: var(--calendar-bg);
-            min-height: 60px;
-            padding: 0.25rem;
-            position: relative;
-            border-bottom: 1px solid var(--calendar-border);
-            overflow: hidden;
-            border-right: 1px solid #e5e7eb;
-        }
+      .activity-on-beam {
+        background-color: var(--activity-on-beam);
+      }
 
-        /* Remove right border from last column in week view */
-        .week-view > .week-cell:nth-child(8n) {
-            border-right: none;
-        }
+      .activity-on-call {
+        background-color: var(--activity-on-call);
+      }
 
-        .week-cell.today {
-            background-color: rgba(74, 132, 189, 0.1);
-        }
+      .activity-tumor-board {
+        background-color: var(--activity-tumor-board);
+      }
 
-        /* Day View Styles */
-        .day-view {
-            display: grid;
-            grid-template-columns: 100px minmax(240px, 1fr);
-            gap: 1px;
-            background-color: var(--calendar-border);
-            border: 1px solid var(--calendar-border);
-            border-radius: 8px;
-            overflow: hidden;
-            width: 100%;
-            table-layout: fixed;
-            min-width: 900px;
-        }
+      .activity-vacation {
+        background-color: var(--activity-vacation);
+      }
 
-        .day-header {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 0.75rem;
-            text-align: center;
-            font-weight: 600;
-            grid-column: 1 / -1;
-            width: 100%;
-        }
+      .activity-hold-time {
+        background-color: var(--activity-hold-time);
+      }
 
-        .day-cell {
-            background-color: var(--calendar-bg);
-            min-height: 60px;
-            padding: 0.25rem;
-            position: relative;
-            border-bottom: 1px solid var(--calendar-border);
-            width: 100%;
-            border-left: 1px solid #e5e7eb;
-            overflow: hidden;
-        }
+      .activity-out-office {
+        background-color: var(--activity-out-office);
+      }
 
-        /* Remove left border from first column in day view */
-        .day-view > .day-cell:nth-child(2n+1) {
-            border-left: none;
-        }
+      .activity-other {
+        background-color: var(--activity-other);
+      }
 
-        .day-cell.today {
-            background-color: rgba(74, 132, 189, 0.1);
-        }
+      .activity-covering {
+        background-color: var(--activity-covering);
+      }
 
-        .time-slot {
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-        }
+      .activity-alternate-covering {
+        background-color: var(--activity-alternate-covering);
+      }
 
-        .appointment-slot {
-            position: absolute;
-            left: 0;
-            right: 0;
-            padding: 0.25rem;
-            border-radius: 4px;
-            color: white;
-            font-size: 0.75rem;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
+      /* Add tooltip for truncated text */
+      .appointment {
+        position: relative;
+      }
 
-        /* Doctor-specific styles */
-        .DB {
-            border-left: 4px solid var(--DB);
-        }
+      .appointment:hover::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 0.5rem;
+        background-color: rgba(0, 0, 0, 0.8);
+        color: white;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        white-space: normal;
+        width: max-content;
+        max-width: 200px;
+        z-index: 1000;
+        display: block;
+      }
 
-        .MC {
-            border-left: 4px solid var(--MC);
-        }
+      /* Add styles for greyed-out appointments */
+      .appointment.greyed-out {
+        opacity: 0.6;
+        filter: grayscale(50%);
+      }
 
-        .SS {
-            border-left: 4px solid var(--SS);
-        }
+      .appointment.greyed-out:hover {
+        opacity: 0.8;
+      }
 
-        .doctor-other {
-            border-left: 4px solid var(--doctor-other);
-        }
+      /* Add styles for week navigation */
+      .week-navigation {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        margin-left: 1rem;
+      }
 
-        /* Activity-specific styles */
-        .activity-follow-up {
-            background-color: var(--activity-follow-up);
-        }
-        
-        .activity-consult {
-            background-color: var(--activity-consult);
-        }
-        
-        .activity-nursing {
-            background-color: var(--activity-nursing);
-        
-     }
-   .activity-on-beam {
-                   background-color: var(--activity-on-beam);
-         }
+      .week-nav-btn {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-weight: 500;
+      }
 
-        .activity-on-call {
-                   background-color: var(--activity-on-call);
-         }
-        
-        .activity-tumor-board {
-            background-color: var(--activity-tumor-board);
-        }
-        
-        .activity-vacation {
-            background-color: var(--activity-vacation);
-        }
-        
-        .activity-hold-time {
-            background-color: var(--activity-hold-time);
-        }
+      .week-nav-btn:hover {
+        background-color: #3a6a9d;
+        transform: translateY(-1px);
+      }
 
-        .activity-out-office {
-            background-color: var(--activity-out-office);
-        }
+      /* Add styles for mobile menu */
+      .hamburger-menu {
+        display: none;
+        cursor: pointer;
+        padding: 0.5rem;
+      }
 
-        .activity-other {
-            background-color: var(--activity-other);
-        }
+      .hamburger-icon {
+        width: 24px;
+        height: 2px;
+        background-color: white;
+        position: relative;
+        margin: 6px 0;
+      }
 
-        .activity-covering {
-            background-color: var(--activity-covering);
-        }
+      .hamburger-icon::before,
+      .hamburger-icon::after {
+        content: '';
+        position: absolute;
+        width: 24px;
+        height: 2px;
+        background-color: white;
+        transition: all 0.3s;
+      }
 
-        .activity-alternate-covering {
-            background-color: var(--activity-alternate-covering);
-        }
+      .hamburger-icon::before {
+        top: -6px;
+      }
 
-        /* Add tooltip for truncated text */
-        .appointment {
-            position: relative;
-        }
+      .hamburger-icon::after {
+        bottom: -6px;
+      }
 
-        .appointment:hover::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 0.5rem;
-            background-color: rgba(0, 0, 0, 0.8);
-            color: white;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            white-space: normal;
-            width: max-content;
-            max-width: 200px;
-            z-index: 1000;
-            display: block;
-        }
+      .mobile-menu {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: var(--primary-color);
+        z-index: 1000;
+        padding: 1rem;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease-in-out;
+      }
 
-        /* Add styles for greyed-out appointments */
-        .appointment.greyed-out {
-            opacity: 0.6;
-            filter: grayscale(50%);
-        }
+      .mobile-menu.active {
+        transform: translateX(0);
+      }
 
-        .appointment.greyed-out:hover {
-            opacity: 0.8;
-        }
+      .mobile-menu-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+      }
 
-        /* Add styles for week navigation */
-        .week-navigation {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-            margin-left: 1rem;
-        }
+      .mobile-menu-title {
+        color: white;
+        font-size: 1.5rem;
+        font-weight: 600;
+      }
 
-        .week-nav-btn {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-weight: 500;
-        }
+      .mobile-menu-close {
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+      }
 
-        .week-nav-btn:hover {
-            background-color: #3a6a9d;
-            transform: translateY(-1px);
-        }
+      .mobile-menu-content {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
 
-        /* Add styles for mobile menu */
+      .mobile-menu-btn {
+        background-color: transparent;
+        color: white;
+        border: 1px solid white;
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-weight: 500;
+      }
+
+      .mobile-menu-btn:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      @media (max-width: 768px) {
         .hamburger-menu {
-            display: none;
-            cursor: pointer;
-            padding: 0.5rem;
+          display: block;
         }
 
-        .hamburger-icon {
-            width: 24px;
-            height: 2px;
-            background-color: white;
-            position: relative;
-            margin: 6px 0;
+        .header-title {
+          display: none;
         }
 
-        .hamburger-icon::before,
-        .hamburger-icon::after {
-            content: '';
-            position: absolute;
-            width: 24px;
-            height: 2px;
-            background-color: white;
-            transition: all 0.3s;
+        #showVacationsBtn {
+          display: none;
         }
 
-        .hamburger-icon::before {
-            top: -6px;
+        #showOnCallBtn {
+          display: none;
         }
-
-        .hamburger-icon::after {
-            bottom: -6px;
+        
+        #showSettingsBtn {
+          display: none;
         }
 
         .mobile-menu {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: var(--primary-color);
-            z-index: 1000;
-            padding: 1rem;
-            transform: translateX(-100%);
-            transition: transform 0.3s ease-in-out;
+          display: block;
+        }
+      }
+
+      /* Remove the extra small view calendar icon override */
+      @media (max-width: 480px) {
+        .date-picker-wrapper {
+          position: static;
+          width: auto;
+          min-width: 0;
         }
 
-        .mobile-menu.active {
-            transform: translateX(0);
+        .date-picker-wrapper input[type="date"] {
+          width: auto;
+          min-width: 0;
+          opacity: 1;
+          position: static;
+          height: auto;
+          cursor: pointer;
+          z-index: auto;
         }
 
-        .mobile-menu-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
+        .calendar-icon-only {
+          display: none !important;
         }
-
-        .mobile-menu-title {
-            color: white;
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-
-        .mobile-menu-close {
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
-        .mobile-menu-content {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .mobile-menu-btn {
-            background-color: transparent;
-            color: white;
-            border: 1px solid white;
-            padding: 0.75rem 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-weight: 500;
-        }
-
-        .mobile-menu-btn:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-
-        @media (max-width: 768px) {
-            .hamburger-menu {
-                display: block;
-            }
-
-            .header-title {
-                display: none;
-            }
-
-            #showVacationsBtn {
-                display: none;
-            }
-
-            #showOnCallBtn {
-                display: none;
-            }
-
-            .mobile-menu {
-                display: block;
-            }
-        }
-
-        /* Remove the extra small view calendar icon override */
-        @media (max-width: 480px) {
-            .date-picker-wrapper {
-                position: static;
-                width: auto;
-                min-width: 0;
-            }
-            .date-picker-wrapper input[type="date"] {
-                width: auto;
-                min-width: 0;
-                opacity: 1;
-                position: static;
-                height: auto;
-                cursor: pointer;
-                z-index: auto;
-            }
-            .calendar-icon-only {
-                display: none !important;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <header>
-        <div class="header-content">
-            <div class="hamburger-menu" id="hamburgerMenu">
-                <div class="hamburger-icon"></div>
-            </div>
-            <div class="header-title">WS Calendar</div>
-            <div style="display: flex; align-items: center; margin-left: auto; gap: 0.5rem;">
-                <button class="nav-btn" id="showVacationsBtn">Vacations</button>
-                <button class="nav-btn" id="showOnCallBtn" style="margin-left:0.5rem;">On Call</button>
-                <div class="view-controls">
-                    <button class="view-btn active" data-view="month">Month</button>
-                    <button class="view-btn" data-view="week">Week</button>
-                    <button class="view-btn" data-view="day">Day</button>
-                </div>
-            </div>
+      <div class="header-content">
+        <div class="hamburger-menu" id="hamburgerMenu">
+          <div class="hamburger-icon"></div>
         </div>
+        <div class="header-title">WS Calendar</div>
+        <div style="display: flex; align-items: center; margin-left: auto; gap: 0.5rem;">
+          <button class="nav-btn" id="showVacationsBtn">Vacations</button>
+          <button class="nav-btn" id="showOnCallBtn" style="margin-left:0.5rem;">On Call</button>
+          <button class="nav-btn" id="showSettingsBtn" style="margin-left:0.5rem;">Settings</button>
+          <div class="view-controls">
+            <button id="monthselector" class="view-btn active" data-view="month">Month</button>
+            <button id="weekselector" class="view-btn" data-view="week">Week</button>
+            <button id="dayselector" class="view-btn" data-view="day">Day</button>
+          </div>
+        </div>
+      </div>
     </header>
-<p>&nbsp;&nbsp;Last Updated: 
-<span id="LE_Span">Never</span>
-<span>&nbsp;</span>
-<button style="background-color: white; color: #4A84BD; padding: 0px 4px;border: 1px solid Gainsboro;font-size: 18px;" onclick="location.reload()">&#x21bb;</button>
-<span style="color: WhiteSmoke">&nbsp;&nbsp;r: 5+</span>
-</p>
+    <p>&nbsp;&nbsp;Last Updated: <span id="LE_Span">Never</span>
+      <span>&nbsp;</span>
+      <button style="background-color: white; color: #4A84BD; padding: 0px 4px;border: 1px solid Gainsboro;font-size: 18px;" onclick="location.reload()">&#x21bb;</button>
+      <span style="color: WhiteSmoke">&nbsp;&nbsp;r: 5+</span>
+    </p>
     <div class="container">
-        <div class="calendar-header">
-            <div class="navigation" id="calendarNavigation">
-                <button class="nav-btn" id="prevBtn" title="Previous"><span>&lt;</span></button>
-                <span class="current-date" id="currentDate">April 2025</span>
-                <button class="nav-btn" id="nextBtn" title="Next"><span>&gt;</span></button>
-                <button class="nav-btn" id="todayBtn" style="margin-left:0.5rem;" title="Today">Today</button>
-                <button class="nav-btn" id="calendarIconBtn" title="Select Date" style="margin-left:0.5rem; position:relative; overflow:hidden;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="display:block;pointer-events:none;" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="3" y="4" width="18" height="18" rx="2" stroke="white" stroke-width="2"/>
-                        <path d="M3 10H21" stroke="white" stroke-width="2"/>
-                        <path d="M7 3V7" stroke="white" stroke-width="2"/>
-                        <path d="M17 3V7" stroke="white" stroke-width="2"/>
-                    </svg>
-                    <input type="date" id="datePicker" style="opacity:0;position:absolute;left:0;top:0;width:100%;height:100%;z-index:2;cursor:pointer;" tabindex="-1" />
-                </button>
-            </div>
-            <div class="filters">
-            <select id="doctorFilter">
-                <option value="all">All Drs</option>
-                <option value="DB">DB</option>
-                <option value="MC">MC</option>
-                <option value="SS">SS</option>
-            </select>
-            </div>
+      <div class="calendar-header">
+        <div class="navigation" id="calendarNavigation">
+          <button class="nav-btn" id="prevBtn" title="Previous">
+            <span>&lt;</span>
+          </button>
+          <span class="current-date" id="currentDate">April 2025</span>
+          <button class="nav-btn" id="nextBtn" title="Next">
+            <span>&gt;</span>
+          </button>
+          <button class="nav-btn" id="todayBtn" style="margin-left:0.5rem;" title="Today">Today</button>
+          <button class="nav-btn" id="calendarIconBtn" title="Select Date" style="margin-left:0.5rem; position:relative; overflow:hidden;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="display:block;pointer-events:none;" xmlns="http://www.w3.org/2000/svg">
+              <rect x="3" y="4" width="18" height="18" rx="2" stroke="white" stroke-width="2" />
+              <path d="M3 10H21" stroke="white" stroke-width="2" />
+              <path d="M7 3V7" stroke="white" stroke-width="2" />
+              <path d="M17 3V7" stroke="white" stroke-width="2" />
+            </svg>
+            <input type="date" id="datePicker" style="opacity:0;position:absolute;left:0;top:0;width:100%;height:100%;z-index:2;cursor:pointer;" tabindex="-1" />
+          </button>
         </div>
-
-        <div class="calendar-scroll">
-            <div class="calendar-grid" id="calendarGrid">
-                <!-- Calendar content will be generated by JavaScript -->
-            </div>
+        <div class="filters">
+          <select id="doctorFilter">
+            <option value="all">All Drs</option>
+            <option value="DB">DB</option>
+            <option value="MC">MC</option>
+            <option value="SS">SS</option>
+          </select>
         </div>
+      </div>
+      <div class="calendar-scroll">
+        <div class="calendar-grid" id="calendarGrid">
+          <!-- Calendar content will be generated by JavaScript -->
+        </div>
+      </div>
     </div>
-
     <div class="modal" id="appointmentModal">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h2 id="modalTitle">Appointment Details</h2>
-            <div id="modalContent">
-                <!-- Appointment details will be loaded here -->
-            </div>
+      <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2 id="modalTitle">Appointment Details</h2>
+        <div id="modalContent">
+          <!-- Appointment details will be loaded here -->
         </div>
+      </div>
     </div>
-
+    
     <div class="modal" id="vacationModal" style="display:none;">
-        <div class="modal-content">
-            <span class="close-modal" id="closeVacationModal">&times;</span>
-            <h2>Vacations</h2>
-            <div id="vacationListContent"></div>
-        </div>
+      <div class="modal-content">
+        <span class="close-modal" id="closeVacationModal">&times;</span>
+        <h2>Vacations</h2>
+        <div id="vacationListContent"></div>
+      </div>
     </div>
-
+    
     <div class="modal" id="onCallModal" style="display:none;">
-        <div class="modal-content">
-            <span class="close-modal" id="closeOnCallModal">&times;</span>
-            <h2>On Call</h2>
-            <div style="margin-bottom:1rem;">
-                <label for="onCallDoctorFilter"><strong>Filter by Physician:</strong></label>
-                <select id="onCallDoctorFilter">
-                    <option value="all">All</option>
-                    <option value="DB">DB</option>
-                    <option value="MC">MC</option>
-                    <option value="SS">SS</option>
-                </select>
-            </div>
-            <div id="onCallListContent"></div>
+      <div class="modal-content">
+        <span class="close-modal" id="closeOnCallModal">&times;</span>
+        <h2>On Call</h2>
+        <div style="margin-bottom:1rem;">
+          <label for="onCallDoctorFilter">
+            <strong>Filter by Physician:</strong>
+          </label>
+          <select id="onCallDoctorFilter">
+            <option value="all">All</option>
+            <option value="DB">DB</option>
+            <option value="MC">MC</option>
+            <option value="SS">SS</option>
+          </select>
         </div>
+        <div id="onCallListContent"></div>
+      </div>
     </div>
-
+    
+    
+    <div class="modal" id="settingsModal" style="display:none;">
+      <div class="modal-content">
+        <span class="close-modal" id="closeSettingsModal">&times;</span>
+        <h2>Settings</h2>
+        <div style="margin-bottom:1rem;">
+          <label for="settingsCalenderFilter">
+            <strong>Default Range:</strong>
+          </label>
+          <select id="settingsCalenderFilter" style="padding: 6px 22px;">
+            <option value="month">Month</option>
+            <option value="week">Week</option>
+            <option value="day">Day</option>
+          </select>
+        </div>
+        <div style="margin-bottom:1rem;">
+          <label for="settingsDoctorFilter">
+            <strong>Default Physician:</strong>
+          </label>
+          <select id="settingsDoctorFilter" style="padding: 6px 22px;">
+            <option value="all">All</option>
+            <option value="DB">DB</option>
+            <option value="MC">MC</option>
+            <option value="SS">SS</option>
+          </select>
+        </div>
+        <div style="margin-bottom:1rem;">
+          <label for="data1">data1:</label>
+          <input type="text" id="data1">
+        </div>
+        <div style="margin-bottom:1rem;">
+          <label for="data2">data2:</label>
+          <input type="text" id="data2">
+        </div>
+        <div style="margin-bottom:1rem;">
+          <label for="data3">data3:</label>
+          <input type="text" id="data3">
+        </div>
+        <button type="button" onclick="saveSettingsButton()" style="background-color: #008CBA; color: white; padding: 8px 32px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer;">Save</button>
+      </div>
+    </div>
+    
+    
     <div class="mobile-menu" id="mobileMenu">
-        <div class="mobile-menu-header">
-            <div class="mobile-menu-title">WS Calendar</div>
-            <div class="mobile-menu-close" id="closeMobileMenu">&times;</div>
-        </div>
-        <div class="mobile-menu-content">
-            <button class="mobile-menu-btn" id="mobileVacationsBtn">Vacations</button>
-            <button class="mobile-menu-btn" id="mobileOnCallBtn">On Call</button>
-        </div>
+      <div class="mobile-menu-header">
+        <div class="mobile-menu-title">WS Calendar</div>
+        <div class="mobile-menu-close" id="closeMobileMenu">&times;</div>
+      </div>
+      <div class="mobile-menu-content">
+        <button class="mobile-menu-btn" id="mobileVacationsBtn">Vacations</button>
+        <button class="mobile-menu-btn" id="mobileOnCallBtn">On Call</button>
+        <button class="mobile-menu-btn" id="mobileSettingsBtn">Settings</button>
+      </div>
     </div>
-
     <script>
-        // Function to fetch and parse CSV data
-        async function fetchScheduleData() {
-            try {
-                //const response = await fetch('data.csv');
-                const response = await fetch(`data.csv?t=${new Date().getTime()}`);
-
-                const csvText = await response.text();
-                //const csvText = "Doctor,AppointmentDate,StartTime,EndTime,Activity,Status,Diagnosis";
-                const lines = csvText.split('\n');
-                const headers = lines[0].split(',');
-                
-                var startint = 1;
-                if (lines[1].includes("Edited|"))
-                {
-                    let LEspan = document.getElementById("LE_Span");
-                    LEspan.textContent = lines[1].split('|')[1];
-                    startint = 2;
-                }
-                
-                return lines.slice(startint).map(line => {
-                    const values = line.split(',');
-                    if (values.length !== headers.length) return null;
+      // Function to fetch and parse CSV data
+      async function fetchScheduleData() {
+        try {
+          //const response = await fetch('data.csv');
+          //const response = await fetch(`data.csv?t=${new Date().getTime()}`);
+          //const csvText = await response.text();
+          let lines = new Array();
+          const csvText = "iERw+fqFU5qnE8BB1KhozqCYOUTAK+uIH3Ewifz/vNr76IeuRIdyL5y2QXvV8YZhGIBqxhYAUpLP3HFutWp2gdkMqgHZk3PhAoFmrOivHa+jAOPsc112f4rkpVo89Dpv8illvZbOQL9LclyAlbjlbNBCk/0DR1ifNPVDCoJ4UpORjpg8oFMfrucpuykN8tC0vfu1S+tv0uPNtlGb9CmhGBIknydUPe4Cv60et4EKE7hP4lpno6iTecfgJJwWftTm5l7kln0/RrLtTukrkSKWZ1vqRZkNQXo/a+7/VIi3s70LNt8kDxg6f2XofPJOTuK9Eq51cHB1eaY+ZWKgexNutEfMAlQl8SI0kg9fxxsG/WmjsKqYAF44HO6y5AxDUdXSXtA6d8Pd74Sp/xrh/U8/CFOREtBISzvlfgTqQNxXBFBu6P/0zoONPXht+BA0o+/lI8EXBMoqL8zH3LbOAx2AfMv8O2rJbpcv7+wYgRPWS1XGdtYZYlXO+VO3LtoQoQlGDUFdB/TB2NR7Yx9DP5tmZPm4U5vj0tmQHXKoe3vlo9zzi+z22hTCUApS5LLwjMYvVrcVUsgkdEYCjL+oi/1fIZ6gftiPytE7g+W8moJlIRQhEgwEz+nZD81NfbOKz4WqqOh0s1Sze8Nz8BK/3aKSn0CmWtpKp2me82OdMCzGfU3cVsSg0mRWb47Sr0G8apk6";
+          
+          //const csvText = "Doctor,AppointmentDate,StartTime,EndTime,Activity,Status,Diagnosis\nSS,5/2/2025,07:00 AM,07:45 AM,Alternate Covering Physician,Open,\nSS,5/2/2025,08:00 AM,08:20 AM,Follow-Up,Manually Completed,C50.211\nSS,5/3/2025,07:00 AM,07:45 AM,Physician On Call,Open,\nSS,5/4/2025,07:00 AM,07:45 AM,Physician On Call,Open,\nSS,5/5/2025,07:00 AM,07:45 AM,Alternate Covering Physician,Open,";
                     
-                    return {
-                        doctor: values[0],
-                        date: values[1],
-                        start: values[2],
-                        end: values[3],
-                        activity: values[4],
-                        status: values[5],
-                        diagnosis: values[6]
-                    };
-                }).filter(entry => entry !== null);
-            } catch (error) {
-                console.error('Error loading schedule data:', error);
-                return [];
-            }
+          if (csvText.substring(0,7) == "Doctor,") {
+               lines = csvText.split('\n');
+          }
+          else {
+            var decryptedcsv = decryptWithSecretKey(csvText);
+            lines = decryptedcsv.split("\\n");
+          }
+
+          const headers = lines[0].split(',');
+          var startint = 1;
+          if (lines[1].includes("Edited|")) {
+            let LEspan = document.getElementById("LE_Span");
+            LEspan.textContent = lines[1].split('|')[1];
+            startint = 2;
+          }
+          return lines.slice(startint).map(line => {
+            const values = line.split(',');
+            if (values.length !== headers.length) return null;
+            return {
+              doctor: values[0],
+              date: values[1],
+              start: values[2],
+              end: values[3],
+              activity: values[4],
+              status: values[5],
+              diagnosis: values[6]
+            };
+          }).filter(entry => entry !== null);
+        } catch (error) {
+          console.error('Error loading schedule data:', error);
+          return [];
         }
-
-        // Parse text data into schedule entries
-        async function parseScheduleData() {
-            return await fetchScheduleData();
-        }
-
-
-        // Add this function to get doctor class
-        function getDoctorClass(doctorName) {
-            if (doctorName.includes('DB')) return 'DB';
-            if (doctorName.includes('MC')) return 'MC';
-            if (doctorName.includes('SS')) return 'SS';
-            return 'doctor-other';
-        }
-
-        // Add this function to get activity class
-        function getActivityClass(activity) {
-            activity = activity.toLowerCase();
-            
-            if (activity.includes('vacation')) return 'activity-vacation';
-            else if (activity.includes('alternate covering')) return 'activity-alternate-covering';
-            else if (activity.includes('covering physician')) return 'activity-covering';
-            else if (activity.includes('hold time')) return 'activity-hold-time';
-            else if (activity.includes('follow-up') || activity.includes('follow up')) return 'activity-follow-up';
-            else if (activity.includes('consult')) return 'activity-consult';
-            else if (activity.includes('nursing')) return 'activity-nursing';
-            else if (activity.includes('on beam')) return 'activity-on-beam';
-            else if (activity.includes('on call')) return 'activity-on-call';
-            else if (activity.includes('tumor board')) return 'activity-tumor-board';
-            else if (activity.includes('out of office')) return 'activity-out-office';
-            else return 'activity-other';
-                
-            return 'activity-other';
-        }
-
-        // Format date string to yyyy-mm-dd
-        function formatDateForInput(dateStr) {
-            const parts = dateStr.split('/');
-            return `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
-        }
-
-        // Format date from yyyy-mm-dd to mm/dd/yyyy
-        function formatDateFromInput(dateStr) {
-            const date = new Date(dateStr);
-            return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
-        }
-
-        // Get diagnosis descriptions for tooltip
-        function getDiagnosisInfo(diagnosisCode) {
-            if (!diagnosisCode) return '';
-            
-            const codes = diagnosisCode.split('_');
-            let result = '';
-            
-            codes.forEach(code => {
-                if (diagnosisCodes[code]) {
-                    result += `${code}: ${diagnosisCodes[code]}<br>`;
-                } else {
-                    result += `${code}<br>`;
-                }
-            });
-            
-            return result || diagnosisCode;
-        }
-
-        // Show appointment details modal (ensure global scope)
-        function showAppointmentDetails(appointment) {
-            const modal = document.getElementById('appointmentModal');
-            const modalTitle = document.getElementById('modalTitle');
-            const modalContent = document.getElementById('modalContent');
-            modalTitle.textContent = `${appointment.activity} - ${appointment.doctor}`;
-            modalContent.innerHTML = `Found issue with modalContent - ${appointment.activity}`;
+      }
+      // Parse text data into schedule entries
+      async function parseScheduleData() {
+        return await fetchScheduleData();
+      }
+      // Add this function to get doctor class
+      function getDoctorClass(doctorName) {
+        if (doctorName.includes('DB')) return 'DB';
+        if (doctorName.includes('MC')) return 'MC';
+        if (doctorName.includes('SS')) return 'SS';
+        return 'doctor-other';
+      }
+      // Add this function to get activity class
+      function getActivityClass(activity) {
+        activity = activity.toLowerCase();
+        if (activity.includes('vacation')) return 'activity-vacation';
+        else if (activity.includes('alternate covering')) return 'activity-alternate-covering';
+        else if (activity.includes('covering physician')) return 'activity-covering';
+        else if (activity.includes('hold time')) return 'activity-hold-time';
+        else if (activity.includes('follow-up') || activity.includes('follow up')) return 'activity-follow-up';
+        else if (activity.includes('consult')) return 'activity-consult';
+        else if (activity.includes('nursing')) return 'activity-nursing';
+        else if (activity.includes('on beam')) return 'activity-on-beam';
+        else if (activity.includes('on call')) return 'activity-on-call';
+        else if (activity.includes('tumor board')) return 'activity-tumor-board';
+        else if (activity.includes('out of office')) return 'activity-out-office';
+        else return 'activity-other';
+        return 'activity-other';
+      }
+      // Format date string to yyyy-mm-dd
+      function formatDateForInput(dateStr) {
+        const parts = dateStr.split('/');
+        return `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
+      }
+      // Format date from yyyy-mm-dd to mm/dd/yyyy
+      function formatDateFromInput(dateStr) {
+        const date = new Date(dateStr);
+        return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+      }
+      // Get diagnosis descriptions for tooltip
+      function getDiagnosisInfo(diagnosisCode) {
+        if (!diagnosisCode) return '';
+        const codes = diagnosisCode.split('_');
+        let result = '';
+        codes.forEach(code => {
+          if (diagnosisCodes[code]) {
+            result += `${code}: ${diagnosisCodes[code]}<br>`;
+          } else {
+            result += `${code}<br>`;
+          }
+        });
+        return result || diagnosisCode;
+      }
+      // Show appointment details modal (ensure global scope)
+      function showAppointmentDetails(appointment) {
+        const modal = document.getElementById('appointmentModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalContent = document.getElementById('modalContent');
+        modalTitle.textContent = `${appointment.activity} - ${appointment.doctor}`;
+        modalContent.innerHTML = `Found issue with modalContent - ${appointment.activity}`;
         /*   modalContent.innerHTML = `
                 <p><strong>Date:</strong> ${appointment.date}</p>
                 <p><strong>Time:</strong> ${appointment.start} - ${appointment.end}</p>
@@ -1041,37 +1105,31 @@
                 ${appointment.diagnosis ? `<p><strong>Diagnosis:</strong> ${getDiagnosisInfo(appointment.diagnosis)}</p>` : ''}
             `;
         */
-            modal.style.display = 'block';
-        }
-
-        // Display the schedule entries
-        function displaySchedule(entries) {
-            const tableBody = document.getElementById('scheduleBody');
-            tableBody.innerHTML = '';
-            
-            entries.forEach(entry => {
-                const row = document.createElement('tr');
-                row.className = `appointment-row ${getDoctorClass(entry.doctor)} ${getActivityClass(entry.activity)}`;
-                
-                // Format the time
-                const timeDisplay = `${entry.start} - ${entry.end}`;
-                
-                // Create diagnosis tooltip if available
-                let diagnosisDisplay = '';
-                if (entry.diagnosis) {
-                    const diagnosisInfo = getDiagnosisInfo(entry.diagnosis);
-                    diagnosisDisplay = `
+        modal.style.display = 'block';
+      }
+      // Display the schedule entries
+      function displaySchedule(entries) {
+        const tableBody = document.getElementById('scheduleBody');
+        tableBody.innerHTML = '';
+        entries.forEach(entry => {
+          const row = document.createElement('tr');
+          row.className = `appointment-row ${getDoctorClass(entry.doctor)} ${getActivityClass(entry.activity)}`;
+          // Format the time
+          const timeDisplay = `${entry.start} - ${entry.end}`;
+          // Create diagnosis tooltip if available
+          let diagnosisDisplay = '';
+          if (entry.diagnosis) {
+            const diagnosisInfo = getDiagnosisInfo(entry.diagnosis);
+            diagnosisDisplay = `
                         <span class="diagnosis-tooltip">${entry.diagnosis}
                             <span class="tooltip-text">${diagnosisInfo}</span>
                         </span>
                     `;
-                }
-                
-                // Create status badge
-                const statusClass = entry.status.toLowerCase() === 'open' ? 'badge-open' : 'badge-cancelled';
-                const statusDisplay = `<span class="badge ${statusClass}">${entry.status}</span>`;
-                
-                row.innerHTML = `
+          }
+          // Create status badge
+          const statusClass = entry.status.toLowerCase() === 'open' ? 'badge-open' : 'badge-cancelled';
+          const statusDisplay = `<span class="badge ${statusClass}">${entry.status}</span>`;
+          row.innerHTML = `
                     <td>${entry.doctor}</td>
                     <td>${entry.date}</td>
                     <td>${timeDisplay}</td>
@@ -1079,577 +1137,642 @@
                     <td>${statusDisplay}</td>
                     <td class="hidden-mobile">${diagnosisDisplay}</td>
                 `;
-                
-                tableBody.appendChild(row);
-            });
-        }
-
-        // Filter the schedule based on selected options
-        function filterSchedule() {
-            const doctor = document.getElementById('doctorFilter').value;
-            const dateInput = document.getElementById('dateFilter').value;
-            const date = dateInput ? formatDateFromInput(dateInput) : '';
-            const activity = document.getElementById('activityFilter').value;
-            
-            let filtered = parseScheduleData();
-            
-            if (doctor !== 'all') {
-                filtered = filtered.filter(entry => entry.doctor === doctor);
-            }
-            
-            if (date) {
-                filtered = filtered.filter(entry => entry.date === date);
-            }
-            
-            if (activity !== 'all') {
-                filtered = filtered.filter(entry => entry.activity.includes(activity));
-            }
-            
-            displaySchedule(filtered);
-        }
-
-        // Initialize the page
-        document.addEventListener('DOMContentLoaded', async function() {
-            // Set up date picker
-            const datePicker = document.getElementById('datePicker');
-            const today = new Date();
-            function setDatePickerToCurrent() {
-                datePicker.value = `${currentDate.getFullYear()}-${String(currentDate.getMonth()+1).padStart(2,'0')}-${String(currentDate.getDate()).padStart(2,'0')}`;
-            }
-            setDatePickerToCurrent();
-            await updateCalendar();
-            datePicker.addEventListener('change', async (e) => {
-                const [year, month, day] = e.target.value.split('-');
-                currentDate = new Date(Number(year), Number(month)-1, Number(day));
-                setDatePickerToCurrent();
-                await updateCalendar();
-            });
-            // Navigation buttons
-            document.getElementById('prevBtn').addEventListener('click', async () => {
-                if (currentView === 'month') {
-                    currentDate.setMonth(currentDate.getMonth() - 1);
-                } else if (currentView === 'week') {
-                    currentDate.setDate(currentDate.getDate() - 7);
-                } else if (currentView === 'day') {
-                    currentDate.setDate(currentDate.getDate() - 1);
-                }
-                setDatePickerToCurrent();
-                await updateCalendar();
-            });
-            document.getElementById('nextBtn').addEventListener('click', async () => {
-                if (currentView === 'month') {
-                    currentDate.setMonth(currentDate.getMonth() + 1);
-                } else if (currentView === 'week') {
-                    currentDate.setDate(currentDate.getDate() + 7);
-                } else if (currentView === 'day') {
-                    currentDate.setDate(currentDate.getDate() + 1);
-                }
-                setDatePickerToCurrent();
-                await updateCalendar();
-            });
-            document.getElementById('todayBtn').addEventListener('click', async () => {
-                currentDate = new Date();
-                setDatePickerToCurrent();
-                await updateCalendar();
-            });
-            // View controls
-            document.querySelectorAll('.view-btn').forEach(btn => {
-                btn.addEventListener('click', async () => {
-                    document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    currentView = btn.dataset.view;
-                    await updateCalendar();
-                    setDatePickerToCurrent();
-                });
-            });
-            // Modal close button for appointment
-             document.querySelector('#appointmentModal .close-modal').addEventListener('click', () => {
-                 document.getElementById('appointmentModal').style.display = 'none';
-             });
-            // Modal close button for vacation
-            document.getElementById('closeVacationModal').addEventListener('click', () => {
-                document.getElementById('vacationModal').style.display = 'none';
-            });
-            // Close modals when clicking outside modal content
-            window.addEventListener('click', (event) => {
-                const appointmentModal = document.getElementById('appointmentModal');
-                const vacationModal = document.getElementById('vacationModal');
-                const onCallModal = document.getElementById('onCallModal');
-                if (event.target === appointmentModal) {
-                    appointmentModal.style.display = 'none';
-                }
-                if (event.target === vacationModal) {
-                    vacationModal.style.display = 'none';
-                }
-                if (event.target === onCallModal) {
-                    onCallModal.style.display = 'none';
-                }
-            });
-            // Doctor filter
-            document.getElementById('doctorFilter').addEventListener('change', async () => {
-                await updateCalendar();
-            });
-            // Mobile menu functionality
-            const hamburgerMenu = document.getElementById('hamburgerMenu');
-            const mobileMenu = document.getElementById('mobileMenu');
-            const closeMobileMenu = document.getElementById('closeMobileMenu');
-            const mobileVacationsBtn = document.getElementById('mobileVacationsBtn');
-
-            hamburgerMenu.addEventListener('click', () => {
-                mobileMenu.classList.add('active');
-            });
-
-            closeMobileMenu.addEventListener('click', () => {
-                mobileMenu.classList.remove('active');
-            });
-
-            mobileVacationsBtn.addEventListener('click', async () => {
-                mobileMenu.classList.remove('active');
-                const data = await parseScheduleData();
-                // Group vacations by doctor
-                const vacationsByDoctor = {};
-                data.forEach(entry => {
-                    if (entry.activity && entry.activity.toLowerCase().includes('vacation')) {
-                        if (!vacationsByDoctor[entry.doctor]) vacationsByDoctor[entry.doctor] = [];
-                        vacationsByDoctor[entry.doctor].push(entry);
-                    }
-                });
-                // Build HTML
-                let html = '';
-                Object.keys(vacationsByDoctor).sort().forEach(doctor => {
-                    html += `<h3>${doctor}</h3><ul>`;
-                    vacationsByDoctor[doctor].sort((a, b) => new Date(a.date) - new Date(b.date)).forEach(vac => {
-                        html += `<li>${vac.date}: ${vac.activity} (${vac.start} - ${vac.end})</li>`;
-                    });
-                    html += '</ul>';
-                });
-                if (!html) html = '<p>No vacations found.</p>';
-                document.getElementById('vacationListContent').innerHTML = html;
-                document.getElementById('vacationModal').style.display = 'block';
-            });
-            // Show Vacations button (main toolbar)
-            document.getElementById('showVacationsBtn').addEventListener('click', async () => {
-                const data = await parseScheduleData();
-                // Group vacations by doctor
-                const vacationsByDoctor = {};
-                data.forEach(entry => {
-                    if (entry.activity && entry.activity.toLowerCase().includes('vacation')) {
-                        if (!vacationsByDoctor[entry.doctor]) vacationsByDoctor[entry.doctor] = [];
-                        vacationsByDoctor[entry.doctor].push(entry);
-                    }
-                });
-                // Build HTML
-                let html = '';
-                Object.keys(vacationsByDoctor).sort().forEach(doctor => {
-                    html += `<h3>${doctor}</h3><ul>`;
-                    vacationsByDoctor[doctor].sort((a, b) => new Date(a.date) - new Date(b.date)).forEach(vac => {
-                        html += `<li>${vac.date}: ${vac.activity} (${vac.start} - ${vac.end})</li>`;
-                    });
-                    html += '</ul>';
-                });
-                if (!html) html = '<p>No vacations found.</p>';
-                document.getElementById('vacationListContent').innerHTML = html;
-                document.getElementById('vacationModal').style.display = 'block';
-            });
-            // On Call Modal logic
-            function renderOnCallList(data, filterDoctor) {
-                // Group by doctor
-                const onCallByDoctor = {};
-                data.forEach(entry => {
-                    if (entry.activity && entry.activity === 'Physician On Call') {
-                        if (!onCallByDoctor[entry.doctor]) onCallByDoctor[entry.doctor] = [];
-                        onCallByDoctor[entry.doctor].push(entry);
-                    }
-                });
-                let html = '';
-                const doctors = Object.keys(onCallByDoctor).sort();
-                doctors.forEach(doctor => {
-                    if (filterDoctor !== 'all' && doctor !== filterDoctor) return;
-                    html += `<h3>${doctor}</h3><ul>`;
-                    onCallByDoctor[doctor].sort((a, b) => new Date(a.date) - new Date(b.date)).forEach(call => {
-                        html += `<li>${call.date}: ${call.activity} (${call.start} - ${call.end})</li>`;
-                    });
-                    html += '</ul>';
-                });
-                if (!html) html = '<p>No on call entries found.</p>';
-                document.getElementById('onCallListContent').innerHTML = html;
-            }
-            async function showOnCallModal() {
-                const data = await parseScheduleData();
-                const filterDoctor = document.getElementById('onCallDoctorFilter').value;
-                renderOnCallList(data, filterDoctor);
-                document.getElementById('onCallModal').style.display = 'block';
-            }
-            document.getElementById('showOnCallBtn').addEventListener('click', showOnCallModal);
-            document.getElementById('mobileOnCallBtn').addEventListener('click', async () => {
-                document.getElementById('mobileMenu').classList.remove('active');
-                await showOnCallModal();
-            });
-            document.getElementById('closeOnCallModal').addEventListener('click', () => {
-                document.getElementById('onCallModal').style.display = 'none';
-            });
-            document.getElementById('onCallDoctorFilter').addEventListener('change', showOnCallModal);
+          tableBody.appendChild(row);
         });
-
-        // Calendar view functionality
-        let currentView = 'month';
-        let currentDate = new Date(); // Set to current date
-
-        function getWeekDates(date) {
-            const start = new Date(date);
-            start.setDate(date.getDate() - date.getDay());
-            const end = new Date(start);
-            end.setDate(start.getDate() + 6);
-            return { start, end };
+      }
+      // Filter the schedule based on selected options
+      function filterSchedule() {
+        const doctor = document.getElementById('doctorFilter').value;
+        const dateInput = document.getElementById('dateFilter').value;
+        const date = dateInput ? formatDateFromInput(dateInput) : '';
+        const activity = document.getElementById('activityFilter').value;
+        let filtered = parseScheduleData();
+        if (doctor !== 'all') {
+          filtered = filtered.filter(entry => entry.doctor === doctor);
         }
-
-        function formatTime(timeStr) {
-            const [time, period] = timeStr.split(' ');
-            const [hours, minutes] = time.split(':');
-            return {
-                hours: period === 'PM' ? parseInt(hours) + 12 : parseInt(hours),
-                minutes: parseInt(minutes)
-            };
+        if (date) {
+          filtered = filtered.filter(entry => entry.date === date);
         }
-
-        function getTimeSlotPosition(startTime) {
-            const { hours, minutes } = formatTime(startTime);
-            return (hours * 60 + minutes) / 60;
+        if (activity !== 'all') {
+          filtered = filtered.filter(entry => entry.activity.includes(activity));
         }
+        displaySchedule(filtered);
+      }
+      // Initialize the page
+      document.addEventListener('DOMContentLoaded', async function() {
+        // Set up date picker
+        const datePicker = document.getElementById('datePicker');
+        const today = new Date();
 
-        async function updateCalendar() {
-            const calendarContainer = document.getElementById('calendarGrid');
-            calendarContainer.innerHTML = '';
-            // Update current date display
-            const currentDateLabel = document.getElementById('currentDate');
-            if (currentView === 'month') {
-                await updateMonthView(calendarContainer);
-                currentDateLabel.textContent = currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
-            } else if (currentView === 'week') {
-                await updateWeekView(calendarContainer);
-                // Calculate week span
-                const { start, end } = getWeekDates(currentDate);
-                const startStr = `${start.toLocaleString('default', { month: 'short' })} ${start.getDate()}`;
-                const endStr = `${end.toLocaleString('default', { month: 'short' })} ${end.getDate()}, ${end.getFullYear()}`;
-                currentDateLabel.textContent = `${startStr} – ${endStr}`;
-            } else if (currentView === 'day') {
-                await updateDayView(calendarContainer);
-                currentDateLabel.textContent = currentDate.toLocaleString('default', { month: 'long', day: 'numeric', year: 'numeric' });
+        function setDatePickerToCurrent() {
+          datePicker.value = `${currentDate.getFullYear()}-${String(currentDate.getMonth()+1).padStart(2,'0')}-${String(currentDate.getDate()).padStart(2,'0')}`;
+        }
+        setDatePickerToCurrent();
+        await updateCalendar();
+        datePicker.addEventListener('change', async (e) => {
+          const [year, month, day] = e.target.value.split('-');
+          currentDate = new Date(Number(year), Number(month) - 1, Number(day));
+          setDatePickerToCurrent();
+          await updateCalendar();
+        });
+        // Navigation buttons
+        document.getElementById('prevBtn').addEventListener('click', async () => {
+          if (currentView === 'month') {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+          } else if (currentView === 'week') {
+            currentDate.setDate(currentDate.getDate() - 7);
+          } else if (currentView === 'day') {
+            currentDate.setDate(currentDate.getDate() - 1);
+          }
+          setDatePickerToCurrent();
+          await updateCalendar();
+        });
+        document.getElementById('nextBtn').addEventListener('click', async () => {
+          if (currentView === 'month') {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+          } else if (currentView === 'week') {
+            currentDate.setDate(currentDate.getDate() + 7);
+          } else if (currentView === 'day') {
+            currentDate.setDate(currentDate.getDate() + 1);
+          }
+          setDatePickerToCurrent();
+          await updateCalendar();
+        });
+        document.getElementById('todayBtn').addEventListener('click', async () => {
+          currentDate = new Date();
+          setDatePickerToCurrent();
+          await updateCalendar();
+        });
+        // View controls
+        document.querySelectorAll('.view-btn').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentView = btn.dataset.view;
+            await updateCalendar();
+            setDatePickerToCurrent();
+          });
+        });
+        // Modal close button for appointment
+        document.querySelector('#appointmentModal .close-modal').addEventListener('click', () => {
+          document.getElementById('appointmentModal').style.display = 'none';
+        });
+        // Modal close button for vacation
+        document.getElementById('closeVacationModal').addEventListener('click', () => {
+          document.getElementById('vacationModal').style.display = 'none';
+        });
+        // Close modals when clicking outside modal content
+        window.addEventListener('click', (event) => {
+          const appointmentModal = document.getElementById('appointmentModal');
+          const vacationModal = document.getElementById('vacationModal');
+          const onCallModal = document.getElementById('onCallModal');
+          const settingsModal = document.getElementById('settingsModal');
+          if (event.target === appointmentModal) {
+            appointmentModal.style.display = 'none';
+          }
+          if (event.target === vacationModal) {
+            vacationModal.style.display = 'none';
+          }
+          if (event.target === onCallModal) {
+            onCallModal.style.display = 'none';
+          }
+          if (event.target === settingsModal) {
+            settingsModal.style.display = 'none';
+          }
+        });
+        // Doctor filter
+        document.getElementById('doctorFilter').addEventListener('change', async () => {
+          await updateCalendar();
+        });
+        // Mobile menu functionality
+        const hamburgerMenu = document.getElementById('hamburgerMenu');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const closeMobileMenu = document.getElementById('closeMobileMenu');
+        const mobileVacationsBtn = document.getElementById('mobileVacationsBtn');
+        hamburgerMenu.addEventListener('click', () => {
+          mobileMenu.classList.add('active');
+        });
+        closeMobileMenu.addEventListener('click', () => {
+          mobileMenu.classList.remove('active');
+        });
+        mobileVacationsBtn.addEventListener('click', async () => {
+          mobileMenu.classList.remove('active');
+          const data = await parseScheduleData();
+          // Group vacations by doctor
+          const vacationsByDoctor = {};
+          data.forEach(entry => {
+            if (entry.activity && entry.activity.toLowerCase().includes('vacation')) {
+              if (!vacationsByDoctor[entry.doctor]) vacationsByDoctor[entry.doctor] = [];
+              vacationsByDoctor[entry.doctor].push(entry);
             }
-        }
-
-        async function updateMonthView(container) {
-            container.className = 'calendar-grid';
-            // Reset gridTemplateColumns to use default CSS
-            container.style.gridTemplateColumns = '';
-            
-            // Add day headers
-            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-            days.forEach(day => {
-                const headerCell = document.createElement('div');
-                headerCell.className = 'calendar-header-cell';
-                headerCell.textContent = day;
-                container.appendChild(headerCell);
+          });
+          // Build HTML
+          let html = '';
+          Object.keys(vacationsByDoctor).sort().forEach(doctor => {
+            html += `<h3>${doctor}</h3><ul>`;
+            vacationsByDoctor[doctor].sort((a, b) => new Date(a.date) - new Date(b.date)).forEach(vac => {
+              html += `<li>${vac.date}: ${vac.activity} (${vac.start} - ${vac.end})</li>`;
             });
+            html += '</ul>';
+          });
+          if (!html) html = '<p>No vacations found.</p>';
+          document.getElementById('vacationListContent').innerHTML = html;
+          document.getElementById('vacationModal').style.display = 'block';
+        });
+        // Show Vacations button (main toolbar)
+        document.getElementById('showVacationsBtn').addEventListener('click', async () => {
+          const data = await parseScheduleData();
+          // Group vacations by doctor
+          const vacationsByDoctor = {};
+          data.forEach(entry => {
+            if (entry.activity && entry.activity.toLowerCase().includes('vacation')) {
+              if (!vacationsByDoctor[entry.doctor]) vacationsByDoctor[entry.doctor] = [];
+              vacationsByDoctor[entry.doctor].push(entry);
+            }
+          });
+          // Build HTML
+          let html = '';
+          Object.keys(vacationsByDoctor).sort().forEach(doctor => {
+            html += `<h3>${doctor}</h3><ul>`;
+            vacationsByDoctor[doctor].sort((a, b) => new Date(a.date) - new Date(b.date)).forEach(vac => {
+              html += `<li>${vac.date}: ${vac.activity} (${vac.start} - ${vac.end})</li>`;
+            });
+            html += '</ul>';
+          });
+          if (!html) html = '<p>No vacations found.</p>';
+          document.getElementById('vacationListContent').innerHTML = html;
+          document.getElementById('vacationModal').style.display = 'block';
+        });
+        // On Call Modal logic
+        function renderOnCallList(data, filterDoctor) {
+          // Group by doctor
+          const onCallByDoctor = {};
+          data.forEach(entry => {
+            if (entry.activity && entry.activity === 'Physician On Call') {
+              if (!onCallByDoctor[entry.doctor]) onCallByDoctor[entry.doctor] = [];
+              onCallByDoctor[entry.doctor].push(entry);
+            }
+          });
+          let html = '';
+          const doctors = Object.keys(onCallByDoctor).sort();
+          doctors.forEach(doctor => {
+            if (filterDoctor !== 'all' && doctor !== filterDoctor) return;
+            html += `<h3>${doctor}</h3><ul>`;
+            onCallByDoctor[doctor].sort((a, b) => new Date(a.date) - new Date(b.date)).forEach(call => {
+            //  html += `<li>${call.date}: ${call.activity} (${call.start} - ${call.end})</li>`;
+              html += `<li>${call.date}</li>`;
+            });
+            html += '</ul>';
+          });
+          if (!html) html = '<p>No on call entries found.</p>';
+          document.getElementById('onCallListContent').innerHTML = html;
+        }
+        async function showOnCallModal() {
+          const data = await parseScheduleData();
+          const filterDoctor = document.getElementById('onCallDoctorFilter').value;
+          renderOnCallList(data, filterDoctor);
+          document.getElementById('onCallModal').style.display = 'block';
+        }
+        document.getElementById('showOnCallBtn').addEventListener('click', showOnCallModal);
+        document.getElementById('mobileOnCallBtn').addEventListener('click', async () => {
+          document.getElementById('mobileMenu').classList.remove('active');
+          await showOnCallModal();
+        });
+        document.getElementById('closeOnCallModal').addEventListener('click', () => {
+          document.getElementById('onCallModal').style.display = 'none';
+        });
+        document.getElementById('onCallDoctorFilter').addEventListener('change', showOnCallModal);
 
-            // Get first day of month
-            const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-            const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-            
-            // Get starting day (0-6)
-            let startingDay = firstDay.getDay();
-            
-            // Add empty cells for days before the first day of the month (should be blank)
-            for (let i = 0; i < startingDay; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'calendar-cell other-month';
-                cell.innerHTML = `<div class="day-number">&nbsp;</div>`;
-                container.appendChild(cell);
+        function showSettingsModal() {
+        try {
+            if (localStorage.getItem("DefRange") !=null) { document.getElementById("settingsCalenderFilter").selectedIndex = localStorage.getItem("DefRange"); }
+    		if (localStorage.getItem("DefDoctor") !=null) { document.getElementById("settingsDoctorFilter").selectedIndex = localStorage.getItem("DefDoctor"); }
+            } catch(err) { }
+          document.getElementById('settingsModal').style.display = 'block';
+        }
+        document.getElementById('showSettingsBtn').addEventListener('click', showSettingsModal);
+        document.getElementById('mobileSettingsBtn').addEventListener('click', () => {
+          document.getElementById('mobileMenu').classList.remove('active');
+          showSettingsModal();
+        });
+        document.getElementById('closeSettingsModal').addEventListener('click', () => {
+          document.getElementById('settingsModal').style.display = 'none';
+        });
+      });
+      
+      // Calendar view functionality
+      let currentView = 'month';
+                  try {
+            if (localStorage.getItem("DefRange") !=null) {
+            document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+            switch (localStorage.getItem("DefRange")) {
+  				case '0':
+    			  currentView = 'month';
+                 document.getElementById('monthselector').classList.add('active');
+    			  break;
+  				case '1':
+    			  currentView = 'week';
+                  document.getElementById('weekselector').classList.add('active');
+    			  break;
+  				case '2':
+    			  currentView = 'day';
+                  document.getElementById('dayselector').classList.add('active');
+    			  break;
+    			}
+            }
+            if (localStorage.getItem("DefDoctor") !=null) {
+            document.getElementById('doctorFilter').selectedIndex = localStorage.getItem("DefDoctor");
             }
 
-            // Get the schedule data
-            const scheduleData = await parseScheduleData();
-            const selectedDoctor = document.getElementById('doctorFilter').value;
-            
-            // Add days of the current month
-            for (let i = 1; i <= lastDay.getDate(); i++) {
-                const cell = document.createElement('div');
-                const isToday = new Date().getDate() === i && 
-                               new Date().getMonth() === currentDate.getMonth() && 
-                               new Date().getFullYear() === currentDate.getFullYear();
-                
-                cell.className = `calendar-cell ${isToday ? 'today' : ''}`;
-                cell.innerHTML = `<div class="day-number">${i}</div>`;
-                
-                // Add appointments for this day
-                const dateStr = `${currentDate.getMonth() + 1}/${i}/${currentDate.getFullYear()}`;
-                let dayAppointments = scheduleData.filter(entry => {
-                    if (entry.date !== dateStr) return false;
-                    if (selectedDoctor === 'all') {
-                        // For "all doctors" view, show specific activities
-                        return [
-                            'Vacation',
-                            'Covering Physician',
-                            'Alternate Covering Physician',
-                            'Physician On Call',
-                            'Out of Office'
-                        ].includes(entry.activity);
-                    } else {
-                        // For specific doctor view, show all their activities
-                        return entry.doctor === selectedDoctor;
-                    }
-                });
+      } catch(err) { }
+      let currentDate = new Date(); // Set to current date
+      function getWeekDates(date) {
+        const start = new Date(date);
+        start.setDate(date.getDate() - date.getDay());
+        const end = new Date(start);
+        end.setDate(start.getDate() + 6);
+        return {
+          start,
+          end
+        };
+      }
 
-                // Sort appointments by activity priority
-                dayAppointments.sort((a, b) => {
-                    const priorityOrder = {
-                        'Vacation': 1,
-                        'Covering Physician': 2,
-                        'Alternate Covering Physician': 3,
-                        'Physician On Call': 4,
-                        'Out of Office': 5
-                    };
-                    
-                    const aPriority = priorityOrder[a.activity] || 999;
-                    const bPriority = priorityOrder[b.activity] || 999;
-                    
-                    return aPriority - bPriority;
-                });
-                
-                dayAppointments.forEach(appointment => {
-                    const appointmentElement = document.createElement('div');
-                    appointmentElement.className = `appointment ${getDoctorClass(appointment.doctor)} ${getActivityClass(appointment.activity)}`;
-                    if (appointment.status === 'Cancelled') {
-                        appointmentElement.classList.add('cancelled');
-                        appointmentElement.innerHTML = `
+      function formatTime(timeStr) {
+        const [time, period] = timeStr.split(' ');
+        const [hours, minutes] = time.split(':');
+        return {
+          hours: period === 'PM' ? parseInt(hours) + 12 : parseInt(hours),
+          minutes: parseInt(minutes)
+        };
+      }
+
+      function getTimeSlotPosition(startTime) {
+        const {
+          hours,
+          minutes
+        } = formatTime(startTime);
+        return (hours * 60 + minutes) / 60;
+      }
+      async function updateCalendar() {
+        const calendarContainer = document.getElementById('calendarGrid');
+        calendarContainer.innerHTML = '';
+        // Update current date display
+        const currentDateLabel = document.getElementById('currentDate');
+        if (currentView === 'month') {
+          await updateMonthView(calendarContainer);
+          currentDateLabel.textContent = currentDate.toLocaleString('default', {
+            month: 'long',
+            year: 'numeric'
+          });
+        } else if (currentView === 'week') {
+          await updateWeekView(calendarContainer);
+          // Calculate week span
+          const {
+            start,
+            end
+          } = getWeekDates(currentDate);
+          const startStr = `${start.toLocaleString('default', { month: 'short' })} ${start.getDate()}`;
+          const endStr = `${end.toLocaleString('default', { month: 'short' })} ${end.getDate()}, ${end.getFullYear()}`;
+          currentDateLabel.textContent = `${startStr} – ${endStr}`;
+        } else if (currentView === 'day') {
+          await updateDayView(calendarContainer);
+          currentDateLabel.textContent = currentDate.toLocaleString('default', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric'
+          });
+        }
+      }
+      async function updateMonthView(container) {
+        container.className = 'calendar-grid';
+        // Reset gridTemplateColumns to use default CSS
+        container.style.gridTemplateColumns = '';
+        // Add day headers
+        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        days.forEach(day => {
+          const headerCell = document.createElement('div');
+          headerCell.className = 'calendar-header-cell';
+          headerCell.textContent = day;
+          container.appendChild(headerCell);
+        });
+        // Get first day of month
+        const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+        // Get starting day (0-6)
+        let startingDay = firstDay.getDay();
+        // Add empty cells for days before the first day of the month (should be blank)
+        for (let i = 0; i<startingDay; i++) {
+          const cell = document.createElement('div');
+          cell.className = 'calendar-cell other-month';
+          cell.innerHTML = `<div class="day-number">&nbsp;</div>`;
+          container.appendChild(cell);
+        }
+        // Get the schedule data
+        const scheduleData = await parseScheduleData();
+        const selectedDoctor = document.getElementById('doctorFilter').value;
+        // Add days of the current month
+        for (let i = 1; i <= lastDay.getDate(); i++) {
+          const cell = document.createElement('div');
+          const isToday = new Date().getDate() === i && new Date().getMonth() === currentDate.getMonth() && new Date().getFullYear() === currentDate.getFullYear();
+          cell.className = `calendar-cell ${isToday ? 'today' : ''}`;
+          cell.innerHTML = `<div class="day-number">${i}</div>`;
+          // Add appointments for this day
+          const dateStr = `${currentDate.getMonth() + 1}/${i}/${currentDate.getFullYear()}`;
+          let dayAppointments = scheduleData.filter(entry => {
+            if (entry.date !== dateStr) return false;
+            if (selectedDoctor === 'all') {
+              // For "all doctors" view, show specific activities
+              return ['Vacation', 'Covering Physician', 'Alternate Covering Physician', 'Physician On Call', 'Out of Office'].includes(entry.activity);
+            } else {
+              // For specific doctor view, show all their activities
+              return entry.doctor === selectedDoctor;
+            }
+          });
+          // Sort appointments by activity priority
+          dayAppointments.sort((a, b) => {
+            const priorityOrder = {
+              'Vacation': 1,
+              'Covering Physician': 2,
+              'Alternate Covering Physician': 3,
+              'Physician On Call': 4,
+              'Out of Office': 5
+            };
+            const aPriority = priorityOrder[a.activity] || 999;
+            const bPriority = priorityOrder[b.activity] || 999;
+            return aPriority - bPriority;
+          });
+          dayAppointments.forEach(appointment => {
+            const appointmentElement = document.createElement('div');
+            appointmentElement.className = `appointment ${getDoctorClass(appointment.doctor)} ${getActivityClass(appointment.activity)}`;
+            if (appointment.status === 'Cancelled') {
+              appointmentElement.classList.add('cancelled');
+              appointmentElement.innerHTML = `
                             <span class='cancelled-label'>Cancelled</span>
                             <div class=\"doctor-name\">${appointment.doctor}</div>
                             <div class=\"activity\">${appointment.activity}</div>
                             <div class=\"time\">${appointment.start} - ${appointment.end}</div>
                         `;
-                    } else {
-                        appointmentElement.innerHTML = `
-                            <div class=\"doctor-name\">${appointment.doctor}</div>
-                            <div class=\"activity\">${appointment.activity}</div>
-                            <div class=\"time\">${appointment.start} - ${appointment.end}</div>
-                        `;
-                    }
-                    appointmentElement.setAttribute('data-appointment', JSON.stringify(appointment));
-                    appointmentElement.onclick = () => showAppointmentDetails(appointment);
-                    cell.appendChild(appointmentElement);
-                });
-                
-                container.appendChild(cell);
-            }
-        }
-
-        async function updateWeekView(container) {
-            container.className = 'week-view';
-            
-            const selectedDoctor = document.getElementById('doctorFilter').value;
-            const scheduleData = await parseScheduleData();
-            const { start } = getWeekDates(currentDate);
-
-            if (selectedDoctor === 'all') {
-                // Simplified view for all doctors
-                container.style.gridTemplateColumns = 'repeat(7, 1fr)';
-                
-                // Add day headers
-                for (let i = 0; i < 7; i++) {
-                    const date = new Date(start);
-                    date.setDate(start.getDate() + i);
-                    const headerCell = document.createElement('div');
-                    headerCell.className = 'week-day-header';
-                    headerCell.textContent = date.toLocaleString('default', { weekday: 'short', month: 'short', day: 'numeric' });
-                    container.appendChild(headerCell);
-                }
-
-                // Add day cells
-                for (let i = 0; i < 7; i++) {
-                    const date = new Date(start);
-                    date.setDate(start.getDate() + i);
-                    const cell = document.createElement('div');
-                    cell.className = `week-cell ${date.toDateString() === new Date().toDateString() ? 'today' : ''}`;
-                    
-                    const dateStr = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
-                    let dayAppointments = scheduleData.filter(entry => {
-                        if (entry.date !== dateStr) return false;
-                        return [
-                            'Vacation',
-                            'Covering Physician',
-                            'Alternate Covering Physician',
-                            'Physician On Call',
-                            'Out of Office'
-                        ].includes(entry.activity);
-                    });
-
-                    dayAppointments.forEach(appointment => {
-                        const appointmentElement = document.createElement('div');
-                        appointmentElement.className = `appointment ${getDoctorClass(appointment.doctor)} ${getActivityClass(appointment.activity)}`;
-                        if (appointment.status === 'Cancelled') {
-                            appointmentElement.classList.add('cancelled');
-                        }
-                        appointmentElement.setAttribute('data-appointment', JSON.stringify(appointment));
-                        appointmentElement.innerHTML = `
-                            <div class=\"doctor-name\">${appointment.doctor}</div>
-                            <div class=\"activity\">${appointment.activity}</div>
-                            <div class=\"time\">${appointment.start} - ${appointment.end}</div>
-                        `;
-                        appointmentElement.onclick = () => showAppointmentDetails(appointment);
-                        cell.appendChild(appointmentElement);
-                    });
-
-                    container.appendChild(cell);
-                }
             } else {
-                // Detailed time-based view for individual doctors
-                container.style.gridTemplateColumns = '100px repeat(7, 1fr)';
-                
-                // Add time column header
-                const timeHeader = document.createElement('div');
-                timeHeader.className = 'time-column';
-                timeHeader.textContent = 'Time';
-                container.appendChild(timeHeader);
-
-                // Add day headers
-                for (let i = 0; i < 7; i++) {
-                    const date = new Date(start);
-                    date.setDate(start.getDate() + i);
-                    const headerCell = document.createElement('div');
-                    headerCell.className = 'week-day-header';
-                    headerCell.textContent = date.toLocaleString('default', { weekday: 'short', month: 'short', day: 'numeric' });
-                    container.appendChild(headerCell);
+              appointmentElement.innerHTML = `
+                            <div class=\"doctor-name\">${appointment.doctor}</div>
+                            <div class=\"activity\">${appointment.activity}</div>
+                            <div class=\"time\">${appointment.start} - ${appointment.end}</div>
+                        `;
+            }
+            appointmentElement.setAttribute('data-appointment', JSON.stringify(appointment));
+            appointmentElement.onclick = () => showAppointmentDetails(appointment);
+            cell.appendChild(appointmentElement);
+          });
+          container.appendChild(cell);
+        }
+      }
+      async function updateWeekView(container) {
+        container.className = 'week-view';
+        const selectedDoctor = document.getElementById('doctorFilter').value;
+        const scheduleData = await parseScheduleData();
+        const {
+          start
+        } = getWeekDates(currentDate);
+        if (selectedDoctor === 'all') {
+          // Simplified view for all doctors
+          container.style.gridTemplateColumns = 'repeat(7, 1fr)';
+          // Add day headers
+          for (let i = 0; i<7; i++) {
+            const date = new Date(start);
+            date.setDate(start.getDate() + i);
+            const headerCell = document.createElement('div');
+            headerCell.className = 'week-day-header';
+            headerCell.textContent = date.toLocaleString('default', {
+              weekday: 'short',
+              month: 'short',
+              day: 'numeric'
+            });
+            container.appendChild(headerCell);
+          }
+          // Add day cells
+          for (let i = 0; i<7; i++) {
+            const date = new Date(start);
+            date.setDate(start.getDate() + i);
+            const cell = document.createElement('div');
+            cell.className = `week-cell ${date.toDateString() === new Date().toDateString() ? 'today' : ''}`;
+            const dateStr = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+            let dayAppointments = scheduleData.filter(entry => {
+              if (entry.date !== dateStr) return false;
+              return ['Vacation', 'Covering Physician', 'Alternate Covering Physician', 'Physician On Call', 'Out of Office'].includes(entry.activity);
+            });
+            dayAppointments.forEach(appointment => {
+              const appointmentElement = document.createElement('div');
+              appointmentElement.className = `appointment ${getDoctorClass(appointment.doctor)} ${getActivityClass(appointment.activity)}`;
+              if (appointment.status === 'Cancelled') {
+                appointmentElement.classList.add('cancelled');
+              }
+              appointmentElement.setAttribute('data-appointment', JSON.stringify(appointment));
+              appointmentElement.innerHTML = `
+                            <div class=\"doctor-name\">${appointment.doctor}</div>
+                            <div class=\"activity\">${appointment.activity}</div>
+                            <div class=\"time\">${appointment.start} - ${appointment.end}</div>
+                        `;
+              appointmentElement.onclick = () => showAppointmentDetails(appointment);
+              cell.appendChild(appointmentElement);
+            });
+            container.appendChild(cell);
+          }
+        } else {
+          // Detailed time-based view for individual doctors
+          container.style.gridTemplateColumns = '100px repeat(7, 1fr)';
+          // Add time column header
+          const timeHeader = document.createElement('div');
+          timeHeader.className = 'time-column';
+          timeHeader.textContent = 'Time';
+          container.appendChild(timeHeader);
+          // Add day headers
+          for (let i = 0; i<7; i++) {
+            const date = new Date(start);
+            date.setDate(start.getDate() + i);
+            const headerCell = document.createElement('div');
+            headerCell.className = 'week-day-header';
+            headerCell.textContent = date.toLocaleString('default', {
+              weekday: 'short',
+              month: 'short',
+              day: 'numeric'
+            });
+            container.appendChild(headerCell);
+          }
+          // Add time slots
+          for (let hour = 7; hour<19; hour++) {
+            // Time column
+            const timeCell = document.createElement('div');
+            timeCell.className = 'time-column';
+            timeCell.textContent = `${hour}:00`;
+            container.appendChild(timeCell);
+            // Day cells
+            for (let day = 0; day<7; day++) {
+              const date = new Date(start);
+              date.setDate(start.getDate() + day);
+              const cell = document.createElement('div');
+              cell.className = `week-cell ${date.toDateString() === new Date().toDateString() ? 'today' : ''}`;
+              const dateStr = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+              let dayAppointments = scheduleData.filter(entry => {
+                if (entry.date !== dateStr || entry.doctor !== selectedDoctor) return false;
+                const startHour = parseInt(entry.start.split(':')[0]);
+                const startPeriod = entry.start.includes('PM') ? 'PM' : 'AM';
+                const adjustedHour = startPeriod === 'PM' && startHour !== 12 ? startHour + 12 : startHour;
+                return adjustedHour === hour;
+              });
+              dayAppointments.forEach(appointment => {
+                const appointmentElement = document.createElement('div');
+                appointmentElement.className = `appointment ${getDoctorClass(appointment.doctor)} ${getActivityClass(appointment.activity)}`;
+                if (appointment.status === 'Cancelled') {
+                  appointmentElement.classList.add('cancelled');
                 }
-
-                // Add time slots
-                for (let hour = 7; hour < 19; hour++) {
-                    // Time column
-                    const timeCell = document.createElement('div');
-                    timeCell.className = 'time-column';
-                    timeCell.textContent = `${hour}:00`;
-                    container.appendChild(timeCell);
-
-                    // Day cells
-                    for (let day = 0; day < 7; day++) {
-                        const date = new Date(start);
-                        date.setDate(start.getDate() + day);
-                        const cell = document.createElement('div');
-                        cell.className = `week-cell ${date.toDateString() === new Date().toDateString() ? 'today' : ''}`;
-                        
-                        const dateStr = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
-                        let dayAppointments = scheduleData.filter(entry => {
-                            if (entry.date !== dateStr || entry.doctor !== selectedDoctor) return false;
-                            const startHour = parseInt(entry.start.split(':')[0]);
-                            const startPeriod = entry.start.includes('PM') ? 'PM' : 'AM';
-                            const adjustedHour = startPeriod === 'PM' && startHour !== 12 ? startHour + 12 : startHour;
-                            return adjustedHour === hour;
-                        });
-
-                        dayAppointments.forEach(appointment => {
-                            const appointmentElement = document.createElement('div');
-                            appointmentElement.className = `appointment ${getDoctorClass(appointment.doctor)} ${getActivityClass(appointment.activity)}`;
-                            if (appointment.status === 'Cancelled') {
-                                appointmentElement.classList.add('cancelled');
-                            }
-                            appointmentElement.setAttribute('data-appointment', JSON.stringify(appointment));
-                            appointmentElement.innerHTML = `
+                appointmentElement.setAttribute('data-appointment', JSON.stringify(appointment));
+                appointmentElement.innerHTML = `
                                 <div class=\"doctor-name\">${appointment.doctor}</div>
                                 <div class=\"activity\">${appointment.activity}</div>
                                 <div class=\"time\">${appointment.start} - ${appointment.end}</div>
                             `;
-                            appointmentElement.onclick = () => showAppointmentDetails(appointment);
-                            cell.appendChild(appointmentElement);
-                        });
-
-                        container.appendChild(cell);
-                    }
-                }
+                appointmentElement.onclick = () => showAppointmentDetails(appointment);
+                cell.appendChild(appointmentElement);
+              });
+              container.appendChild(cell);
             }
+          }
         }
-
-        async function updateDayView(container) {
-            container.className = 'day-view';
-            // Set min-width for all doctors, smaller min-width for individual
-            const selectedDoctor = document.getElementById('doctorFilter').value;
-            if (selectedDoctor === 'all') {
-                container.style.minWidth = '900px';
-                container.parentElement.style.overflowX = 'auto';
-            } else {
-                container.style.minWidth = '350px';
-                container.parentElement.style.overflowX = '';
-            }
-
-            // Get the schedule data
-            const scheduleData = await parseScheduleData();
-            const doctors = selectedDoctor === 'all' ? ['DB', 'MC', 'SS'] : [selectedDoctor];
-            const timeColumnWidth = '100px';
-            const doctorColumnWidth = `minmax(240px, ${100 / doctors.length}fr)`;
-            container.style.gridTemplateColumns = `${timeColumnWidth} ${doctors.map(() => doctorColumnWidth).join(' ')}`;
-
-            // Add header row: Time | Date (spanning all doctor columns)
-            const timeHeader = document.createElement('div');
-            timeHeader.className = 'time-column';
-            timeHeader.textContent = 'Time';
-            container.appendChild(timeHeader);
-
-            // Date header (just the label, no date picker)
-            const dateHeader = document.createElement('div');
-            dateHeader.className = 'day-header';
-            dateHeader.style.display = 'flex';
-            dateHeader.style.alignItems = 'center';
-            dateHeader.style.gap = '1rem';
-            dateHeader.style.justifyContent = 'space-between';
-            dateHeader.style.paddingRight = '1rem';
-            dateHeader.style.gridColumn = `span ${doctors.length}`;
-            // Date label
-            const dateLabel = document.createElement('span');
-            dateLabel.textContent = currentDate.toLocaleString('default', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
-            dateHeader.appendChild(dateLabel);
-            container.appendChild(dateHeader);
-
-            // Add time slots
-            for (let hour = 7; hour < 19; hour++) {
-                // Time column
-                const timeCell = document.createElement('div');
-                timeCell.className = 'time-slot';
-                timeCell.textContent = `${hour}:00`;
-                container.appendChild(timeCell);
-
-                // Doctor columns
-                doctors.forEach(doctor => {
-                    const cell = document.createElement('div');
-                    cell.className = `day-cell ${currentDate.toDateString() === new Date().toDateString() ? 'today' : ''}`;
-                    
-                    // Add appointments for this time slot
-                    const dateStr = `${currentDate.getMonth() + 1}/${currentDate.getDate()}/${currentDate.getFullYear()}`;
-                    let dayAppointments = scheduleData.filter(entry => {
-                        if (entry.date !== dateStr || entry.doctor !== doctor) return false;
-                        const startHour = parseInt(entry.start.split(':')[0]);
-                        const startPeriod = entry.start.includes('PM') ? 'PM' : 'AM';
-                        const adjustedHour = startPeriod === 'PM' && startHour !== 12 ? startHour + 12 : startHour;
-                        return adjustedHour === hour;
-                    });
-
-                    dayAppointments.forEach(appointment => {
-                        const appointmentElement = document.createElement('div');
-                        appointmentElement.className = `appointment ${getDoctorClass(appointment.doctor)} ${getActivityClass(appointment.activity)}`;
-                        if (appointment.status === 'Cancelled') {
-                            appointmentElement.classList.add('cancelled');
-                        }
-                        appointmentElement.setAttribute('data-appointment', JSON.stringify(appointment));
-                        appointmentElement.innerHTML = `
+      }
+      async function updateDayView(container) {
+        container.className = 'day-view';
+        // Set min-width for all doctors, smaller min-width for individual
+        const selectedDoctor = document.getElementById('doctorFilter').value;
+        if (selectedDoctor === 'all') {
+          container.style.minWidth = '900px';
+          container.parentElement.style.overflowX = 'auto';
+        } else {
+          container.style.minWidth = '350px';
+          container.parentElement.style.overflowX = '';
+        }
+        // Get the schedule data
+        const scheduleData = await parseScheduleData();
+        const doctors = selectedDoctor === 'all' ? ['DB', 'MC', 'SS'] : [selectedDoctor];
+        const timeColumnWidth = '100px';
+        const doctorColumnWidth = `minmax(240px, ${100 / doctors.length}fr)`;
+        container.style.gridTemplateColumns = `${timeColumnWidth} ${doctors.map(() => doctorColumnWidth).join(' ')}`;
+        // Add header row: Time | Date (spanning all doctor columns)
+        const timeHeader = document.createElement('div');
+        timeHeader.className = 'time-column';
+        timeHeader.textContent = 'Time';
+        container.appendChild(timeHeader);
+        // Date header (just the label, no date picker)
+        const dateHeader = document.createElement('div');
+        dateHeader.className = 'day-header';
+        dateHeader.style.display = 'flex';
+        dateHeader.style.alignItems = 'center';
+        dateHeader.style.gap = '1rem';
+        dateHeader.style.justifyContent = 'space-between';
+        dateHeader.style.paddingRight = '1rem';
+        dateHeader.style.gridColumn = `span ${doctors.length}`;
+        // Date label
+        const dateLabel = document.createElement('span');
+        dateLabel.textContent = currentDate.toLocaleString('default', {
+          weekday: 'long',
+          month: 'long',
+          day: 'numeric',
+          year: 'numeric'
+        });
+        dateHeader.appendChild(dateLabel);
+        container.appendChild(dateHeader);
+        // Add time slots
+        for (let hour = 7; hour<19; hour++) {
+          // Time column
+          const timeCell = document.createElement('div');
+          timeCell.className = 'time-slot';
+          timeCell.textContent = `${hour}:00`;
+          container.appendChild(timeCell);
+          // Doctor columns
+          doctors.forEach(doctor => {
+            const cell = document.createElement('div');
+            cell.className = `day-cell ${currentDate.toDateString() === new Date().toDateString() ? 'today' : ''}`;
+            // Add appointments for this time slot
+            const dateStr = `${currentDate.getMonth() + 1}/${currentDate.getDate()}/${currentDate.getFullYear()}`;
+            let dayAppointments = scheduleData.filter(entry => {
+              if (entry.date !== dateStr || entry.doctor !== doctor) return false;
+              const startHour = parseInt(entry.start.split(':')[0]);
+              const startPeriod = entry.start.includes('PM') ? 'PM' : 'AM';
+              const adjustedHour = startPeriod === 'PM' && startHour !== 12 ? startHour + 12 : startHour;
+              return adjustedHour === hour;
+            });
+            dayAppointments.forEach(appointment => {
+              const appointmentElement = document.createElement('div');
+              appointmentElement.className = `appointment ${getDoctorClass(appointment.doctor)} ${getActivityClass(appointment.activity)}`;
+              if (appointment.status === 'Cancelled') {
+                appointmentElement.classList.add('cancelled');
+              }
+              appointmentElement.setAttribute('data-appointment', JSON.stringify(appointment));
+              appointmentElement.innerHTML = `
                             <div class=\"doctor-name\">${appointment.doctor}</div>
                             <div class=\"activity\">${appointment.activity}</div>
                             <div class=\"time\">${appointment.start} - ${appointment.end}</div>
                         `;
-                        appointmentElement.onclick = () => showAppointmentDetails(appointment);
-                        cell.appendChild(appointmentElement);
-                    });
-
-                    container.appendChild(cell);
-                });
-            }
+              appointmentElement.onclick = () => showAppointmentDetails(appointment);
+              cell.appendChild(appointmentElement);
+            });
+            container.appendChild(cell);
+          });
         }
+      }
+      
+      function saveSettingsButton() {
+      localStorage.setItem("DefRange", document.getElementById("settingsCalenderFilter").selectedIndex);
+      localStorage.setItem("DefDoctor", document.getElementById("settingsDoctorFilter").selectedIndex);
+      if (document.getElementById("data1").value != "") {      
+      hashString("89264XevfDfs" + document.getElementById("data1").value).then((result) =>
+{ localStorage.setItem("DefData1", result); })
+}
+      if (document.getElementById("data2").value != "") {      
+      hashString(document.getElementById("data2").value).then((result) =>
+{ localStorage.setItem("DefData2", result); })
+}
+      if (document.getElementById("data3").value != "") {      
+      hashString(document.getElementById("data3").value).then((result) =>
+{ localStorage.setItem("DefData3", result); })
+}
+
+  //location.reload() 
+  document.getElementById('settingsModal').style.display = 'none';
+}
+
+async function hashString(string) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(string);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+  return hashHex;
+}
+
+function decryptWithSecretKey(encryptedText) {
+    const fullCipher = CryptoJS.enc.Base64.parse(encryptedText);
+
+    // Extract IV and ciphertext from the parsed cipher
+    const iv = CryptoJS.lib.WordArray.create(fullCipher.words.slice(0, 4), 16);
+    const ciphertext = CryptoJS.lib.WordArray.create(fullCipher.words.slice(4));
+
+    const cipherParams = CryptoJS.lib.CipherParams.create({ ciphertext: ciphertext, });
+
+    // The secret key
+    const secretKey = localStorage.getItem("DefData1");
+
+    // Decrypt the ciphertext using AES and the provided secret key
+    const decrypted = CryptoJS.AES.decrypt( cipherParams, CryptoJS.enc.Hex.parse(secretKey),
+      {
+        iv: iv,
+        padding: CryptoJS.pad.Pkcs7,
+        mode: CryptoJS.mode.CBC,
+      } );
+
+    // Return decrypted text in UTF-8 format
+    return decrypted.toString(CryptoJS.enc.Utf8);
+}
+
     </script>
-</body>
+  </body>
 </html>
