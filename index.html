@@ -1086,11 +1086,11 @@
         const codes = diagnosisCode.split('_');
         let result = '';
         codes.forEach(code => {
-         // if (diagnosisCodes[code]) {
-         //   result += `${code}: ${diagnosisCodes[code]}<br>`;
-         // } else {
+          if (diagnosisCodes[code]) {
+            result += `${code}: ${diagnosisCodes[code]}<br>`;
+          } else {
             result += `${code}<br>`;
-         // }
+          }
         });
         return result || diagnosisCode;
       }
