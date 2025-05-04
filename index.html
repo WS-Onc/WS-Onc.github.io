@@ -1507,7 +1507,7 @@
           dayAppointments.forEach(appointment => {
             const appointmentElement = document.createElement('div');
             appointmentElement.className = `appointment ${getDoctorClass(appointment.doctor)} ${getActivityClass(appointment.activity)}`;
-            if (appointment.status === 'Cancelled') {
+            if (appointment.status.includes("Cancelled")) {
               appointmentElement.classList.add('cancelled');
               appointmentElement.innerHTML = `
                             <span class='cancelled-label'>Cancelled</span>
@@ -1566,7 +1566,7 @@
             dayAppointments.forEach(appointment => {
               const appointmentElement = document.createElement('div');
               appointmentElement.className = `appointment ${getDoctorClass(appointment.doctor)} ${getActivityClass(appointment.activity)}`;
-              if (appointment.status === 'Cancelled') {
+              if (appointment.status.includes("Cancelled")) {
                 appointmentElement.classList.add('cancelled');
               }
               appointmentElement.setAttribute('data-appointment', JSON.stringify(appointment));
@@ -1625,7 +1625,7 @@
               dayAppointments.forEach(appointment => {
                 const appointmentElement = document.createElement('div');
                 appointmentElement.className = `appointment ${getDoctorClass(appointment.doctor)} ${getActivityClass(appointment.activity)}`;
-                if (appointment.status === 'Cancelled') {
+                if (appointment.status.includes("Cancelled")) {
                   appointmentElement.classList.add('cancelled');
                 }
                 appointmentElement.setAttribute('data-appointment', JSON.stringify(appointment));
@@ -1706,7 +1706,7 @@
             dayAppointments.forEach(appointment => {
               const appointmentElement = document.createElement('div');
               appointmentElement.className = `appointment ${getDoctorClass(appointment.doctor)} ${getActivityClass(appointment.activity)}`;
-              if (appointment.status === 'Cancelled') {
+              if (appointment.status.includes("Cancelled")) {
                 appointmentElement.classList.add('cancelled');
               }
               appointmentElement.setAttribute('data-appointment', JSON.stringify(appointment));
