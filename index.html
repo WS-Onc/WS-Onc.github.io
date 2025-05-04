@@ -998,12 +998,13 @@
       // Function to fetch and parse CSV data
       async function fetchScheduleData() {
         try {
-          const response = await fetch('data.csv');
           //const response = await fetch(`data.csv?t=${new Date().getTime()}`);
-          const csvText = await response.text();
-          //const lines = csvText.split('\n');
+          
+          //const response = await fetch('data.csv');
+          //const csvText = await response.text();
           let lines = new Array();
-          //const csvText = "iERw+fqFU5qnE8BB1KhozqCYOUTAK+uIH3Ewifz/vNr76IeuRIdyL5y2QXvV8YZhGIBqxhYAUpLP3HFutWp2gdkMqgHZk3PhAoFmrOivHa+jAOPsc112f4rkpVo89Dpv8illvZbOQL9LclyAlbjlbNBCk/0DR1ifNPVDCoJ4UpORjpg8oFMfrucpuykN8tC0vfu1S+tv0uPNtlGb9CmhGBIknydUPe4Cv60et4EKE7hP4lpno6iTecfgJJwWftTm5l7kln0/RrLtTukrkSKWZ1vqRZkNQXo/a+7/VIi3s70LNt8kDxg6f2XofPJOTuK9Eq51cHB1eaY+ZWKgexNutEfMAlQl8SI0kg9fxxsG/WmjsKqYAF44HO6y5AxDUdXSXtA6d8Pd74Sp/xrh/U8/CFOREtBISzvlfgTqQNxXBFBu6P/0zoONPXht+BA0o+/lI8EXBMoqL8zH3LbOAx2AfMv8O2rJbpcv7+wYgRPWS1XGdtYZYlXO+VO3LtoQoQlGDUFdB/TB2NR7Yx9DP5tmZPm4U5vj0tmQHXKoe3vlo9zzi+z22hTCUApS5LLwjMYvVrcVUsgkdEYCjL+oi/1fIZ6gftiPytE7g+W8moJlIRQhEgwEz+nZD81NfbOKz4WqqOh0s1Sze8Nz8BK/3aKSn0CmWtpKp2me82OdMCzGfU3cVsSg0mRWb47Sr0G8apk6";
+          
+          const csvText = "iERw+fqFU5qnE8BB1KhozqCYOUTAK+uIH3Ewifz/vNr76IeuRIdyL5y2QXvV8YZhGIBqxhYAUpLP3HFutWp2gdkMqgHZk3PhAoFmrOivHa+jAOPsc112f4rkpVo89Dpv8illvZbOQL9LclyAlbjlbNBCk/0DR1ifNPVDCoJ4UpORjpg8oFMfrucpuykN8tC0vfu1S+tv0uPNtlGb9CmhGBIknydUPe4Cv60et4EKE7hP4lpno6iTecfgJJwWftTm5l7kln0/RrLtTukrkSKWZ1vqRZkNQXo/a+7/VIi3s70LNt8kDxg6f2XofPJOTuK9Eq51cHB1eaY+ZWKgexNutEfMAlQl8SI0kg9fxxsG/WmjsKqYAF44HO6y5AxDUdXSXtA6d8Pd74Sp/xrh/U8/CFOREtBISzvlfgTqQNxXBFBu6P/0zoONPXht+BA0o+/lI8EXBMoqL8zH3LbOAx2AfMv8O2rJbpcv7+wYgRPWS1XGdtYZYlXO+VO3LtoQoQlGDUFdB/TB2NR7Yx9DP5tmZPm4U5vj0tmQHXKoe3vlo9zzi+z22hTCUApS5LLwjMYvVrcVUsgkdEYCjL+oi/1fIZ6gftiPytE7g+W8moJlIRQhEgwEz+nZD81NfbOKz4WqqOh0s1Sze8Nz8BK/3aKSn0CmWtpKp2me82OdMCzGfU3cVsSg0mRWb47Sr0G8apk6";
           
           //const csvText = "Doctor,AppointmentDate,StartTime,EndTime,Activity,Status,Diagnosis\nSS,5/2/2025,07:00 AM,07:45 AM,Alternate Covering Physician,Open,\nSS,5/2/2025,08:00 AM,08:20 AM,Follow-Up,Manually Completed,C50.211\nSS,5/3/2025,07:00 AM,07:45 AM,Physician On Call,Open,\nSS,5/4/2025,07:00 AM,07:45 AM,Physician On Call,Open,\nSS,5/5/2025,07:00 AM,07:45 AM,Alternate Covering Physician,Open,";
                     
