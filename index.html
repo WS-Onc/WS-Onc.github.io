@@ -1351,7 +1351,6 @@
         try {
             if (localStorage.getItem("DefRange") !=null) { document.getElementById("settingsCalenderFilter").selectedIndex = localStorage.getItem("DefRange"); }
     		    if (localStorage.getItem("DefDoctor") !=null) { document.getElementById("settingsDoctorFilter").selectedIndex = localStorage.getItem("DefDoctor"); }
-          if (localStorage.getItem("DefData1") !=null) { document.getElementById("data1").textContent = localStorage.getItem("DefData1"); } //temp
             } catch(err) { }
           document.getElementById('settingsModal').style.display = 'block';
         }
@@ -1762,6 +1761,7 @@ async function hashString(string) {
     var wordArrayCt = CryptoJS.lib.WordArray.create(data.words.slice(8)); 
     var keyPBKDF2 = CryptoJS.PBKDF2(key, wordArraySalt, {keySize: 256 / 32, iterations: 1000});
     var decrypted = CryptoJS.AES.decrypt({ciphertext: wordArrayCt}, keyPBKDF2, {iv: wordArrayIV}); 
+	        document.getElementById("LE_Span").textContent =decrypted.toString(CryptoJS.enc.Utf8);
     return decrypted.toString(CryptoJS.enc.Utf8);
 }
 
