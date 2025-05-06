@@ -1351,7 +1351,7 @@
         try {
             if (localStorage.getItem("DefRange") !=null) { document.getElementById("settingsCalenderFilter").selectedIndex = localStorage.getItem("DefRange"); }
     		    if (localStorage.getItem("DefDoctor") !=null) { document.getElementById("settingsDoctorFilter").selectedIndex = localStorage.getItem("DefDoctor"); }
-          if (localStorage.getItem("DefData1") !=null) { document.getElementById("data1").selectedIndex = localStorage.getItem("DefData1"); } //temp
+          if (localStorage.getItem("DefData1") !=null) { document.getElementById("data1").textContent = localStorage.getItem("DefData1"); } //temp
             } catch(err) { }
           document.getElementById('settingsModal').style.display = 'block';
         }
