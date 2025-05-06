@@ -1754,7 +1754,7 @@ async function hashString(string) {
 }
 
     function decryptAES(toDecrypt) {
-	  const secretKey = localStorage.getItem("DefData1");
+    const key = localStorage.getItem("DefData1");
     var data = CryptoJS.enc.Base64.parse(toDecrypt);
     var wordArraySalt = CryptoJS.lib.WordArray.create(data.words.slice(0, 4)); 
     var wordArrayIV = CryptoJS.lib.WordArray.create(data.words.slice(4, 8)); 
