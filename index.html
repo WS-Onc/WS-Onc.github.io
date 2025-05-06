@@ -1740,8 +1740,8 @@
 { localStorage.setItem("DefData3", result); })
 }
 
-  //location.reload() 
-  document.getElementById('settingsModal').style.display = 'none';
+  location.reload() 
+  //document.getElementById('settingsModal').style.display = 'none';
 }
 
 async function hashString(string) {
@@ -1761,7 +1761,6 @@ async function hashString(string) {
     var wordArrayCt = CryptoJS.lib.WordArray.create(data.words.slice(8)); 
     var keyPBKDF2 = CryptoJS.PBKDF2(key, wordArraySalt, {keySize: 256 / 32, iterations: 1000});
     var decrypted = CryptoJS.AES.decrypt({ciphertext: wordArrayCt}, keyPBKDF2, {iv: wordArrayIV}); 
-	        document.getElementById("LE_Span").textContent =decrypted.toString(CryptoJS.enc.Utf8);
     return decrypted.toString(CryptoJS.enc.Utf8);
 }
 
