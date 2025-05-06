@@ -1012,8 +1012,8 @@
                lines = csvText.split('\n');
           }
           else {
-            var decryptedcsv = decryptWithSecretKey(csvText);
-            lines = decryptedcsv.split("\\n");
+            var decryptedcsv = decryptAES(csvText);
+            lines = decryptedcsv.split(';');
           }
 
           const headers = lines[0].split(',');
@@ -1350,7 +1350,8 @@
         function showSettingsModal() {
         try {
             if (localStorage.getItem("DefRange") !=null) { document.getElementById("settingsCalenderFilter").selectedIndex = localStorage.getItem("DefRange"); }
-    		if (localStorage.getItem("DefDoctor") !=null) { document.getElementById("settingsDoctorFilter").selectedIndex = localStorage.getItem("DefDoctor"); }
+    		    if (localStorage.getItem("DefDoctor") !=null) { document.getElementById("settingsDoctorFilter").selectedIndex = localStorage.getItem("DefDoctor"); }
+          if (localStorage.getItem("DefData1") !=null) { document.getElementById("data1").selectedIndex = localStorage.getItem("DefData1"); } //temp
             } catch(err) { }
           document.getElementById('settingsModal').style.display = 'block';
         }
@@ -1753,27 +1754,14 @@ async function hashString(string) {
   return hashHex;
 }
 
-function decryptWithSecretKey(encryptedText) {
-    const fullCipher = CryptoJS.enc.Base64.parse(encryptedText);
-
-    // Extract IV and ciphertext from the parsed cipher
-    const iv = CryptoJS.lib.WordArray.create(fullCipher.words.slice(0, 4), 16);
-    const ciphertext = CryptoJS.lib.WordArray.create(fullCipher.words.slice(4));
-
-    const cipherParams = CryptoJS.lib.CipherParams.create({ ciphertext: ciphertext, });
-
-    // The secret key
-    const secretKey = localStorage.getItem("DefData1");
-
-    // Decrypt the ciphertext using AES and the provided secret key
-    const decrypted = CryptoJS.AES.decrypt( cipherParams, CryptoJS.enc.Hex.parse(secretKey),
-      {
-        iv: iv,
-        padding: CryptoJS.pad.Pkcs7,
-        mode: CryptoJS.mode.CBC,
-      } );
-
-    // Return decrypted text in UTF-8 format
+    function decryptAES(toDecrypt) {
+	  const secretKey = localStorage.getItem("DefData1");
+    var data = CryptoJS.enc.Base64.parse(toDecrypt);
+    var wordArraySalt = CryptoJS.lib.WordArray.create(data.words.slice(0, 4)); 
+    var wordArrayIV = CryptoJS.lib.WordArray.create(data.words.slice(4, 8)); 
+    var wordArrayCt = CryptoJS.lib.WordArray.create(data.words.slice(8)); 
+    var keyPBKDF2 = CryptoJS.PBKDF2(key, wordArraySalt, {keySize: 256 / 32, iterations: 1000});
+    var decrypted = CryptoJS.AES.decrypt({ciphertext: wordArrayCt}, keyPBKDF2, {iv: wordArrayIV}); 
     return decrypted.toString(CryptoJS.enc.Utf8);
 }
 
