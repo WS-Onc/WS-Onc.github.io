@@ -1983,7 +1983,7 @@ async function hashString(string) {
               ${vacationsByDoctor[doctor]
                 .sort((a, b) => new Date(a.date) - new Date(b.date))
                 .map(vac => `
-                  <li>${vac.date}: ${vac.activity} (${vac.start} - ${vac.end})</li>
+                  <li>${vac.date}: (${vac.start} - ${vac.end})</li>
                 `).join('')}
             </ul>
           </div>
