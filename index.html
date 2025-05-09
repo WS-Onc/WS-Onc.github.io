@@ -865,7 +865,6 @@
     <p>&nbsp;&nbsp;Last Updated: <span id="LE_Span">Never</span>
       <span>&nbsp;</span>
       <button style="background-color: white; color: #4A84BD; padding: 0px 4px;border: 1px solid Gainsboro;font-size: 18px;" onclick="location.reload()">&#x21bb;</button>
-      <span style="color: WhiteSmoke">&nbsp;&nbsp;r: 5+</span>
     </p>
     <div class="container">
       <div class="calendar-header">
@@ -1321,7 +1320,7 @@
           const doctors = Object.keys(onCallByDoctor).sort();
           doctors.forEach(doctor => {
             if (filterDoctor !== 'all' && doctor !== filterDoctor) return;
-            html += `<h3>${doctor}</h3><ul>`;
+            html += `<h3>${doctor}</h3><ul style="display: grid; grid-template-columns: 1fr 1fr;">`;
             onCallByDoctor[doctor].sort((a, b) => new Date(a.date) - new Date(b.date)).forEach(call => {
             //  html += `<li>${call.date}: ${call.activity} (${call.start} - ${call.end})</li>`;
               html += `<li>${call.date}</li>`;
