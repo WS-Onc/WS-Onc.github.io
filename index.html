@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -353,9 +354,53 @@
         background-color: white;
         margin: 2rem auto;
         padding: 2rem;
-        border-radius: 8px;
+        border-radius: 12px;
         max-width: 600px;
         position: relative;
+        max-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e5e7eb;
+      }
+
+      .modal-header h2 {
+        margin: 0;
+        color: var(--text-primary);
+        font-size: 1.5rem;
+        font-weight: 600;
+      }
+
+      .modal-body {
+        overflow-y: auto;
+        padding-right: 0.5rem;
+        flex-grow: 1;
+      }
+
+      .modal-body::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .modal-body::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+      }
+
+      .modal-body::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+      }
+
+      .modal-body::-webkit-scrollbar-thumb:hover {
+        background: #555;
       }
 
       .close-modal {
@@ -364,6 +409,80 @@
         right: 1rem;
         font-size: 1.5rem;
         cursor: pointer;
+        color: #6b7280;
+        transition: color 0.2s;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+      }
+
+      .close-modal:hover {
+        color: #1f2937;
+        background-color: #f3f4f6;
+      }
+
+      /* Vacation and On Call specific styles */
+      .vacation-list, .oncall-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .vacation-group, .oncall-group {
+        background: #f9fafb;
+        border-radius: 8px;
+        padding: 1rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      }
+
+      .vacation-group h3, .oncall-group h3 {
+        color: var(--primary-color);
+        margin: 0 0 0.75rem 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+      }
+
+      .vacation-list ul, .oncall-list ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: 0.5rem;
+      }
+
+      .vacation-list li, .oncall-list li {
+        background: white;
+        padding: 0.75rem;
+        border-radius: 6px;
+        border: 1px solid #e5e7eb;
+        font-size: 0.9rem;
+        color: var(--text-primary);
+      }
+
+      .filter-section {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e5e7eb;
+      }
+
+      .filter-section label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+        font-weight: 500;
+      }
+
+      .filter-section select {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        background-color: white;
+        color: var(--text-primary);
+        font-size: 0.9rem;
       }
 
       /* Animations */
@@ -841,6 +960,105 @@
           display: none !important;
         }
       }
+
+      .oncall-list ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+      }
+
+      .oncall-list li {
+        background: white;
+        padding: 0.75rem;
+        border-radius: 6px;
+        border: 1px solid #e5e7eb;
+        font-size: 0.9rem;
+        color: var(--text-primary);
+        text-align: center;
+      }
+
+      /* Add settings modal specific styles */
+      .settings-form {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .settings-group {
+        background: #f9fafb;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      }
+
+      .settings-group h3 {
+        color: var(--primary-color);
+        margin: 0 0 1rem 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+      }
+
+      .settings-field {
+        margin-bottom: 1rem;
+      }
+
+      .settings-field:last-child {
+        margin-bottom: 0;
+      }
+
+      .settings-field label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+        font-weight: 500;
+        font-size: 0.9rem;
+      }
+
+      .settings-field select,
+      .settings-field input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        background-color: white;
+        color: var(--text-primary);
+        font-size: 0.9rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+
+      .settings-field select:focus,
+      .settings-field input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(74, 132, 189, 0.1);
+      }
+
+      .settings-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e5e7eb;
+      }
+
+      .settings-actions button {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      .settings-actions button:hover {
+        background-color: #3a6a9d;
+      }
     </style>
   </head>
   <body>
@@ -914,70 +1132,82 @@
     
     <div class="modal" id="vacationModal" style="display:none;">
       <div class="modal-content">
-        <span class="close-modal" id="closeVacationModal">&times;</span>
-        <h2>Vacations</h2>
-        <div id="vacationListContent"></div>
+        <div class="modal-header">
+          <h2>Vacations</h2>
+          <span class="close-modal" id="closeVacationModal">&times;</span>
+        </div>
+        <div class="modal-body">
+          <div id="vacationListContent" class="vacation-list"></div>
+        </div>
       </div>
     </div>
     
     <div class="modal" id="onCallModal" style="display:none;">
       <div class="modal-content">
-        <span class="close-modal" id="closeOnCallModal">&times;</span>
-        <h2>On Call</h2>
-        <div style="margin-bottom:1rem;">
-          <label for="onCallDoctorFilter">
-            <strong>Filter by Physician:</strong>
-          </label>
-          <select id="onCallDoctorFilter">
-            <option value="all">All</option>
-            <option value="DB">DB</option>
-            <option value="MC">MC</option>
-            <option value="SS">SS</option>
-          </select>
+        <div class="modal-header">
+          <h2>On Call Schedule</h2>
+          <span class="close-modal" id="closeOnCallModal">&times;</span>
         </div>
-        <div id="onCallListContent"></div>
+        <div class="modal-body">
+          <div class="filter-section">
+            <label for="onCallDoctorFilter">
+              <strong>Filter by Physician:</strong>
+            </label>
+            <select id="onCallDoctorFilter">
+              <option value="all">All Physicians</option>
+              <option value="DB">DB</option>
+              <option value="MC">MC</option>
+              <option value="SS">SS</option>
+            </select>
+          </div>
+          <div id="onCallListContent" class="oncall-list"></div>
+        </div>
       </div>
     </div>
     
     
     <div class="modal" id="settingsModal" style="display:none;">
       <div class="modal-content">
-        <span class="close-modal" id="closeSettingsModal">&times;</span>
-        <h2>Settings</h2>
-        <div style="margin-bottom:1rem;">
-          <label for="settingsCalenderFilter">
-            <strong>Default Range:</strong>
-          </label>
-          <select id="settingsCalenderFilter" style="padding: 6px 22px;">
-            <option value="month">Month</option>
-            <option value="week">Week</option>
-            <option value="day">Day</option>
-          </select>
+        <div class="modal-header">
+          <h2>Settings</h2>
+          <span class="close-modal" id="closeSettingsModal">&times;</span>
         </div>
-        <div style="margin-bottom:1rem;">
-          <label for="settingsDoctorFilter">
-            <strong>Default Physician:</strong>
-          </label>
-          <select id="settingsDoctorFilter" style="padding: 6px 22px;">
-            <option value="all">All</option>
-            <option value="DB">DB</option>
-            <option value="MC">MC</option>
-            <option value="SS">SS</option>
-          </select>
+        <div class="modal-body">
+          <div class="settings-form">
+            <div class="settings-group">
+              <h3>Display Preferences</h3>
+              <div class="settings-field">
+                <label for="settingsCalenderFilter">Default Calendar View</label>
+                <select id="settingsCalenderFilter">
+                  <option value="month">Month</option>
+                  <option value="week">Week</option>
+                  <option value="day">Day</option>
+                </select>
+              </div>
+              <div class="settings-field">
+                <label for="settingsDoctorFilter">Default Physician</label>
+                <select id="settingsDoctorFilter">
+                  <option value="all">All Physicians</option>
+                  <option value="DB">DB</option>
+                  <option value="MC">MC</option>
+                  <option value="SS">SS</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="settings-group">
+              <h3>Security</h3>
+              <div class="settings-field">
+                <label for="data1">Password</label>
+                <input type="password" id="data1" placeholder="Enter password">
+              </div>
+            </div>
+            
+            <div class="settings-actions">
+              <button type="button" onclick="saveSettingsButton()">Save Changes</button>
+            </div>
+          </div>
         </div>
-        <div style="margin-bottom:1rem;">
-          <label for="data1">data1:</label>
-          <input type="text" id="data1">
-        </div>
-        <div style="margin-bottom:1rem;">
-          <label for="data2">data2:</label>
-          <input type="text" id="data2">
-        </div>
-        <div style="margin-bottom:1rem;">
-          <label for="data3">data3:</label>
-          <input type="text" id="data3">
-        </div>
-        <button type="button" onclick="saveSettingsButton()" style="background-color: #008CBA; color: white; padding: 8px 32px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer;">Save</button>
       </div>
     </div>
     
@@ -1261,54 +1491,17 @@
         mobileVacationsBtn.addEventListener('click', async () => {
           mobileMenu.classList.remove('active');
           const data = await parseScheduleData();
-          // Group vacations by doctor
-          const vacationsByDoctor = {};
-          data.forEach(entry => {
-            if (entry.activity && entry.activity.toLowerCase().includes('vacation')) {
-              if (!vacationsByDoctor[entry.doctor]) vacationsByDoctor[entry.doctor] = [];
-              vacationsByDoctor[entry.doctor].push(entry);
-            }
-          });
-          // Build HTML
-          let html = '';
-          Object.keys(vacationsByDoctor).sort().forEach(doctor => {
-            html += `<h3>${doctor}</h3><ul>`;
-            vacationsByDoctor[doctor].sort((a, b) => new Date(a.date) - new Date(b.date)).forEach(vac => {
-              html += `<li>${vac.date}: ${vac.activity} (${vac.start} - ${vac.end})</li>`;
-            });
-            html += '</ul>';
-          });
-          if (!html) html = '<p>No vacations found.</p>';
-          document.getElementById('vacationListContent').innerHTML = html;
+          renderVacationList(data);
           document.getElementById('vacationModal').style.display = 'block';
         });
         // Show Vacations button (main toolbar)
         document.getElementById('showVacationsBtn').addEventListener('click', async () => {
           const data = await parseScheduleData();
-          // Group vacations by doctor
-          const vacationsByDoctor = {};
-          data.forEach(entry => {
-            if (entry.activity && entry.activity.toLowerCase().includes('vacation')) {
-              if (!vacationsByDoctor[entry.doctor]) vacationsByDoctor[entry.doctor] = [];
-              vacationsByDoctor[entry.doctor].push(entry);
-            }
-          });
-          // Build HTML
-          let html = '';
-          Object.keys(vacationsByDoctor).sort().forEach(doctor => {
-            html += `<h3>${doctor}</h3><ul>`;
-            vacationsByDoctor[doctor].sort((a, b) => new Date(a.date) - new Date(b.date)).forEach(vac => {
-              html += `<li>${vac.date}: ${vac.activity} (${vac.start} - ${vac.end})</li>`;
-            });
-            html += '</ul>';
-          });
-          if (!html) html = '<p>No vacations found.</p>';
-          document.getElementById('vacationListContent').innerHTML = html;
+          renderVacationList(data);
           document.getElementById('vacationModal').style.display = 'block';
         });
         // On Call Modal logic
         function renderOnCallList(data, filterDoctor) {
-          // Group by doctor
           const onCallByDoctor = {};
           data.forEach(entry => {
             if (entry.activity && entry.activity === 'Physician On Call') {
@@ -1316,17 +1509,25 @@
               onCallByDoctor[entry.doctor].push(entry);
             }
           });
+
           let html = '';
           const doctors = Object.keys(onCallByDoctor).sort();
           doctors.forEach(doctor => {
             if (filterDoctor !== 'all' && doctor !== filterDoctor) return;
-            html += `<h3>${doctor}</h3><ul style="display: grid; grid-template-columns: 1fr 1fr;">`;
-            onCallByDoctor[doctor].sort((a, b) => new Date(a.date) - new Date(b.date)).forEach(call => {
-            //  html += `<li>${call.date}: ${call.activity} (${call.start} - ${call.end})</li>`;
-              html += `<li>${call.date}</li>`;
-            });
-            html += '</ul>';
+            html += `
+              <div class="oncall-group">
+                <h3>${doctor}</h3>
+                <ul>
+                  ${onCallByDoctor[doctor]
+                    .sort((a, b) => new Date(a.date) - new Date(b.date))
+                    .map(call => `
+                      <li>${call.date}</li>
+                    `).join('')}
+                </ul>
+              </div>
+            `;
           });
+          
           if (!html) html = '<p>No on call entries found.</p>';
           document.getElementById('onCallListContent').innerHTML = html;
         }
@@ -1762,6 +1963,36 @@ async function hashString(string) {
     var decrypted = CryptoJS.AES.decrypt({ciphertext: wordArrayCt}, keyPBKDF2, {iv: wordArrayIV}); 
     return decrypted.toString(CryptoJS.enc.Utf8);
 }
+
+    // Add the renderVacationList function
+    function renderVacationList(data) {
+      const vacationsByDoctor = {};
+      data.forEach(entry => {
+        if (entry.activity && entry.activity.toLowerCase().includes('vacation')) {
+          if (!vacationsByDoctor[entry.doctor]) vacationsByDoctor[entry.doctor] = [];
+          vacationsByDoctor[entry.doctor].push(entry);
+        }
+      });
+
+      let html = '';
+      Object.keys(vacationsByDoctor).sort().forEach(doctor => {
+        html += `
+          <div class="vacation-group">
+            <h3>${doctor}</h3>
+            <ul>
+              ${vacationsByDoctor[doctor]
+                .sort((a, b) => new Date(a.date) - new Date(b.date))
+                .map(vac => `
+                  <li>${vac.date}: ${vac.activity} (${vac.start} - ${vac.end})</li>
+                `).join('')}
+            </ul>
+          </div>
+        `;
+      });
+      
+      if (!html) html = '<p>No vacations found.</p>';
+      document.getElementById('vacationListContent').innerHTML = html;
+    }
 
     </script>
   </body>
