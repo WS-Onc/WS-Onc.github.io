@@ -1248,8 +1248,10 @@
           const headers = lines[0].split(',');
           var startint = 1;
           if (lines[startint].includes("Topic|")) {
+            try {
             let LEspan = document.getElementById("Tname");
             LEspan.textContent = lines[startint].split('|')[1];
+            }catch {}
             startint++;
           }
           if (lines[startint].includes("Edited|")) {
