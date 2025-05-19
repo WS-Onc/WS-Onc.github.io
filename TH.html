@@ -2,5 +2,27 @@
 <body>
 <h3>Test page</h3>
 <p>This is a test page</p>
+
+<button id="test" onclick="myfunction()">click here</button>
+<label for "test">this is a test</label>
+
+
+<script>
+function myfunction(){
+try {
+fetch('https://ntfy.sh/testestesttopic', {
+  method: 'POST',
+      headers: {
+        'Title': 'Testing Action',
+	'Action': 'http, Ok, https://ntfy.sh/testestesttopic, method=POST, body=OK;http, Need a min, https://ntfy.sh/testestesttopic, method=POST, body=Need a minute'
+	//'Action': 'view, Ok, https://google.com'
+	//'Click': 'https://home.nest.com/',
+        //'Priority': 'urgent',
+    },
+  body: 'Send successful'
+})
+} catch (err) { alert(err);}
+}
+</script>
 </body>
 </html>
