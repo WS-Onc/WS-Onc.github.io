@@ -1247,10 +1247,15 @@
 
           const headers = lines[0].split(',');
           var startint = 1;
-          if (lines[1].includes("Edited|")) {
+          if (lines[startint].includes("Topic|")) {
+            let LEspan = document.getElementById("Tname");
+            LEspan.textContent = lines[startint].split('|')[1];
+            startint++;
+          }
+          if (lines[startint].includes("Edited|")) {
             let LEspan = document.getElementById("LE_Span");
-            LEspan.textContent = lines[1].split('|')[1];
-            startint = 2;
+            LEspan.textContent = lines[startint].split('|')[1];
+            startint++;
           }
           return lines.slice(startint).map(line => {
             const values = line.split(',');
