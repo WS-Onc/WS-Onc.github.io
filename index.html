@@ -1329,8 +1329,8 @@
         
         document.getElementById("errorlabel").innerHTML = '&nbsp;&nbsp;Error: Not quite functional yet.'; return;
         
-          const response = await fetch('data.csv');
-          const csvText = await response.text();
+          //const response = await fetch('data.csv');
+          //const csvText = await response.text();
           let lines = new Array();
                     
           //const csvText = "Doctor,AppointmentDate,StartTime,EndTime,Activity,Status,Diagnosis\nTopic|test\nSS,5/2/2025,07:00 AM,07:45 AM,Alternate Covering Physician,Open,\nSS,5/2/2025,08:00 AM,08:20 AM,Follow-Up,Manually Completed,C50.211\nSS,5/3/2025,07:00 AM,07:45 AM,Physician On Call,Open,\nSS,5/4/2025,07:00 AM,07:45 AM,Physician On Call,Open,\nSS,5/5/2025,07:00 AM,07:45 AM,Alternate Covering Physician,Open,";
