@@ -44,6 +44,7 @@
         --activity-out-office: #9CA3AF;
         --activity-other: #9CA3AF;
         --activity-covering: #B91C1C;
+        --activity-TrB: #1fc4a1;
         /* Dark red for covering */
         --activity-alternate-covering: #93C5FD;
         /* Pastel blue for alternate covering */
@@ -763,6 +764,26 @@
       .activity-alternate-covering {
         background-color: var(--activity-alternate-covering);
       }
+      
+      .activity-TrB {
+        background-color: var(--activity-TrB);
+      }
+      
+      .activity-DB {
+        background-color: var(--DB);
+      }
+      
+      .activity-DB {
+        background-color: var(--DB);
+      }
+      
+      .activity-SS {
+        background-color: var(--SS);
+      }
+      
+      .activity-MC {
+        background-color: var(--MC);
+      }
 
       /* Add tooltip for truncated text */
       .appointment {
@@ -920,6 +941,10 @@
         .header-title {
           display: none;
         }
+        
+        #showToolsBtn {
+          display: none;
+        }
 
         #showVacationsBtn {
           display: none;
@@ -1069,6 +1094,7 @@
         </div>
         <div class="header-title">WS Calendar</div>
         <div style="display: flex; align-items: center; margin-left: auto; gap: 0.5rem;">
+          <button class="nav-btn" id="showToolsBtn">Tools</button>
           <button class="nav-btn" id="showVacationsBtn">Vacations</button>
           <button class="nav-btn" id="showOnCallBtn" style="margin-left:0.5rem;">On Call</button>
           <button class="nav-btn" id="showSettingsBtn" style="margin-left:0.5rem;">Settings</button>
@@ -1084,7 +1110,25 @@
       <span>&nbsp;</span>
       <button style="background-color: white; color: #4A84BD; padding: 0px 4px;border: 1px solid Gainsboro;font-size: 18px;" onclick="location.reload()">&#x21bb;</button>
     </p>
-    <div class="container">
+    
+    <div class="container" id="entiretools" style="display: none;">
+	  <h2>Request Notification:</h2><br>
+      <label for="uname">Username: &nbsp;</label>
+      <input type="text" id="uname"><br>
+  
+      <label for="tb">Type: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+      <input type="radio" id="tb" name="selectnotif" value="TB">
+      <label for="tb">TB&nbsp;&nbsp;&nbsp;</label>
+      <input type="radio" id="ct" name="selectnotif" value="CT">
+      <label for="ct">CT&nbsp;&nbsp;&nbsp;</label>
+      <input type="radio" id="em" name="selectnotif" value="Email">
+      <label for="em">Email</label>
+
+      <br><br><button onclick="ntfunction()">Submit</button>
+      <label id="errorlabel"></label>
+	</div>
+    
+    <div class="container" id="entirecalendar" style="display: block;">
       <div class="calendar-header">
         <div class="navigation" id="calendarNavigation">
           <button class="nav-btn" id="prevBtn" title="Previous">
@@ -1111,6 +1155,7 @@
             <option value="DB">DB</option>
             <option value="MC">MC</option>
             <option value="SS">SS</option>
+            <option value="mac">Machines</option>
           </select>
         </div>
       </div>
@@ -1191,6 +1236,7 @@
                   <option value="DB">DB</option>
                   <option value="MC">MC</option>
                   <option value="SS">SS</option>
+                  <option value="mac">Machines</option>
                 </select>
               </div>
             </div>
@@ -1218,6 +1264,7 @@
         <div class="mobile-menu-close" id="closeMobileMenu">&times;</div>
       </div>
       <div class="mobile-menu-content">
+        <button class="mobile-menu-btn" id="mobileToolsBtn">Tools</button>
         <button class="mobile-menu-btn" id="mobileVacationsBtn">Vacations</button>
         <button class="mobile-menu-btn" id="mobileOnCallBtn">On Call</button>
         <button class="mobile-menu-btn" id="mobileSettingsBtn">Settings</button>
@@ -1227,7 +1274,6 @@
       // Function to fetch and parse CSV data
       async function fetchScheduleData() {
         try {
-          //const response = await fetch(`data.csv?t=${new Date().getTime()}`);
           
           const response = await fetch('data.csv');
           const csvText = await response.text();
@@ -1235,7 +1281,7 @@
           
           //const csvText = "iERw+fqFU5qnE8BB1KhozqCYOUTAK+uIH3Ewifz/vNr76IeuRIdyL5y2QXvV8YZhGIBqxhYAUpLP3HFutWp2gdkMqgHZk3PhAoFmrOivHa+jAOPsc112f4rkpVo89Dpv8illvZbOQL9LclyAlbjlbNBCk/0DR1ifNPVDCoJ4UpORjpg8oFMfrucpuykN8tC0vfu1S+tv0uPNtlGb9CmhGBIknydUPe4Cv60et4EKE7hP4lpno6iTecfgJJwWftTm5l7kln0/RrLtTukrkSKWZ1vqRZkNQXo/a+7/VIi3s70LNt8kDxg6f2XofPJOTuK9Eq51cHB1eaY+ZWKgexNutEfMAlQl8SI0kg9fxxsG/WmjsKqYAF44HO6y5AxDUdXSXtA6d8Pd74Sp/xrh/U8/CFOREtBISzvlfgTqQNxXBFBu6P/0zoONPXht+BA0o+/lI8EXBMoqL8zH3LbOAx2AfMv8O2rJbpcv7+wYgRPWS1XGdtYZYlXO+VO3LtoQoQlGDUFdB/TB2NR7Yx9DP5tmZPm4U5vj0tmQHXKoe3vlo9zzi+z22hTCUApS5LLwjMYvVrcVUsgkdEYCjL+oi/1fIZ6gftiPytE7g+W8moJlIRQhEgwEz+nZD81NfbOKz4WqqOh0s1Sze8Nz8BK/3aKSn0CmWtpKp2me82OdMCzGfU3cVsSg0mRWb47Sr0G8apk6";
           
-          //const csvText = "Doctor,AppointmentDate,StartTime,EndTime,Activity,Status,Diagnosis\nSS,5/2/2025,07:00 AM,07:45 AM,Alternate Covering Physician,Open,\nSS,5/2/2025,08:00 AM,08:20 AM,Follow-Up,Manually Completed,C50.211\nSS,5/3/2025,07:00 AM,07:45 AM,Physician On Call,Open,\nSS,5/4/2025,07:00 AM,07:45 AM,Physician On Call,Open,\nSS,5/5/2025,07:00 AM,07:45 AM,Alternate Covering Physician,Open,";
+          //const csvText = "Doctor,AppointmentDate,StartTime,EndTime,Activity,Status,Diagnosis\nTopic|test\nSS,5/2/2025,07:00 AM,07:45 AM,Alternate Covering Physician,Open,\nSS,5/2/2025,08:00 AM,08:20 AM,Follow-Up,Manually Completed,C50.211\nSS,5/3/2025,07:00 AM,07:45 AM,Physician On Call,Open,\nSS,5/4/2025,07:00 AM,07:45 AM,Physician On Call,Open,\nSS,5/5/2025,07:00 AM,07:45 AM,Alternate Covering Physician,Open,";
                     
           if (csvText.substring(0,7) == "Doctor,") {
                lines = csvText.split('\n');
@@ -1248,10 +1294,6 @@
           const headers = lines[0].split(',');
           var startint = 1;
           if (lines[startint].includes("Topic|")) {
-            try {
-            let LEspan = document.getElementById("Tname");
-            LEspan.textContent = lines[startint].split('|')[1];
-            }catch {}
             startint++;
           }
           if (lines[startint].includes("Edited|")) {
@@ -1281,6 +1323,54 @@
       async function parseScheduleData() {
         return await fetchScheduleData();
       }
+      // Function to send notification request
+      function ntfunction() {
+		try {
+        
+        document.getElementById("errorlabel").innerHTML = '&nbsp;&nbsp;Error: Not quite functional yet.'; return;
+        
+          const response = await fetch('data.csv');
+          const csvText = await response.text();
+          let lines = new Array();
+                    
+          //const csvText = "Doctor,AppointmentDate,StartTime,EndTime,Activity,Status,Diagnosis\nTopic|test\nSS,5/2/2025,07:00 AM,07:45 AM,Alternate Covering Physician,Open,\nSS,5/2/2025,08:00 AM,08:20 AM,Follow-Up,Manually Completed,C50.211\nSS,5/3/2025,07:00 AM,07:45 AM,Physician On Call,Open,\nSS,5/4/2025,07:00 AM,07:45 AM,Physician On Call,Open,\nSS,5/5/2025,07:00 AM,07:45 AM,Alternate Covering Physician,Open,";
+                    
+          if (csvText.substring(0,7) == "Doctor,") {
+               lines = csvText.split('\n');
+          }
+          else {
+            var decryptedcsv = decryptAES(csvText);
+            lines = decryptedcsv.split(';');
+          }
+		  const topname = "";
+          if (lines[1].includes("Topic|")) {
+            topname = lines[1].split('|')[1];
+          }
+        
+		var selectednotif = "";
+		var ele = document.getElementsByName('selectnotif');
+		for (i = 0; i < ele.length; i++) {
+		if (ele[i].checked) { selectednotif = ele[i].value; }
+		}
+        
+        if (topname == "") {
+        document.getElementById("errorlabel").innerHTML = '&nbsp;&nbsp;Error: Could not find Topic.'; return;}
+        
+        if (document.getElementById("uname").value.length < 2) {
+        document.getElementById("errorlabel").innerHTML = '&nbsp;&nbsp;Error: Please enter Username.'; return;}
+        
+        if (selectednotif == "") {
+        document.getElementById("errorlabel").innerHTML = '&nbsp;&nbsp;Error: Please choose Type.'; return;}
+
+		fetch('https://ntfy.sh/' + topname, {
+  method: 'POST',
+  headers: { 'Title': 'Test HTML send' },
+  body: selectednotif + ' successful by ' + document.getElementById("uname").value
+		})
+       document.getElementById("errorlabel").innerHTML = '&nbsp;&nbsp;Success!';
+		} catch { }
+      }
+                
       // Diagnosis code look up
       const diagnosisCodes = { "C15.5": "Lower third of esophagus", "C61": "Prostate", "C50.412": "Upper-outer quadrant of Rt female breast", "C34.12": "Upper lobe, Lt bronchus or lung", "C88.4": "B-cell lymphoma of lymphoid tissue", "C44.221": "Basal cell skin of Rt ear", "C44.329": "Squamous cell skin of face", "C01": "Base of tongue", "C34.2": "Middle lobe, bronchus or lung", "C34.31": "Lower lobe, Rt bronchus or lung", "G93.89": "Other specified disorders of brain", "C54.3": "Fundus uteri", "C79.31": "Secondary neoplasm of brain", "C34.11": "Upper lobe, Rt bronchus or lung", "C50.311": "Lower-inner Rt female breast", "C79.51": "Secondary neoplasm of bone", "C78.01": "Secondary neoplasm of Rt lung", "C34.32": "Lower lobe, left bronchus or lung", "C77.3": "Secondary neoplasm of axilla and upper limb lymph nodes", "C21.1": "Anal canal", "C82.01": "Follicular lymphoma grade I, H&N", "C50.812": "Rt female breast", "C50.511": "Lower-outer Rt female breast", "C83.31": "Diffuse large B-cell lymphoma, H&N", "C05.1": "Soft palate", "C54.0": "Isthmus uteri", "D05.12": "Intraductal carcinoma of Left breast", "C50.112": "Central portion of Rt female breast", "C32.0": "Glottis", "C4A.30": "Merkel cell carcinoma of face", "233.0": "Carcinoma in situ of breast", "C50.111": "Central portion of Rt female breast", "C32.1": "Supraglottis", "C15.4": "Middle third of esophagus", "C50.212": "Upper-inner Lt female breast", "C25.1": "Pancreas", "185": "Prostate", "D04.5": "Skin of trunk", "D32.0": "Benign Cerebral meninges", "C10.8": "Oropharynx", "C49.0": "Soft tissue of H&N", "C50.512": "Lower-outer Lt female breast", "C53.8": "Cervix uteri", "C77.2": "Secondary neoplasm of intra-abdominal lymph nodes" };
       // Add this function to get doctor class
@@ -1304,6 +1394,10 @@
         else if (activity.includes('on call')) return 'activity-on-call';
         else if (activity.includes('tumor board')) return 'activity-tumor-board';
         else if (activity.includes('out of office')) return 'activity-out-office';
+        else if (activity.includes(' patients')) return 'activity-TrB';
+        else if (activity.includes('db - ')) return 'activity-DB';
+        else if (activity.includes('ss - ')) return 'activity-SS';
+        else if (activity.includes('mc - ')) return 'activity-MC';
         else return 'activity-other';
         return 'activity-other';
       }
@@ -1489,17 +1583,50 @@
         const mobileMenu = document.getElementById('mobileMenu');
         const closeMobileMenu = document.getElementById('closeMobileMenu');
         const mobileVacationsBtn = document.getElementById('mobileVacationsBtn');
+        const mobileToolsBtn = document.getElementById('mobileToolsBtn');
         hamburgerMenu.addEventListener('click', () => {
           mobileMenu.classList.add('active');
         });
         closeMobileMenu.addEventListener('click', () => {
           mobileMenu.classList.remove('active');
         });
+        mobileToolsBtn.addEventListener('click', async () => {
+          mobileMenu.classList.remove('active');
+          //ntfunction();
+          if (document.getElementById('showToolsBtn').innerHTML == "Tools") {
+          document.getElementById('showToolsBtn').innerHTML = "Doctors"
+          document.getElementById('mobileToolsBtn').innerHTML = "Doctors"
+          document.getElementById('entiretools').style.display = 'block';
+          document.getElementById('entirecalendar').style.display = 'none';
+          }
+          else {
+          document.getElementById('showToolsBtn').innerHTML = "Tools"
+          document.getElementById('mobileToolsBtn').innerHTML = "Tools"
+          document.getElementById('entiretools').style.display = 'none';
+          document.getElementById('entirecalendar').style.display = 'block';
+          }
+        });
         mobileVacationsBtn.addEventListener('click', async () => {
           mobileMenu.classList.remove('active');
           const data = await parseScheduleData();
           renderVacationList(data);
           document.getElementById('vacationModal').style.display = 'block';
+        });
+        // Show Tools button (main toolbar)
+        //ntfunction();
+        document.getElementById('showToolsBtn').addEventListener('click', async () => {
+          if (document.getElementById('showToolsBtn').innerHTML == "Tools") {
+          document.getElementById('showToolsBtn').innerHTML = "Doctors";
+          document.getElementById('mobileToolsBtn').innerHTML = "Doctors"
+          document.getElementById('entiretools').style.display = 'block';
+          document.getElementById('entirecalendar').style.display = 'none';
+          }
+          else {
+          document.getElementById('showToolsBtn').innerHTML = "Tools";
+          document.getElementById('mobileToolsBtn').innerHTML = "Tools";
+          document.getElementById('entiretools').style.display = 'none';
+          document.getElementById('entirecalendar').style.display = 'block';
+          }
         });
         // Show Vacations button (main toolbar)
         document.getElementById('showVacationsBtn').addEventListener('click', async () => {
@@ -1694,6 +1821,9 @@
             if (selectedDoctor === 'all') {
               // For "all doctors" view, show specific activities
               return ['Vacation', 'Covering Physician', 'Alternate Covering Physician', 'Physician On Call', 'Out of Office'].includes(entry.activity);
+            } else if (selectedDoctor === 'mac') {
+              // For specific doctor view, show all their activities
+              return entry.doctor === 'TrB' || entry.doctor === 'CTs';
             } else {
               // For specific doctor view, show all their activities
               return entry.doctor === selectedDoctor;
@@ -1810,7 +1940,7 @@
             container.appendChild(headerCell);
           }
           // Add time slots
-          for (let hour = 7; hour<19; hour++) {
+          for (let hour = 5; hour<19; hour++) {
             // Time column
             const timeCell = document.createElement('div');
             timeCell.className = 'time-column';
@@ -1824,7 +1954,7 @@
               cell.className = `week-cell ${date.toDateString() === new Date().toDateString() ? 'today' : ''}`;
               const dateStr = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
               let dayAppointments = scheduleData.filter(entry => {
-                if (entry.date !== dateStr || entry.doctor !== selectedDoctor) return false;
+                if (entry.date !== dateStr || (entry.doctor !== selectedDoctor.replace('mac','TrB') && entry.doctor !== selectedDoctor.replace('mac','CTs'))) return false;
                 const startHour = parseInt(entry.start.split(':')[0]);
                 const startPeriod = entry.start.includes('PM') ? 'PM' : 'AM';
                 const adjustedHour = startPeriod === 'PM' && startHour !== 12 ? startHour + 12 : startHour;
@@ -1863,7 +1993,7 @@
         }
         // Get the schedule data
         const scheduleData = await parseScheduleData();
-        const doctors = selectedDoctor === 'all' ? ['DB', 'MC', 'SS'] : [selectedDoctor];
+        const doctors = selectedDoctor === 'all' ? ['DB', 'MC', 'SS'] : selectedDoctor === 'mac' ? ['TrB', 'CTs'] : [selectedDoctor];
         const timeColumnWidth = '100px';
         const doctorColumnWidth = `minmax(240px, ${100 / doctors.length}fr)`;
         container.style.gridTemplateColumns = `${timeColumnWidth} ${doctors.map(() => doctorColumnWidth).join(' ')}`;
@@ -1892,7 +2022,7 @@
         dateHeader.appendChild(dateLabel);
         container.appendChild(dateHeader);
         // Add time slots
-        for (let hour = 7; hour<19; hour++) {
+        for (let hour = 5; hour<19; hour++) {
           // Time column
           const timeCell = document.createElement('div');
           timeCell.className = 'time-slot';
