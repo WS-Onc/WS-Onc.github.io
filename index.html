@@ -1987,16 +1987,13 @@
         if (selectedDoctor === 'all') {
           container.style.minWidth = '900px';
           container.parentElement.style.overflowX = 'auto';
-        } else if (selectedDoctor === 'mac') {
-          container.style.minWidth = '500px';
-          container.parentElement.style.overflowX = 'auto';
-        }else {
+        } else {
           container.style.minWidth = '350px';
           container.parentElement.style.overflowX = '';
         }
         // Get the schedule data
         const scheduleData = await parseScheduleData();
-        const doctors = selectedDoctor === 'all' ? ['DB', 'MC', 'SS'] : selectedDoctor === 'mac' ? ['TrB', 'CTs'] : [selectedDoctor];
+        const doctors = selectedDoctor === 'all' ? ['DB', 'MC', 'SS'] : selectedDoctor === 'mac' ? ['CTs'] : [selectedDoctor];
         const timeColumnWidth = '100px';
         const doctorColumnWidth = `minmax(240px, ${100 / doctors.length}fr)`;
         container.style.gridTemplateColumns = `${timeColumnWidth} ${doctors.map(() => doctorColumnWidth).join(' ')}`;
@@ -2038,7 +2035,9 @@
             // Add appointments for this time slot
             const dateStr = `${currentDate.getMonth() + 1}/${currentDate.getDate()}/${currentDate.getFullYear()}`;
             let dayAppointments = scheduleData.filter(entry => {
-              if (entry.date !== dateStr || entry.doctor !== doctor) return false;
+              if (entry.date !== dateStr) return false;
+              if (doctor == 'CTs') { if (entry.doctor !== doctor && entry.doctor !== 'TrB') return false; }
+              else if (entry.doctor !== doctor) return false;
               const startHour = parseInt(entry.start.split(':')[0]);
               const startPeriod = entry.start.includes('PM') ? 'PM' : 'AM';
               const adjustedHour = startPeriod === 'PM' && startHour !== 12 ? startHour + 12 : startHour;
