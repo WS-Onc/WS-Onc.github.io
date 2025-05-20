@@ -1783,6 +1783,8 @@
       }
       async function updateMonthView(container) {
         container.className = 'calendar-grid';
+        container.style.minWidth = '900px';
+        container.parentElement.style.overflowX = 'auto';
         // Reset gridTemplateColumns to use default CSS
         container.style.gridTemplateColumns = '';
         // Add day headers
@@ -1869,6 +1871,8 @@
       }
       async function updateWeekView(container) {
         container.className = 'week-view';
+        container.style.minWidth = '900px';
+        container.parentElement.style.overflowX = 'auto';
         const selectedDoctor = document.getElementById('doctorFilter').value;
         const scheduleData = await parseScheduleData();
         const {
