@@ -1984,10 +1984,13 @@
         container.className = 'day-view';
         // Set min-width for all doctors, smaller min-width for individual
         const selectedDoctor = document.getElementById('doctorFilter').value;
-        if (selectedDoctor === 'all' || selectedDoctor === 'mac') {
+        if (selectedDoctor === 'all') {
           container.style.minWidth = '900px';
           container.parentElement.style.overflowX = 'auto';
-        } else {
+        } else if (selectedDoctor === 'mac') {
+          container.style.minWidth = '350px';
+          container.parentElement.style.overflowX = 'auto';
+        }else {
           container.style.minWidth = '350px';
           container.parentElement.style.overflowX = '';
         }
