@@ -1258,8 +1258,7 @@
             <div class="settings-group">
               <h3>Security</h3>
               <div class="settings-field">
-                <label for="data1">Password</label>
-                <input type="password" id="data1" placeholder="Enter password">
+                <input id="data1" placeholder="Enter key">
               </div>
             </div>
             
@@ -2105,17 +2104,7 @@
       hashString("89264XevfDfs" + document.getElementById("data1").value).then((result) =>
 { localStorage.setItem("DefData1", result); })
 }
-      if (document.getElementById("data2").value != "") {      
-      hashString(document.getElementById("data2").value).then((result) =>
-{ localStorage.setItem("DefData2", result); })
-}
-      if (document.getElementById("data3").value != "") {      
-      hashString(document.getElementById("data3").value).then((result) =>
-{ localStorage.setItem("DefData3", result); })
-}
-
   location.reload() 
-  //document.getElementById('settingsModal').style.display = 'none';
 }
 
 async function hashString(string) {
