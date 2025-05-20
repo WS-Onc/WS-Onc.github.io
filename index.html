@@ -1112,7 +1112,21 @@
     </p>
     
     <div class="container" id="entiretools" style="display: none;">
-	  <h2>Request Notification:</h2><br>
+
+      <div>
+      <h2>EQD Calculator</h2>
+      <p><label for="theDose"><b>Total Dose: </b></label><input id="theDose" type="text" style=" width: 50px;"/></p>
+      <p><label for="theFx"><b>Num Fx: </b></label><input id="theFx" type="text" style=" width: 50px;"/></p>
+      <p><label for="theValue"><b>α/β Ratio: </b></label><input id="theValue" type="text" value="3.0" style=" width: 50px;"/></p>
+      <span>0</span><input id="theSlider" class="slider" max="12" maxlength="4" min="1" step="0.5" type="range" value="3" style=" width: 200px;"/><span>12</span>
+
+      <p><button onclick="eqdcalc()">Calculate</button></p>
+      <p><b>EQD2: </b><span id="eqdose"></span><br>
+      <b>BED: </b><span id="beddose"></span></p>
+      </div>
+
+      <div>
+      <h2>Request Notification:</h2><br>
       <label for="uname">Username: &nbsp;</label>
       <input type="text" id="uname"><br>
   
@@ -1126,6 +1140,7 @@
 
       <br><br><button onclick="ntfunction()">Submit</button>
       <label id="errorlabel"></label>
+      </div>
 	</div>
     
     <div class="container" id="entirecalendar" style="display: block;">
@@ -1323,6 +1338,23 @@
       async function parseScheduleData() {
         return await fetchScheduleData();
       }
+      // Function calculate EQD2 and BED
+      document.getElementById("theValue").oninput = function() { document.getElementById("theSlider").value = this.value; }
+      document.getElementById("theSlider").oninput = function() { document.getElementById("theValue").value = (Math.round(this.value * 100) / 100).toFixed(1); }
+      function eqdcalc(){
+      if (!isNaN(document.getElementById("theDose").value) && !isNaN(document.getElementById("theFx").value) && !isNaN(document.getElementById("theValue").value)) {
+      if ((document.getElementById("theDose").value > 0) && (document.getElementById("theFx").value > 0) && (document.getElementById("theValue").value > 0)) {
+      let t1 = document.getElementById("theDose").value;
+      let t2 = document.getElementById("theFx").value;
+      let t3 = document.getElementById("theValue").value;
+      let eqd = t1 * (1 + (t1 / t2 / t3)) / (1 + (2 / t3));
+      let bed = t1 * (1 + (t1 / t2 / t3));
+      document.getElementById("eqdose").innerHTML=eqd.toFixed(1) + ' Gy';
+      document.getElementById("beddose").innerHTML=bed.toFixed(1) + ' Gy';
+      } else { document.getElementById("eqdose").innerHTML="Error: Must be > 0"; }
+      } else { document.getElementById("eqdose").innerHTML="Error: Must use numbers"; }
+      }
+	    
       // Function to send notification request
       async function ntfunction() {
 		try {
