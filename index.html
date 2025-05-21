@@ -1933,7 +1933,7 @@
             const dateStr = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
             let dayAppointments = scheduleData.filter(entry => {
               if (entry.date !== dateStr) return false;
-              return ['Vacation', 'Covering Physician', 'Alternate Covering Physician', 'Physician On Call', 'Out of Office'].includes(entry.activity);
+              return entry.doctor === 'TrB' || ['Vacation', 'Covering Physician', 'Alternate Covering Physician', 'Physician On Call', 'Out of Office'].includes(entry.activity);
             });
             dayAppointments.forEach(appointment => {
               const appointmentElement = document.createElement('div');
