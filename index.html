@@ -1390,7 +1390,7 @@
         if (topnme == "") { document.getElementById("errorlabel").innerHTML = '&nbsp;&nbsp;Error: Could not find Topic.'; return;}
         if (selectednotif == "") { document.getElementById("errorlabel").innerHTML = '&nbsp;&nbsp;Error: Please choose Type.'; return;}
 
-		fetch('https://' + topnme, { method: 'POST', headers: { 'Title': 'NotifReq' }, body: selectednotif + '|' + document.getElementById("uname").value })
+		fetch('https://' + topnme, { method: 'POST', headers: { 'Title': 'NotifReq', 'Priority': 'low' }, body: selectednotif + '|' + document.getElementById("uname").value })
        	    document.getElementById("errorlabel").innerHTML = '&nbsp;&nbsp;Success!';
 		} catch { document.getElementById("errorlabel").innerHTML = '&nbsp;&nbsp;Oops, error.'; }
       }
