@@ -1373,39 +1373,26 @@
             var decryptedcsv = decryptAES(csvText);
             lines = decryptedcsv.split(';');
           }
-		  var topnme = "";
+	  var topnme = "";
           var alwusr = new Array();
           if (lines[1].includes("Topic|")) {
             topnme = lines[1].split('|')[1];
             alwusr = lines[1].split('|')[2].split(',');
           }
-          
-          if (alwusr.includes(document.getElementById("uname").value)) {document.getElementById("errorlabel").innerHTML = '&nbsp;&nbsp;Success: it is allowed.'; } 
-	  else { document.getElementById("errorlabel").innerHTML = '&nbsp;&nbsp;Error: not allowed.'; }
-	return;
-        
+          if (!alwusr.includes(document.getElementById("uname").value)) {document.getElementById("errorlabel").innerHTML = '&nbsp;&nbsp;Error: not added yet.'; return; } 
+	        
 		var selectednotif = "";
 		var ele = document.getElementsByName('selectnotif');
 		for (i = 0; i < ele.length; i++) {
 		if (ele[i].checked) { selectednotif = ele[i].value; }
 		}
         
-        if (topname == "") {
-        document.getElementById("errorlabel").innerHTML = '&nbsp;&nbsp;Error: Could not find Topic.'; return;}
-        
-        if (document.getElementById("uname").value.length < 2) {
-        document.getElementById("errorlabel").innerHTML = '&nbsp;&nbsp;Error: Please enter Username.'; return;}
-        
-        if (selectednotif == "") {
-        document.getElementById("errorlabel").innerHTML = '&nbsp;&nbsp;Error: Please choose Type.'; return;}
+        if (topnme == "") { document.getElementById("errorlabel").innerHTML = '&nbsp;&nbsp;Error: Could not find Topic.'; return;}
+        if (selectednotif == "") { document.getElementById("errorlabel").innerHTML = '&nbsp;&nbsp;Error: Please choose Type.'; return;}
 
-		fetch('https://ntfy.sh/' + topname, {
-  method: 'POST',
-  headers: { 'Title': 'Test HTML send' },
-  body: selectednotif + ' successful by ' + document.getElementById("uname").value
-		})
-       document.getElementById("errorlabel").innerHTML = '&nbsp;&nbsp;Success!';
-		} catch { }
+		fetch('https://' + topnme, { method: 'POST', headers: { 'Title': 'NotifReq' }, body: selectednotif + '|' + document.getElementById("uname").value })
+       	    document.getElementById("errorlabel").innerHTML = '&nbsp;&nbsp;Success!';
+		} catch { document.getElementById("errorlabel").innerHTML = '&nbsp;&nbsp;Oops, error.'; }
       }
                 
       // Diagnosis code look up
