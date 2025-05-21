@@ -1852,7 +1852,7 @@
             if (entry.date !== dateStr) return false;
             if (selectedDoctor === 'all') {
               // For "all doctors" view, show specific activities
-              return ['Vacation', 'Covering Physician', 'Alternate Covering Physician', 'Physician On Call', 'Out of Office'].includes(entry.activity);
+              return entry.doctor === 'TrB' || ['Vacation', 'Covering Physician', 'Alternate Covering Physician', 'Physician On Call', 'Out of Office'].includes(entry.activity);
             } else if (selectedDoctor === 'mac') {
               // For specific doctor view, show all their activities
               return entry.doctor === 'TrB' || entry.doctor === 'CTs';
