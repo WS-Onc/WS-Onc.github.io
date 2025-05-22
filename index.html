@@ -1379,9 +1379,9 @@
             topnme = lines[1].split('|')[1];
             alwusr = lines[1].split('|')[2].split(',');
           }
-          const index = alwusr.findIndex(element => element.includes(';' + document.getElementById("uname").value + ';'));
+          const index = alwusr.findIndex(element => element.includes(':' + document.getElementById("uname").value + ':'));
           if (index == -1) {document.getElementById("errorlabel").innerHTML = '&nbsp;&nbsp;Error: not added yet.'; return; } 
-		const usrnm = alwuser[index].split(';')[0];
+		const usrnm = alwuser[index].split(':')[0];
 			
 		var selectednotif = "";
 		var ele = document.getElementsByName('selectnotif');
