@@ -1379,8 +1379,10 @@
             topnme = lines[1].split('|')[1];
             alwusr = lines[1].split('|')[2].split(',');
           }
-          if (!alwusr.includes(document.getElementById("uname").value)) {document.getElementById("errorlabel").innerHTML = '&nbsp;&nbsp;Error: not added yet.'; return; } 
-	        
+          const index = alwusr.findIndex(element => element.includes(';' + document.getElementById("uname").value + ';'));
+          if (index == -1) {document.getElementById("errorlabel").innerHTML = '&nbsp;&nbsp;Error: not added yet.'; return; } 
+		const usrnm = alwuser[index].split(';')[0];
+			
 		var selectednotif = "";
 		var ele = document.getElementsByName('selectnotif');
 		for (i = 0; i < ele.length; i++) {
@@ -1390,7 +1392,7 @@
         if (topnme == "") { document.getElementById("errorlabel").innerHTML = '&nbsp;&nbsp;Error: Could not find Topic.'; return;}
         if (selectednotif == "") { document.getElementById("errorlabel").innerHTML = '&nbsp;&nbsp;Error: Please choose Type.'; return;}
 
-		fetch('https://' + topnme, { method: 'POST', headers: { 'Title': 'NotifReq', 'Priority': 'low' }, body: selectednotif + '|' + document.getElementById("uname").value })
+		fetch('https://' + topnme, { method: 'POST', headers: { 'Title': 'NotifReq', 'Priority': 'low' }, body: selectednotif + '|' + usrnm })
        	    document.getElementById("errorlabel").innerHTML = '&nbsp;&nbsp;Success!';
 		} catch { document.getElementById("errorlabel").innerHTML = '&nbsp;&nbsp;Oops, error.'; }
       }
