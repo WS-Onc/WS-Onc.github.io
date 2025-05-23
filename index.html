@@ -1899,6 +1899,13 @@
           });
           container.appendChild(cell);
         }
+	      //Hide rows if not used
+	      const calendarCells = document.querySelectorAll('.calendar-cell');
+for (let i = 0; i < calendarCells.length; i += 7) {
+  let rowCells = Array.from(calendarCells).slice(i, i + 7); 
+  if (!rowCells.some(cell => cell.querySelector('.appointment'))) { rowCells.forEach(cell => cell.style.display = 'none'); }
+}
+
       }
       async function updateWeekView(container) {
         container.className = 'week-view';
