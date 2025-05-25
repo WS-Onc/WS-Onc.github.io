@@ -1137,6 +1137,8 @@
       <label for="ct">CT&nbsp;&nbsp;&nbsp;</label>
       <input type="radio" id="em" name="selectnotif" value="Email">
       <label for="em">Email</label>
+      <br><span>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</span>
+      <select id="emreport"><option value="tb/ct">TB/CT</option><option value="waittime">Wait Time</option><option value="journals">Journals</option></select>
       <br><button onclick="ntfunction()" id="ntfbutton">Submit</button>
       <label id="errorlabel"></label>
       </div>
@@ -1388,11 +1390,13 @@
 		for (i = 0; i < ele.length; i++) {
 		if (ele[i].checked) { selectednotif = ele[i].value; }
 		}
+		var selectedrep = "";
+        	if (selectednotif == "Email") { selectedrep = document.getElementById('emreport').value; }
         
         if (topnme == "") { document.getElementById("errorlabel").innerHTML = '&nbsp;&nbsp;Error: Could not find Topic.'; return;}
         if (selectednotif == "") { document.getElementById("errorlabel").innerHTML = '&nbsp;&nbsp;Error: Please choose Type.'; return;}
 
-		fetch('https://' + topnme, { method: 'POST', headers: { 'Title': 'NotifReq', 'Priority': 'low' }, body: selectednotif + '|' + usrnm })
+		fetch('https://' + topnme, { method: 'POST', headers: { 'Title': 'NotifReq', 'Priority': 'low' }, body: selectednotif + '|' + usrnm + '|' + selectedrep })
        	    document.getElementById("errorlabel").innerHTML = '&nbsp;&nbsp;Success!';
 	    document.getElementById('ntfbutton').disabled = true;
             timerId = setTimeout(afterChange, 4000);
