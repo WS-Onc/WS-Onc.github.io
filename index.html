@@ -44,7 +44,7 @@
         --activity-other: #9CA3AF;
         --activity-covering: #B91C1C;
         --activity-TrB: #1fc4a1;
-	--activity-HDR: #cea5f5;
+	--activity-HDR: #d0aff1;
         /* Dark red for covering */
         --activity-alternate-covering: #93C5FD;
         /* Pastel blue for alternate covering */
@@ -1433,10 +1433,10 @@
         else if (activity.includes('tumor board')) return 'activity-tumor-board';
         else if (activity.includes('out of office')) return 'activity-out-office';
         else if (activity.includes(' patients')) return 'activity-TrB';
-	else if (activity.includes('hdr')) return 'activity-HDR';
         else if (activity.includes('db - ')) return 'activity-DB';
         else if (activity.includes('ss - ')) return 'activity-SS';
         else if (activity.includes('mc - ')) return 'activity-MC';
+	else if (activity.includes('hdr')) return 'activity-HDR';
         else return 'activity-other';
         return 'activity-other';
       }
