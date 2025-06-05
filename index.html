@@ -45,6 +45,7 @@
         --activity-other: #9CA3AF;
         --activity-covering: #B91C1C;
         --activity-TrB: #1fc4a1;
+	--activity-HDR: #cea5f5;
         /* Dark red for covering */
         --activity-alternate-covering: #93C5FD;
         /* Pastel blue for alternate covering */
@@ -768,6 +769,9 @@
       .activity-TrB {
         background-color: var(--activity-TrB);
       }
+      .activity-HDR {
+        background-color: var(--activity-HDR);
+      }
       
       .activity-DB {
         background-color: var(--DB);
@@ -1430,6 +1434,7 @@
         else if (activity.includes('tumor board')) return 'activity-tumor-board';
         else if (activity.includes('out of office')) return 'activity-out-office';
         else if (activity.includes(' patients')) return 'activity-TrB';
+	else if (activity.includes('hdr')) return 'activity-HDR';
         else if (activity.includes('db - ')) return 'activity-DB';
         else if (activity.includes('ss - ')) return 'activity-SS';
         else if (activity.includes('mc - ')) return 'activity-MC';
@@ -1860,7 +1865,7 @@
               return entry.doctor === 'TrB' || ['Vacation', 'Covering Physician', 'Alternate Covering Physician', 'Physician On Call', 'Out of Office'].includes(entry.activity);
             } else if (selectedDoctor === 'mac') {
               // For specific doctor view, show all their activities
-              return entry.doctor === 'TrB' || entry.doctor === 'CTs';
+              return entry.doctor === 'TrB' || entry.doctor === 'CTs' || entry.doctor === 'HDR';
             } else {
               // For specific doctor view, show all their activities
               return entry.doctor === selectedDoctor;
@@ -2000,7 +2005,7 @@ for (let i = 0; i < calendarCells.length; i += 7) {
               cell.className = `week-cell ${date.toDateString() === new Date().toDateString() ? 'today' : ''}`;
               const dateStr = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
               let dayAppointments = scheduleData.filter(entry => {
-                if (entry.date !== dateStr || (entry.doctor !== selectedDoctor.replace('mac','TrB') && entry.doctor !== selectedDoctor.replace('mac','CTs'))) return false;
+                if (entry.date !== dateStr || (entry.doctor !== selectedDoctor.replace('mac','TrB') && entry.doctor !== selectedDoctor.replace('mac','CTs') && entry.doctor !== selectedDoctor.replace('mac','HDR'))) return false;
                 const startHour = parseInt(entry.start.split(':')[0]);
                 const startPeriod = entry.start.includes('PM') ? 'PM' : 'AM';
                 const adjustedHour = startPeriod === 'PM' && startHour !== 12 ? startHour + 12 : startHour;
@@ -2082,7 +2087,7 @@ for (let i = 0; i < calendarCells.length; i += 7) {
             const dateStr = `${currentDate.getMonth() + 1}/${currentDate.getDate()}/${currentDate.getFullYear()}`;
             let dayAppointments = scheduleData.filter(entry => {
               if (entry.date !== dateStr) return false;
-              if (doctor == 'CTs') { if (entry.doctor !== doctor && entry.doctor !== 'TrB') return false; }
+              if (doctor == 'CTs') { if (entry.doctor !== doctor && entry.doctor !== 'TrB' && entry.doctor !== 'HDR') return false; }
               else if (entry.doctor !== doctor) return false;
               const startHour = parseInt(entry.start.split(':')[0]);
               const startPeriod = entry.start.includes('PM') ? 'PM' : 'AM';
