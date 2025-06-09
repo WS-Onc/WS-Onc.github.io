@@ -1141,7 +1141,7 @@
       <input type="radio" id="em" name="selectnotif" value="Email">
       <label for="em">Email</label>
       <br><span>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</span>
-      <select id="emreport"><option value="tb/ct">TB/CT</option><option value="waittime">Wait Time</option><option value="journals">Journals</option><option value="prntscrn">PrntScrn</option></select>
+      <select id="emreport" onchange="emlfunction()"><option value="tb/ct">TB/CT</option><option value="waittime">Wait Time</option><option value="journals">Journals</option><option value="prntscrn">PrntScrn</option></select>
       <br><button onclick="ntfunction()" id="ntfbutton">Submit</button>
       <label id="errorlabel"></label>
       </div>
@@ -1408,7 +1408,10 @@
         function afterChange() {
              	document.getElementById("errorlabel").innerHTML = '&nbsp;&nbsp;';
 		document.getElementById('ntfbutton').disabled = false;
-}  
+	}  
+	    function emlfunction() {
+		document.getElementById('em').checked = true;
+	    }
       // Diagnosis code look up
       const diagnosisCodes = { "C15.5": "Lower third of esophagus", "C61": "Prostate", "C50.412": "Upper-outer quadrant of Rt female breast", "C34.12": "Upper lobe, Lt bronchus or lung", "C88.4": "B-cell lymphoma of lymphoid tissue", "C44.221": "Basal cell skin of Rt ear", "C44.329": "Squamous cell skin of face", "C01": "Base of tongue", "C34.2": "Middle lobe, bronchus or lung", "C34.31": "Lower lobe, Rt bronchus or lung", "G93.89": "Other specified disorders of brain", "C54.3": "Fundus uteri", "C79.31": "Secondary neoplasm of brain", "C34.11": "Upper lobe, Rt bronchus or lung", "C50.311": "Lower-inner Rt female breast", "C79.51": "Secondary neoplasm of bone", "C78.01": "Secondary neoplasm of Rt lung", "C34.32": "Lower lobe, left bronchus or lung", "C77.3": "Secondary neoplasm of axilla and upper limb lymph nodes", "C21.1": "Anal canal", "C82.01": "Follicular lymphoma grade I, H&N", "C50.812": "Rt female breast", "C50.511": "Lower-outer Rt female breast", "C83.31": "Diffuse large B-cell lymphoma, H&N", "C05.1": "Soft palate", "C54.0": "Isthmus uteri", "D05.12": "Intraductal carcinoma of Left breast", "C50.112": "Central portion of Rt female breast", "C32.0": "Glottis", "C4A.30": "Merkel cell carcinoma of face", "233.0": "Carcinoma in situ of breast", "C50.111": "Central portion of Rt female breast", "C32.1": "Supraglottis", "C15.4": "Middle third of esophagus", "C50.212": "Upper-inner Lt female breast", "C25.1": "Pancreas", "185": "Prostate", "D04.5": "Skin of trunk", "D32.0": "Benign Cerebral meninges", "C10.8": "Oropharynx", "C49.0": "Soft tissue of H&N", "C50.512": "Lower-outer Lt female breast", "C53.8": "Cervix uteri", "C77.2": "Secondary neoplasm of intra-abdominal lymph nodes" };
       // Add this function to get doctor class
